@@ -100,14 +100,14 @@ const TelegramAuth: React.FC = () => {
       setLoading(true);
       appendLog("Starting demo auth...");
 
-      const demoUser = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        telegram_id: 123456789,
-        first_name: "Demo",
-        last_name: "User",
-        username: "demouser",
-        full_name: "Demo User",
-      };
+      // const demoUser = {
+      //   id: "123e4567-e89b-12d3-a456-426614174000",
+      //   telegram_id: 123456789,
+      //   first_name: "Demo",
+      //   last_name: "User",
+      //   username: "demouser",
+      //   full_name: "Demo User",
+      // };
 
       // Обновляем контекст
       updateUser(demoUser);
