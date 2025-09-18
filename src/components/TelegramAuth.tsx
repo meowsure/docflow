@@ -24,15 +24,21 @@ const TelegramAuth: React.FC = () => {
   const [isTelegramWebApp, setIsTelegramWebApp] = useState(false);
 
   useEffect(() => {
-    const isTelegram = !!window.Telegram?.WebApp;
-    setIsTelegramWebApp(isTelegram);
-    if (isTelegram) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
-      const initData = window.Telegram.WebApp.initData;
-      if (initData) handleTelegramAuth(initData);
-    }
+    const checkTelegram = () => {
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        const initData = window.Telegram.WebApp.initData;
+        if (initData) {
+          handleTelegramAuth(initData);
+        }
+      } else {
+        setTimeout(checkTelegram, 100); // проверяем каждые 100мс
+      }
+    };
+    checkTelegram();
   }, []);
+
 
   const handleTelegramAuth = async (initData: string) => {
     try {
