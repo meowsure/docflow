@@ -31,7 +31,9 @@ const TelegramAuth: React.FC = () => {
 
   // Проверяем Telegram WebApp
   useEffect(() => {
-    const checkTelegram = () => {
+    let intervalId: number;
+
+    const waitForTelegram = () => {
       if (window.Telegram?.WebApp) {
         appendLog("Telegram WebApp detected!");
         window.Telegram.WebApp.ready();
@@ -44,14 +46,17 @@ const TelegramAuth: React.FC = () => {
         } else {
           appendLog("initData is empty");
         }
-      } else {
-        appendLog("Telegram WebApp not ready yet, retrying...");
-        // пробуем снова через 100ms
-        setTimeout(checkTelegram, 100);
+
+        // Стопим polling
+        clearInterval(intervalId);
       }
     };
 
-    checkTelegram();
+    // Проверяем каждые 100ms
+    intervalId = window.setInterval(waitForTelegram, 100);
+
+    // Очистка при размонтировании
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleTelegramAuth = async (initDataParam?: string) => {
