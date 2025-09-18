@@ -36,7 +36,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem("docflow_user", JSON.stringify(newUser));
     } else {
       localStorage.removeItem("docflow_user");
-      localStorage.removeItem("docflow_token");
     }
   };
 
@@ -47,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: { initData },
       });
       if (error) throw error;
+
       const { user: authUser, access_token } = data;
       setUser(authUser);
       localStorage.setItem("docflow_user", JSON.stringify(authUser));
@@ -66,17 +66,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await supabase.auth.signOut();
   };
 
+  // Авто-вход через Telegram WebApp initData
   useEffect(() => {
-    const init = async () => {
+    const initAuth = async () => {
       try {
         const savedUser = localStorage.getItem("docflow_user");
         const savedToken = localStorage.getItem("docflow_token");
+
         if (savedUser && savedToken) {
           setUser(JSON.parse(savedUser));
         } else {
-          const initData = window.Telegram?.WebApp?.initData;
-          if (initData) {
-            await signInWithTelegram(initData);
+          // Ждем пока Telegram WebApp станет ready
+          if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+
+            const initData = window.Telegram.WebApp.initData;
+            if (initData) {
+              await signInWithTelegram(initData);
+            }
           }
         }
       } catch (err) {
@@ -85,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
       }
     };
-    init();
+    initAuth();
   }, []);
 
   return (

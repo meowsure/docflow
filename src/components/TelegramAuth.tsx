@@ -10,8 +10,10 @@ declare global {
     Telegram?: {
       WebApp?: {
         initData: string;
+        initDataUnsafe: any;
         ready: () => void;
         expand: () => void;
+        close: () => void;
       };
     };
   }
@@ -22,49 +24,65 @@ const TelegramAuth: React.FC = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [isTelegramWebApp, setIsTelegramWebApp] = useState(false);
+  const [log, setLog] = useState<string>("");
 
+  const appendLog = (msg: string) =>
+    setLog((prev) => (prev ? prev + "\n" + msg : msg));
+
+  // Проверяем Telegram WebApp с polling
   useEffect(() => {
-    const checkTelegram = () => {
+    const checkTelegram = async () => {
       if (window.Telegram?.WebApp) {
+        setIsTelegramWebApp(true);
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
+
         const initData = window.Telegram.WebApp.initData;
         if (initData) {
-          handleTelegramAuth(initData);
+          appendLog("initData found, calling signInWithTelegram...");
+          try {
+            setLoading(true);
+            await signInWithTelegram(initData);
+            appendLog("Telegram auth success");
+          } catch (err: any) {
+            appendLog("Telegram auth error: " + (err?.message || err));
+          } finally {
+            setLoading(false);
+          }
         }
       } else {
-        setTimeout(checkTelegram, 100); // проверяем каждые 100мс
+        setTimeout(checkTelegram, 100);
       }
     };
     checkTelegram();
   }, []);
 
+  const handleTelegramButton = async () => {
+    if (!window.Telegram?.WebApp?.initData) {
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: "Нет данных авторизации от Telegram.",
+      });
+      return;
+    }
 
-  const handleTelegramAuth = async (initData: string) => {
     try {
       setLoading(true);
-      await signInWithTelegram(initData);
-      toast({ title: "Авторизация успешна", description: "Добро пожаловать в DocFlow CRM!" });
+      await signInWithTelegram(window.Telegram.WebApp.initData);
+      toast({
+        title: "Авторизация успешна",
+        description: "Добро пожаловать в DocFlow CRM!",
+      });
     } catch (err: any) {
-      console.error("Telegram auth error:", err);
-      toast({ variant: "destructive", title: "Ошибка авторизации", description: err?.message || "Неизвестная ошибка" });
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: err?.message || "Неизвестная ошибка",
+      });
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDemoAuth = () => {
-    const demoUser = {
-      id: "123e4567-e89b-12d3-a456-426614174000",
-      telegram_id: 123456789,
-      first_name: "Demo",
-      last_name: "User",
-      username: "demouser",
-      full_name: "Demo User",
-    };
-    updateUser(demoUser);
-    localStorage.setItem("docflow_token", "demo-token");
-    toast({ title: "Демо авторизация успешна", description: "Вы вошли как демо пользователь" });
   };
 
   return (
@@ -75,23 +93,38 @@ const TelegramAuth: React.FC = () => {
             <Send className="w-8 h-8 text-primary-foreground" />
           </div>
           <CardTitle className="text-2xl font-bold">DocFlow CRM</CardTitle>
-          <p className="text-muted-foreground">Система управления документооборотом и отгрузками</p>
+          <p className="text-muted-foreground">
+            Система управления документооборотом и отгрузками
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
           {isTelegramWebApp ? (
-            <Button onClick={() => handleTelegramAuth(window.Telegram!.WebApp!.initData)} disabled={loading} className="w-full" size="lg">
-              {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Авторизация...</> : <><Send className="w-4 h-4 mr-2" />Войти через Telegram</>}
+            <Button
+              onClick={handleTelegramButton}
+              disabled={loading}
+              className="w-full"
+              size="lg"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Авторизация...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  Войти через Telegram
+                </>
+              )}
             </Button>
           ) : (
-            <>
-              <div className="text-center text-sm text-muted-foreground">Для полной функциональности откройте приложение через Telegram бота</div>
-              <Button onClick={handleDemoAuth} disabled={loading} variant="outline" className="w-full" size="lg">
-                {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Загрузка...</> : <><Send className="w-4 h-4 mr-2" />Демо вход</>}
-              </Button>
-            </>
+            <div className="text-center text-sm text-muted-foreground">
+              Откройте приложение через Telegram для авторизации
+            </div>
           )}
         </CardContent>
       </Card>
+      <pre className="text-xs text-red-600 whitespace-pre-wrap">{log}</pre>
     </div>
   );
 };
