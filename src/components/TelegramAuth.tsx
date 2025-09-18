@@ -31,24 +31,27 @@ const TelegramAuth: React.FC = () => {
 
   // Проверяем Telegram WebApp
   useEffect(() => {
-    appendLog("Checking Telegram WebApp...");
-    const isTelegram = !!window.Telegram?.WebApp;
-    setIsTelegramWebApp(isTelegram);
+    const checkTelegram = () => {
+      if (window.Telegram?.WebApp) {
+        appendLog("Telegram WebApp detected!");
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
 
-    if (isTelegram) {
-      appendLog("Telegram WebApp detected, initializing...");
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
-
-      // Попробуем авторизацию автоматически
-      const initData = window.Telegram.WebApp.initData;
-      if (initData) {
-        appendLog("initData found, calling signInWithTelegram...");
-        handleTelegramAuth(initData);
+        const initData = window.Telegram.WebApp.initData;
+        if (initData) {
+          appendLog("initData found, calling signInWithTelegram...");
+          handleTelegramAuth(initData);
+        } else {
+          appendLog("initData is empty");
+        }
       } else {
-        appendLog("No initData found on load");
+        appendLog("Telegram WebApp not ready yet, retrying...");
+        // пробуем снова через 100ms
+        setTimeout(checkTelegram, 100);
       }
-    }
+    };
+
+    checkTelegram();
   }, []);
 
   const handleTelegramAuth = async (initDataParam?: string) => {
@@ -79,9 +82,8 @@ const TelegramAuth: React.FC = () => {
       toast({
         variant: "destructive",
         title: "Ошибка авторизации",
-        description: `Не удалось войти через Telegram: ${
-          error instanceof Error ? error.message : "Неизвестная ошибка"
-        }`,
+        description: `Не удалось войти через Telegram: ${error instanceof Error ? error.message : "Неизвестная ошибка"
+          }`,
       });
     } finally {
       setLoading(false);

@@ -14,11 +14,13 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  updateUser: (user: User | null) => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  updateUser: async () => {},
   signOut: async () => {},
 });
 
@@ -82,3 +84,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     </AuthContext.Provider>
   );
 };
+
+
+const updateUser = (newUser: User | null) => {
+  setUser(newUser);
+  if (newUser) localStorage.setItem("user", JSON.stringify(newUser));
+  else localStorage.removeItem("user");
+};
+
+<AuthContext.Provider value={{ user, loading, signOut, updateUser }}></AuthContext.Provider>
