@@ -1,59 +1,42 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { TelegramAppProvider, useTelegramApp } from "@telegram-apps/sdk-react";
 
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp?: {
-        initData: string;
-        initDataUnsafe: any;
-        ready: () => void;
-        expand: () => void;
-        close: () => void;
-      };
-    };
-  }
-}
-
-const TestAuth: React.FC = () => {
-  const { signInWithTelegram, updateUser, user } = useAuth();
+const TestAuthInner: React.FC = () => {
+  const { user, updateUser } = useAuth();
+  const tgApp = useTelegramApp();
   const [log, setLog] = useState<string>("");
 
   const appendLog = (msg: string) =>
     setLog((prev) => (prev ? prev + "\n" + msg : msg));
 
-  // Авто-вход через initData
+  // Авто-вход через Telegram SDK
   useEffect(() => {
-    appendLog("Checking Telegram WebApp...");
-    if (window.Telegram?.WebApp) {
-      appendLog("Telegram WebApp detected, calling ready()...");
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
+    if (!tgApp) return;
 
-      if (window.Telegram.WebApp.initData) {
-        appendLog("initData found, trying signInWithTelegram...");
-        signInWithTelegram(window.Telegram.WebApp.initData)
-          .then(() => appendLog("Auto login success!"))
-          .catch((err) => appendLog("Auto login error: " + err));
-      } else {
-        appendLog("No initData found on load");
-      }
+    appendLog("Telegram SDK initialized");
+
+    if (tgApp.isAuthorized) {
+      appendLog("User is authorized, setting user in context...");
+      updateUser(tgApp.user); // tgApp.user содержит id, first_name, last_name, username
     } else {
-      appendLog("Telegram WebApp not detected");
+      appendLog("User not authorized yet");
     }
-  }, []);
+  }, [tgApp]);
 
-  const handleTelegramButton = async () => {
-    if (!window.Telegram?.WebApp?.initData) {
-      appendLog("No initData to authorize");
+  const handleTelegramLogin = async () => {
+    if (!tgApp) {
+      appendLog("Telegram SDK not ready");
       return;
     }
     try {
-      await signInWithTelegram(window.Telegram.WebApp.initData);
-      appendLog("Button login success!");
+      appendLog("Calling tgApp.login()...");
+      const loggedUser = await tgApp.login();
+      appendLog("Login success: " + JSON.stringify(loggedUser));
+      updateUser(loggedUser);
     } catch (err: any) {
-      appendLog("Button login error: " + (err?.message || err));
+      appendLog("Login error: " + (err?.message || err));
     }
   };
 
@@ -74,7 +57,7 @@ const TestAuth: React.FC = () => {
     <div className="p-4 space-y-4">
       <h2 className="text-lg font-bold">Test Auth Page</h2>
 
-      <Button onClick={handleTelegramButton} className="w-full">
+      <Button onClick={handleTelegramLogin} className="w-full">
         Войти через Telegram (кнопка)
       </Button>
 
@@ -91,6 +74,14 @@ const TestAuth: React.FC = () => {
         <pre>{user ? JSON.stringify(user, null, 2) : "не авторизован"}</pre>
       </div>
     </div>
+  );
+};
+
+const TestAuth: React.FC = () => {
+  return (
+    <TelegramAppProvider>
+      <TestAuthInner />
+    </TelegramAppProvider>
   );
 };
 
