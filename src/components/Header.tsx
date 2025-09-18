@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FileText, Package, Send, Truck, User, Home, List } from "lucide-react";
+import { FileText, Package, Send, Truck, User, Home, List, LogOut, LogIn } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const location = useLocation();
+  const { user, signOut, signInWithTelegram } = useAuth();
 
   const navItems = [
     { path: '/', label: 'Главная', icon: Home },
@@ -12,6 +14,14 @@ const Header = () => {
     { path: '/create-task', label: 'Отправка', icon: Send },
     { path: '/create-shipment', label: 'Отгрузка', icon: Package }
   ];
+
+  const handleTelegramLogin = async () => {
+    if (window.Telegram?.WebApp?.initData) {
+      await signInWithTelegram(window.Telegram.WebApp.initData);
+    } else {
+      alert("Откройте приложение через Telegram для авторизации");
+    }
+  };
 
   return (
     <header className="border-b bg-card shadow-sm">
@@ -41,12 +51,19 @@ const Header = () => {
               ))}
             </nav>
           </div>
-          
+
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
-              <User className="w-4 h-4 mr-2" />
-              Войти через Telegram
-            </Button>
+            {user ? (
+              <Button onClick={signOut} variant="outline" size="sm">
+                <LogOut className="w-4 h-4 mr-2" />
+                Выйти
+              </Button>
+            ) : (
+              <Button onClick={handleTelegramLogin} variant="outline" size="sm">
+                <LogIn className="w-4 h-4 mr-2" />
+                Войти через Telegram
+              </Button>
+            )}
           </div>
         </div>
       </div>
