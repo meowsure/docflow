@@ -24,40 +24,44 @@ const TelegramAuth: React.FC = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [isTelegramWebApp, setIsTelegramWebApp] = useState(false);
-  const [log, setLog] = useState<string>(""); // Лог на экран
+  const [log, setLog] = useState<string>("");
 
   const appendLog = (msg: string) =>
     setLog((prev) => (prev ? prev + "\n" + msg : msg));
 
-  // Проверяем Telegram WebApp
+  const [telegramInitData, setTelegramInitData] = useState<string | null>(null);
+
+  // Проверяем наличие Telegram WebApp с polling
   useEffect(() => {
     let intervalId: number;
 
-    const waitForTelegram = () => {
+    const checkTelegram = () => {
       if (window.Telegram?.WebApp) {
+        setIsTelegramWebApp(true);
         appendLog("Telegram WebApp detected!");
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
 
-        const initData = window.Telegram.WebApp.initData;
-        if (initData) {
-          appendLog("initData found, calling signInWithTelegram...");
-          handleTelegramAuth(initData);
-        } else {
-          appendLog("initData is empty");
+        if (window.Telegram.WebApp.initData) {
+          setTelegramInitData(window.Telegram.WebApp.initData);
+          appendLog("initData found, ready to authorize");
         }
 
-        // Стопим polling
-        clearInterval(intervalId);
+        clearInterval(intervalId); // остановка polling
       }
     };
 
-    // Проверяем каждые 100ms
-    intervalId = window.setInterval(waitForTelegram, 100);
+    intervalId = window.setInterval(checkTelegram, 100);
 
-    // Очистка при размонтировании
     return () => clearInterval(intervalId);
   }, []);
+
+  // Вызываем авторизацию, когда есть initData
+  useEffect(() => {
+    if (telegramInitData) {
+      handleTelegramAuth(telegramInitData);
+    }
+  }, [telegramInitData]);
 
   const handleTelegramAuth = async (initDataParam?: string) => {
     const initData = initDataParam || window.Telegram?.WebApp?.initData;
@@ -87,8 +91,7 @@ const TelegramAuth: React.FC = () => {
       toast({
         variant: "destructive",
         title: "Ошибка авторизации",
-        description: `Не удалось войти через Telegram: ${error instanceof Error ? error.message : "Неизвестная ошибка"
-          }`,
+        description: `Не удалось войти через Telegram: ${error instanceof Error ? error.message : "Неизвестная ошибка"}`,
       });
     } finally {
       setLoading(false);
@@ -109,15 +112,21 @@ const TelegramAuth: React.FC = () => {
         full_name: "Demo User",
       };
 
+      // Обновляем контекст
       updateUser(demoUser);
+
+      // Сохраняем локально, чтобы AppContent корректно видел пользователя
+      localStorage.setItem("docflow_user", JSON.stringify(demoUser));
+      localStorage.setItem("docflow_token", "demo-token");
+
       appendLog("Demo user set in context");
 
       toast({
         title: "Демо авторизация успешна",
         description: "Вы вошли как демо пользователь",
       });
-    } catch (error) {
-      appendLog("Demo auth error: " + (error as any).message);
+    } catch (error: any) {
+      appendLog("Demo auth error: " + (error?.message || error));
       toast({
         variant: "destructive",
         title: "Ошибка",
