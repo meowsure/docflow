@@ -22,9 +22,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };
 
@@ -36,7 +34,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(newUser);
     if (newUser) {
       localStorage.setItem("docflow_user", JSON.stringify(newUser));
-      localStorage.setItem("docflow_token", "demo-token"); // для демо
     } else {
       localStorage.removeItem("docflow_user");
       localStorage.removeItem("docflow_token");
@@ -49,9 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase.functions.invoke("telegram-auth", {
         body: { initData },
       });
-
       if (error) throw error;
-
       const { user: authUser, access_token } = data;
       setUser(authUser);
       localStorage.setItem("docflow_user", JSON.stringify(authUser));
@@ -74,13 +69,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const init = async () => {
       try {
-        // Сначала проверяем локальное хранилище
         const savedUser = localStorage.getItem("docflow_user");
         const savedToken = localStorage.getItem("docflow_token");
         if (savedUser && savedToken) {
           setUser(JSON.parse(savedUser));
         } else {
-          // Если есть initData от Telegram WebApp
           const initData = window.Telegram?.WebApp?.initData;
           if (initData) {
             await signInWithTelegram(initData);
@@ -92,14 +85,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
       }
     };
-
     init();
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, signInWithTelegram, signOut, updateUser }}
-    >
+    <AuthContext.Provider value={{ user, loading, signInWithTelegram, signOut, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
