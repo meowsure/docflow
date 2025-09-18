@@ -33,27 +33,24 @@ const TelegramAuth: React.FC = () => {
 
   // Проверяем наличие Telegram WebApp с polling
   useEffect(() => {
-    let intervalId: number;
+    appendLog("Checking Telegram WebApp...");
+    const isTelegram = !!window.Telegram?.WebApp;
+    setIsTelegramWebApp(isTelegram);
 
-    const checkTelegram = () => {
-      if (window.Telegram?.WebApp) {
-        setIsTelegramWebApp(true);
-        appendLog("Telegram WebApp detected!");
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+    if (isTelegram) {
+      appendLog("Telegram WebApp detected, initializing...");
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
 
-        if (window.Telegram.WebApp.initData) {
-          setTelegramInitData(window.Telegram.WebApp.initData);
-          appendLog("initData found, ready to authorize");
-        }
-
-        clearInterval(intervalId); // остановка polling
+      // Попробуем авторизацию автоматически
+      const initData = window.Telegram.WebApp.initData;
+      if (initData) {
+        appendLog("initData found, calling signInWithTelegram...");
+        handleTelegramAuth(initData);
+      } else {
+        appendLog("No initData found on load");
       }
-    };
-
-    intervalId = window.setInterval(checkTelegram, 100);
-
-    return () => clearInterval(intervalId);
+    }
   }, []);
 
   // Вызываем авторизацию, когда есть initData
