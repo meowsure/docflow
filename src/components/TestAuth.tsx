@@ -1,56 +1,52 @@
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
-import { TelegramAppProvider, useTelegramApp } from "@telegram-apps/sdk-react";
+import React, { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLaunchParams } from '@telegram-apps/sdk-react';
 
-const TestAuthInner: React.FC = () => {
-  const { user, updateUser } = useAuth();
-  const tgApp = useTelegramApp();
-  const [log, setLog] = useState<string>("");
+const TestAuth: React.FC = () => {
+  const { signInWithTelegram, updateUser, user } = useAuth();
+  const { initDataRaw, initData } = useLaunchParams();
+  const [log, setLog] = useState<string>('');
 
-  const appendLog = (msg: string) =>
-    setLog((prev) => (prev ? prev + "\n" + msg : msg));
+  const appendLog = (msg: string) => setLog((prev) => (prev ? prev + '\n' + msg : msg));
 
-  // Авто-вход через Telegram SDK
   useEffect(() => {
-    if (!tgApp) return;
-
-    appendLog("Telegram SDK initialized");
-
-    if (tgApp.isAuthorized) {
-      appendLog("User is authorized, setting user in context...");
-      updateUser(tgApp.user); // tgApp.user содержит id, first_name, last_name, username
+    appendLog('Проверка Telegram WebApp...');
+    if (initData) {
+      appendLog('initData найдено, пытаемся авторизоваться...');
+      signInWithTelegram(initData)
+        .then(() => appendLog('Авто-вход успешен!'))
+        .catch((err) => appendLog('Ошибка авто-входа: ' + err));
     } else {
-      appendLog("User not authorized yet");
+      appendLog('Нет initData');
     }
-  }, [tgApp]);
+  }, [initData, signInWithTelegram]);
 
   const handleTelegramLogin = async () => {
-    if (!tgApp) {
-      appendLog("Telegram SDK not ready");
+    if (!initDataRaw) {
+      appendLog('Нет данных для авторизации');
       return;
     }
+
     try {
-      appendLog("Calling tgApp.login()...");
-      const loggedUser = await tgApp.login();
-      appendLog("Login success: " + JSON.stringify(loggedUser));
-      updateUser(loggedUser);
-    } catch (err: any) {
-      appendLog("Login error: " + (err?.message || err));
+      await signInWithTelegram(initDataRaw);
+      appendLog('Авторизация прошла успешно');
+    } catch (err) {
+      appendLog('Ошибка авторизации: ' + err);
     }
   };
 
   const handleDemoLogin = () => {
     const demoUser = {
-      id: "demo-123",
+      id: 'demo-123',
       telegram_id: 123456,
-      username: "demo_user",
-      first_name: "Demo",
-      last_name: "User",
-      full_name: "Demo User",
+      username: 'demo_user',
+      first_name: 'Demo',
+      last_name: 'User',
+      full_name: 'Demo User',
     };
     updateUser(demoUser);
-    appendLog("Demo login set");
+    appendLog('Демо-вход выполнен');
   };
 
   return (
@@ -58,30 +54,20 @@ const TestAuthInner: React.FC = () => {
       <h2 className="text-lg font-bold">Test Auth Page</h2>
 
       <Button onClick={handleTelegramLogin} className="w-full">
-        Войти через Telegram (кнопка)
+        Войти через Telegram
       </Button>
 
       <Button onClick={handleDemoLogin} className="w-full" variant="outline">
         Демо вход
       </Button>
 
-      <pre className="mt-4 p-2 border rounded bg-gray-50 text-sm whitespace-pre-wrap">
-        {log}
-      </pre>
+      <pre className="mt-4 p-2 border rounded bg-gray-50 text-sm whitespace-pre-wrap">{log}</pre>
 
       <div className="mt-4">
         <strong>Текущий пользователь:</strong>
-        <pre>{user ? JSON.stringify(user, null, 2) : "не авторизован"}</pre>
+        <pre>{user ? JSON.stringify(user, null, 2) : 'не авторизован'}</pre>
       </div>
     </div>
-  );
-};
-
-const TestAuth: React.FC = () => {
-  return (
-    <TelegramAppProvider>
-      <TestAuthInner />
-    </TelegramAppProvider>
   );
 };
 
