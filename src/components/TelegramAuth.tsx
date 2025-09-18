@@ -110,11 +110,11 @@ const TelegramAuth: React.FC = () => {
       // };
 
       // Обновляем контекст
-      updateUser(demoUser);
+      // updateUser(demoUser);
 
       // Сохраняем локально, чтобы AppContent корректно видел пользователя
-      localStorage.setItem("docflow_user", JSON.stringify(demoUser));
-      localStorage.setItem("docflow_token", "demo-token");
+      // localStorage.setItem("docflow_user", JSON.stringify(demoUser));
+      // localStorage.setItem("docflow_token", "demo-token");
 
       appendLog("Demo user set in context");
 
