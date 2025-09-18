@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import TelegramAuth from "@/components/TelegramAuth";
+import TestAuth from "@/components/TestAuth";
 import Index from "./pages/Index";
 import TaskDetail from "./pages/TaskDetail";
 import CreateTask from "./pages/CreateTask";
@@ -27,7 +28,8 @@ const AppContent = () => {
   }
 
   if (!user) {
-    return <TelegramAuth />;
+    // return <TelegramAuth />;
+    return <TestAuth />;
   }
 
   return (
