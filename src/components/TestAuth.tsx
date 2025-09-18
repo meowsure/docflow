@@ -6,67 +6,36 @@ import { useLaunchParams } from "@telegram-apps/sdk-react";
 
 const TestAuth: React.FC = () => {
   const { signInWithTelegram, updateUser, user } = useAuth();
-  const launchParams = useLaunchParams(); // безопасный способ получить initData
+  const launchParams = useLaunchParams();
   const [log, setLog] = useState<string>("");
 
   const appendLog = (msg: string) =>
     setLog((prev) => (prev ? prev + "\n" + msg : msg));
 
-  // Авто-вход через Telegram WebApp initData
   useEffect(() => {
-    appendLog("Checking Telegram WebApp...");
+    appendLog("LaunchParams: " + JSON.stringify(launchParams, null, 2));
 
-    const initData = launchParams.tgWebAppInitData;
-    if (initData) {
-      appendLog("initData found, attempting auto-login...");
-      signInWithTelegram(initData)
+    const initDataRaw = launchParams.tgWebAppInitData;
+    const initDataUnsafe = launchParams.tgWebAppData;
+
+    if (initDataRaw) {
+      appendLog("Found tgWebAppInitData (raw string), trying login...");
+      signInWithTelegram(initDataRaw)
         .then(() => appendLog("Auto login success!"))
         .catch((err) => appendLog("Auto login error: " + err));
+    } else if (initDataUnsafe) {
+      appendLog("Found tgWebAppData (parsed object). Using demo login.");
+      updateUser(initDataUnsafe.user);
     } else {
-      appendLog("No initData found. Auto-login skipped.");
+      appendLog("No initData found at all");
     }
-  }, [launchParams.tgWebAppInitData]);
-
-  const handleTelegramButton = async () => {
-    const initData = launchParams.tgWebAppInitData;
-    if (!initData) {
-      appendLog("No initData to authorize");
-      return;
-    }
-    try {
-      await signInWithTelegram(initData);
-      appendLog("Button login success!");
-    } catch (err: any) {
-      appendLog("Button login error: " + (err?.message || err));
-    }
-  };
-
-  const handleDemoLogin = () => {
-    const demoUser = {
-      id: "demo-123",
-      telegram_id: 123456,
-      username: "demo_user",
-      first_name: "Demo",
-      last_name: "User",
-      full_name: "Demo User",
-    };
-    updateUser(demoUser);
-    appendLog("Demo login set");
-  };
+  }, [launchParams]);
 
   return (
     <div className="p-4 space-y-4">
       <h2 className="text-lg font-bold">Test Auth Page</h2>
 
-      <Button onClick={handleTelegramButton} className="w-full">
-        Войти через Telegram (кнопка)
-      </Button>
-
-      <Button onClick={handleDemoLogin} className="w-full" variant="outline">
-        Демо вход
-      </Button>
-
-      <pre className="mt-4 p-2 border rounded bg-gray-50 text-sm whitespace-pre-wrap">
+      <pre className="mt-4 p-2 border rounded bg-gray-50 text-xs whitespace-pre-wrap">
         {log}
       </pre>
 
