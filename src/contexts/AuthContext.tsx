@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
+import api from "@/api";
 
 interface User {
   id: string | number;
@@ -33,24 +34,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (initData: string) => {
     try {
       setLoading(true);
-      const response = await fetch("/auth/telegram", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ init_data: initData }),
+      const response = await api.post("/auth/telegram", {
+        init_data: initData,
       });
 
-      if (!response.ok) {
+
+      if (!response.data || response.status !== 200) {
         throw new Error(`Auth failed: ${response.status}`);
       }
 
-      const data = await response.json();
-      
+      const data = response.data;
+
       // Сохраняем токен и пользователя
       setToken(data.access_token);
       setUser(data.user);
-      
+
       // Сохраняем в localStorage для сохранения сессии
       localStorage.setItem("auth_token", data.access_token);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -74,20 +72,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Если есть сохраненный токен и пользователь, восстанавливаем сессию
       const savedToken = localStorage.getItem("auth_token");
       const savedUser = localStorage.getItem("user");
-      
+
       if (savedToken && savedUser) {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
-        
+
         // Проверяем валидность токена
         try {
-          const response = await fetch("/auth/me", {
+          const response = await api.get("/auth/me", {
             headers: {
               Authorization: `Bearer ${savedToken}`,
             },
           });
-          
-          if (!response.ok) {
+
+          if (!response.data || response.status !== 200) {
             throw new Error("Token invalid");
           }
         } catch (error) {
@@ -95,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           logout();
         }
       }
-      
+
       // Если есть данные от Telegram, пытаемся авторизоваться
       if (lp?.tgWebAppInitData) {
         try {
@@ -104,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error("Telegram auth failed:", error);
         }
       }
-      
+
       setLoading(false);
     };
 
