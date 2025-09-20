@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
 import api from "@/api";
+import axios from "axios";
 
 interface User {
   id: string | number;
@@ -34,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (initData: string) => {
     try {
       setLoading(true);
-      const response = await api.post("/auth/telegram", {
+      const response = await axios.post("https://api.marzsure.ru:8444/api/v1/auth/telegram", {
         init_data: initData,
       });
 
