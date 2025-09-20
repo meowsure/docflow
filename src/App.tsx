@@ -13,6 +13,7 @@ import TasksList from "./pages/TasksList";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import { AppRoot } from '@telegram-apps/telegram-ui';
+import TestAuth from "./components/TestAuth";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +29,7 @@ const AppContent = () => {
   }
 
   if (!user) {
-    return <TelegramAuth />;
+    return <TestAuth />;
   }
 
   return (
