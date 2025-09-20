@@ -11,7 +11,7 @@ const TelegramAuth: React.FC = () => {
     try {
       const launchParams = retrieveLaunchParams();
       if (!launchParams.tgWebAppInitData) {
-        setError("Нет данных от Telegram (tgWebAppInitData пустой)");
+        setError("Нет данных от Telegram (tgWebAppInitData пустой)" + JSON.stringify(launchParams));
       }
     } catch (e: any) {
       setError("Ошибка при получении launchParams: " + e.message);
