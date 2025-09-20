@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (initData: string) => {
     try {
       setLoading(true);
-      const response = await fetch("/api/v1/auth/telegram", {
+      const response = await fetch("/auth/telegram", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Проверяем валидность токена
         try {
-          const response = await fetch("/api/v1/auth/me", {
+          const response = await fetch("/auth/me", {
             headers: {
               Authorization: `Bearer ${savedToken}`,
             },
