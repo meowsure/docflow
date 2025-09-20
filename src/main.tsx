@@ -19,5 +19,6 @@ import "./index.css";
   } catch (e) {
     console.error("Telegram SDK initialization failed:", e);
     // Здесь можно рендерить fallback для неподдерживаемой среды
+    createRoot(document.getElementById("root")!).render(<App />);
   }
 })();
