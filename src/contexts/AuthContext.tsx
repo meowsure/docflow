@@ -11,7 +11,6 @@ interface User {
   last_name?: string;
   full_name?: string;
   role_id?: number;
-  // Добавляем другие поля, которые могут приходить с сервера
 }
 
 interface AuthContextProps {
@@ -31,31 +30,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const lp = useLaunchParams();
 
-  // Функция для входа через Telegram
   const login = async (initData: string) => {
+    if (!initData) return;
+
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await axios.post("https://api.marzsure.ru:8444/api/v1/auth/telegram", {
         init_data: initData,
       });
-
 
       if (!response.data || response.status !== 200) {
         throw new Error(`Auth failed: ${response.status}`);
       }
 
       const data = response.data;
-
-      // Сохраняем токен и пользователя
       setToken(data.access_token);
       setUser(data.user);
 
-      // Сохраняем в localStorage для сохранения сессии
       localStorage.setItem("auth_token", data.access_token);
       localStorage.setItem("user", JSON.stringify(data.user));
     } catch (error) {
       console.error("Login error:", error);
-      throw error;
+      logout();
     } finally {
       setLoading(false);
     }
@@ -70,38 +66,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
-      // Если есть сохраненный токен и пользователь, восстанавливаем сессию
       const savedToken = localStorage.getItem("auth_token");
       const savedUser = localStorage.getItem("user");
 
       if (savedToken && savedUser) {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
-
-        // Проверяем валидность токена
         try {
           const response = await api.get("/auth/me", {
-            headers: {
-              Authorization: `Bearer ${savedToken}`,
-            },
+            headers: { Authorization: `Bearer ${savedToken}` },
           });
-
           if (!response.data || response.status !== 200) {
             throw new Error("Token invalid");
           }
-        } catch (error) {
-          console.error("Token validation failed:", error);
+        } catch {
           logout();
         }
       }
 
-      // Если есть данные от Telegram, пытаемся авторизоваться
-      if (lp?.tgWebAppInitData) {
-        try {
-          await login(lp.tgWebAppInitData);
-        } catch (error) {
-          console.error("Telegram auth failed:", error);
-        }
+      // Ждем пока Telegram SDK подгрузит initData
+      if (lp && lp.tgWebAppInitData) {
+        await login(lp.tgWebAppInitData);
       }
 
       setLoading(false);
