@@ -45,9 +45,7 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <AppRoot
-      platform={['macos', 'ios'].includes(lp.tgWebAppPlatform) ? 'ios' : 'base'}
-    >
+
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -59,7 +57,7 @@ const App = () => (
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
-  </AppRoot>
+
 );
 
 export default App;
