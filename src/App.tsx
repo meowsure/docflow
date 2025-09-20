@@ -29,7 +29,7 @@ const AppContent = () => {
   }
 
   if (!user) {
-    return <TestAuth />;
+    return <TelegramAuth />;
   }
 
   return (
