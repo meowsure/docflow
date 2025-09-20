@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://docflow-api.test/api/v1', // заменить на ваш домен
+  baseURL: 'https://api.marzsure.ru:8444/api/v1', // заменить на ваш домен
 });
 
 // Добавляем токен к каждому запросу, если он есть
