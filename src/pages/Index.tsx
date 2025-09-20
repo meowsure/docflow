@@ -29,16 +29,19 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-primary/5 to-primary-glow/5 border border-primary/10 rounded-xl p-8">
-          <div><img src={user?.photo_url} alt={`Фото пользователя ${user?.first_name}`} className="rounded-full w-24 h-24 object-cover" /></div>
-            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-              Добро пожаловать, {user?.first_name || 'Пользователь'}!
-            </h1>
-            <p className="text-muted-foreground text-lg">Управляйте документооборотом и отгрузками эффективно</p>
+          <div className="flex items-center bg-gradient-to-r from-primary/5 to-primary-glow/5 border border-primary/10 rounded-xl p-8">
+            <img src={user?.photo_url} alt={`Фото пользователя ${user?.first_name}`} className="rounded-full w-24 h-24 object-cover me-4" />
+            <div>
+
+              <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+                Добро пожаловать, {user?.first_name || 'Пользователь'}!
+              </h1>
+              <p className="text-muted-foreground text-lg">Управляйте документооборотом и отгрузками эффективно</p>
+            </div>
           </div>
         </div>
 
@@ -82,7 +85,7 @@ const Index = () => {
                   </div>
                 </Link>
               </Button>
-              
+
               <Button className="h-24 p-6 flex-col space-y-3 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-success/5 to-success/10 hover:from-success/10 hover:to-success/20 border-success/20" variant="outline" asChild>
                 <Link to="/create-shipment">
                   <Package className="w-8 h-8 text-success" />
@@ -92,7 +95,7 @@ const Index = () => {
                   </div>
                 </Link>
               </Button>
-              
+
               <Button className="h-24 p-6 flex-col space-y-3 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-warning/5 to-warning/10 hover:from-warning/10 hover:to-warning/20 border-warning/20" variant="outline" asChild>
                 <Link to="/create-task">
                   <FileText className="w-8 h-8 text-warning" />
