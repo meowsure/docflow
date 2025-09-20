@@ -10,6 +10,7 @@ interface User {
   first_name?: string;
   last_name?: string;
   full_name?: string;
+  photo_url?: string;
 }
 
 interface AuthContextProps {
@@ -62,6 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           first_name: tgUser.first_name,
           last_name: tgUser.last_name,
           full_name: `${tgUser.first_name || ""} ${tgUser.last_name || ""}`.trim(),
+          photo_url: tgUser.photo_url,
         };
 
         setUser(mappedUser);
