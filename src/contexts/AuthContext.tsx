@@ -1,6 +1,6 @@
 // AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { init as initSDK, retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { retrieveLaunchParams } from "@tma.js/bridge";
 import axios from "axios";
 
 interface User {
@@ -31,32 +31,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initAuth = async () => {
       setLoading(true);
       try {
-        // 1️⃣ Инициализация SDK
         const launchParams = retrieveLaunchParams();
-        const debug = import.meta.env.DEV;
 
-        await initSDK({
-          debug,
-          eruda: debug,
-          mockForMacOS: launchParams.tgWebAppPlatform === "macos",
-        });
-
-        // 2️⃣ Получаем initData: из launchParams или глобального объекта
+        // Получаем initData или альтернативно tgWebAppData
         let initData: string | undefined = launchParams.tgWebAppInitData;
-        if (!initData && typeof window !== "undefined") {
-          initData = (window as any)?.Telegram?.WebApp?.initData;
+        if (!initData && launchParams.tgWebAppData) {
+          initData = JSON.stringify(launchParams.tgWebAppData);
         }
 
         if (!initData) {
           setError(
-            "Нет tgWebAppInitData. Mini App должен быть открыт через Telegram Bot. " +
+            "Нет данных для авторизации (initData или tgWebAppData пустые). " +
               JSON.stringify(launchParams)
           );
           setLoading(false);
           return;
         }
 
-        // 3️⃣ Пользователь Telegram
         const tgUser = launchParams.tgWebAppData?.user;
         if (!tgUser) {
           setError("Нет данных пользователя tgWebAppData.user");
@@ -75,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setUser(mappedUser);
 
-        // 4️⃣ Отправка initData на сервер для авторизации
+        // Отправляем на сервер
         try {
           const response = await axios.post(
             "https://api.marzsure.ru:8444/api/v1/auth/telegram",
@@ -91,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setError("Ошибка при авторизации на API: " + apiError.message);
         }
       } catch (e: any) {
-        setError("Ошибка initSDK / retrieveLaunchParams: " + e.message);
+        setError("Ошибка при получении launchParams: " + e.message);
       } finally {
         setLoading(false);
       }

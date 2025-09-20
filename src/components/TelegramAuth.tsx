@@ -29,7 +29,7 @@ const TelegramAuth: React.FC = () => {
       {error && (
         <pre className="text-red-600 bg-gray-100 p-2 rounded whitespace-pre-wrap">{error}</pre>
       )}
-      <p>Откройте приложение через Telegram Bot.</p>
+      <p>Откройте приложение через кнопку бота в Telegram.</p>
     </div>
   );
 };
