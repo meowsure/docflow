@@ -46,7 +46,6 @@ const AppContent = () => {
 
 const App = () => (
   <AppRoot
-      appearance={isDark ? 'dark' : 'light'}
       platform={['macos', 'ios'].includes(lp.tgWebAppPlatform) ? 'ios' : 'base'}
     >
   <QueryClientProvider client={queryClient}>
