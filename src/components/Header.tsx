@@ -1,27 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FileText, Package, Send, Truck, User, Home, List, LogOut, LogIn } from "lucide-react";
+import { FileText, Package, Send, Truck, User, Home, List, LogOut, LogIn, PowerOffIcon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const location = useLocation();
-  const { user, signOut, signInWithTelegram } = useAuth();
+  const { user } = useAuth();
 
   const navItems = [
     { path: '/', label: 'Главная', icon: Home },
     { path: '/tasks', label: 'Мои задачи', icon: List },
     { path: '/create-task', label: 'Отправка', icon: Send },
-    { path: '/create-shipment', label: 'Отгрузка', icon: Package }
+    { path: '/create-shipment', label: 'Отгрузка', icon: Package },
+    { path: '/profile', label: 'Профиль', icon: PowerOffIcon },
   ];
-
-  const handleTelegramLogin = async () => {
-    if (window.Telegram?.WebApp?.initData) {
-      await signInWithTelegram(window.Telegram.WebApp.initData);
-    } else {
-      alert("Откройте приложение через Telegram для авторизации");
-    }
-  };
 
   return (
     <header className="border-b bg-card shadow-sm">
@@ -54,15 +47,9 @@ const Header = () => {
 
           <div className="flex items-center space-x-2">
             {user ? (
-              <Button onClick={signOut} variant="outline" size="sm">
-                <LogOut className="w-4 h-4 mr-2" />
-                Выйти
-              </Button>
+              <span>{user.first_name}</span>
             ) : (
-              <Button onClick={handleTelegramLogin} variant="outline" size="sm">
-                <LogIn className="w-4 h-4 mr-2" />
-                Войти через Telegram
-              </Button>
+              <span>Демо Пользователь</span>
             )}
           </div>
         </div>
