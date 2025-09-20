@@ -1,5 +1,6 @@
+// AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { init as initSDK, retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import axios from "axios";
 
 interface User {
@@ -16,6 +17,7 @@ interface AuthContextProps {
   setUser: (u: User | null) => void;
   logout: () => void;
   error: string | null;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -23,60 +25,87 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const lp = useLaunchParams();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initAuth = async () => {
-      if (!lp) return;
-
-      // Пользователь Telegram
-      const tgUser = lp.tgWebAppData?.user;
-      const initData = lp.tgWebAppInitData;
-
-      if (!tgUser) {
-        setError("Нет данных пользователя от Telegram (tgWebAppData.user пустой)");
-        return;
-      }
-
-      if (!initData) {
-        setError("Нет данных initData от Telegram (tgWebAppInitData пустой)");
-        return;
-      }
-
-      const mappedUser: User = {
-        id: tgUser.id,
-        telegram_id: tgUser.id,
-        username: tgUser.username,
-        first_name: tgUser.first_name,
-        last_name: tgUser.last_name,
-        full_name: `${tgUser.first_name || ""} ${tgUser.last_name || ""}`.trim(),
-      };
-
-      setUser(mappedUser);
-
-      // 👉 Отправляем initData на бэкенд
+      setLoading(true);
       try {
-        const response = await axios.post("https://api.marzsure.ru:8444/api/v1/auth/telegram", {
-          init_data: initData,
+        // 1️⃣ Инициализация SDK
+        const launchParams = retrieveLaunchParams();
+        const debug = import.meta.env.DEV;
+
+        await initSDK({
+          debug,
+          eruda: debug,
+          mockForMacOS: launchParams.tgWebAppPlatform === "macos",
         });
 
-        if (!response.data || response.status !== 200) {
-          throw new Error(`Auth failed: ${response.status}`);
+        // 2️⃣ Получаем initData: из launchParams или глобального объекта
+        let initData: string | undefined = launchParams.tgWebAppInitData;
+        if (!initData && typeof window !== "undefined") {
+          initData = (window as any)?.Telegram?.WebApp?.initData;
         }
 
-        console.log("Успешная авторизация на API", response.data);
+        if (!initData) {
+          setError(
+            "Нет tgWebAppInitData. Mini App должен быть открыт через Telegram Bot. " +
+              JSON.stringify(launchParams)
+          );
+          setLoading(false);
+          return;
+        }
+
+        // 3️⃣ Пользователь Telegram
+        const tgUser = launchParams.tgWebAppData?.user;
+        if (!tgUser) {
+          setError("Нет данных пользователя tgWebAppData.user");
+          setLoading(false);
+          return;
+        }
+
+        const mappedUser: User = {
+          id: tgUser.id,
+          telegram_id: tgUser.id,
+          username: tgUser.username,
+          first_name: tgUser.first_name,
+          last_name: tgUser.last_name,
+          full_name: `${tgUser.first_name || ""} ${tgUser.last_name || ""}`.trim(),
+        };
+
+        setUser(mappedUser);
+
+        // 4️⃣ Отправка initData на сервер для авторизации
+        try {
+          const response = await axios.post(
+            "https://api.marzsure.ru:8444/api/v1/auth/telegram",
+            { init_data: initData }
+          );
+
+          if (!response.data || response.status !== 200) {
+            throw new Error(`Авторизация на сервере не удалась: ${response.status}`);
+          }
+
+          console.log("Успешная авторизация на API:", response.data);
+        } catch (apiError: any) {
+          setError("Ошибка при авторизации на API: " + apiError.message);
+        }
       } catch (e: any) {
-        setError("Ошибка при авторизации на API: " + e.message);
+        setError("Ошибка initSDK / retrieveLaunchParams: " + e.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     initAuth();
-  }, [lp]);
+  }, []);
 
-  const logout = () => setUser(null);
+  const logout = () => {
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, error }}>
+    <AuthContext.Provider value={{ user, setUser, logout, error, loading }}>
       {children}
     </AuthContext.Provider>
   );
