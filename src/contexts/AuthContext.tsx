@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
-import api from "@/api";
+import { retrieveLaunchParams, init as initSDK } from "@telegram-apps/sdk-react";
 import axios from "axios";
+import api from "@/api";
 
 interface User {
   id: string | number;
@@ -28,11 +28,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem("auth_token"));
   const [loading, setLoading] = useState(true);
-  const lp = useLaunchParams();
 
   const login = async (initData: string) => {
     if (!initData) return;
-
     setLoading(true);
     try {
       const response = await axios.post("https://api.marzsure.ru:8444/api/v1/auth/telegram", {
@@ -46,7 +44,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = response.data;
       setToken(data.access_token);
       setUser(data.user);
-
       localStorage.setItem("auth_token", data.access_token);
       localStorage.setItem("user", JSON.stringify(data.user));
     } catch (error) {
@@ -66,6 +63,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
+      setLoading(true);
+
+      // 1. Проверяем токен в localStorage
       const savedToken = localStorage.getItem("auth_token");
       const savedUser = localStorage.getItem("user");
 
@@ -84,16 +84,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Ждем пока Telegram SDK подгрузит initData
-      if (lp && lp.tgWebAppInitData) {
-        await login(lp.tgWebAppInitData);
-      }
+      // 2. Инициализация Telegram SDK
+      try {
+        const launchParams = retrieveLaunchParams();
+        const debug = import.meta.env.DEV;
 
-      setLoading(false);
+        await initSDK({
+          debug,
+          eruda: debug,
+          mockForMacOS: launchParams.tgWebAppPlatform === "macos",
+        });
+
+        // 3. Авто-логин через initData
+        if (launchParams.tgWebAppInitData) {
+          await login(launchParams.tgWebAppInitData);
+        } else {
+          console.warn("tgWebAppInitData not found. Open inside Telegram.");
+        }
+      } catch (e) {
+        console.error("Telegram SDK init failed:", e);
+      } finally {
+        setLoading(false);
+      }
     };
 
     initAuth();
-  }, [lp?.tgWebAppInitData]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, token, setUser, login, logout, loading }}>
