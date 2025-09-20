@@ -34,6 +34,7 @@ const Index = () => {
         {/* Hero Section */}
         <div className="mb-8">
           <div className="bg-gradient-to-r from-primary/5 to-primary-glow/5 border border-primary/10 rounded-xl p-8">
+          <div><img src={user?.photo_url} alt={`Фото пользователя ${user?.first_name}`} className="rounded-full w-24 h-24 object-cover" /></div>
             <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
               Добро пожаловать, {user?.first_name || 'Пользователь'}!
             </h1>
