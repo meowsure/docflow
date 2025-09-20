@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import type { Database } from '@/integrations/supabase/types';
+import api from '@/api'; // Импортируем настроенный экземпляр axios
 
-type TaskRow = Database['public']['Tables']['tasks']['Row'];
-type TaskInsert = Database['public']['Tables']['tasks']['Insert'];
-type TaskUpdate = Database['public']['Tables']['tasks']['Update'];
-
-export interface Task extends TaskRow {}
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  // Добавьте другие поля, которые есть в вашей модели Task на сервере
+}
 
 export interface TaskFile {
   id: string;
@@ -23,20 +27,15 @@ export interface TaskFile {
 export const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { toast } = useToast();
 
   const fetchTasks = async () => {
-    if (!user) return;
+    if (!user || !token) return;
     
     try {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setTasks(data || []);
+      const response = await api.get('/tasks');
+      setTasks(response.data.data || response.data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       toast({
@@ -49,24 +48,19 @@ export const useTasks = () => {
     }
   };
 
-  const createTask = async (taskData: TaskInsert): Promise<Task | null> => {
-    if (!user) return null;
+  const createTask = async (taskData: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'user_id'>): Promise<Task | null> => {
+    if (!user || !token) return null;
 
     try {
-      const { data, error } = await supabase
-        .from('tasks')
-        .insert({
-          ...taskData,
-          user_id: user.id,
-          status: 'draft'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const response = await api.post('/tasks', {
+        ...taskData,
+        status: 'draft'
+      });
       
-      setTasks(prev => [data, ...prev]);
-      return data;
+      const newTask = response.data.data || response.data;
+      setTasks(prev => [newTask, ...prev]);
+      
+      return newTask;
     } catch (error) {
       console.error('Error creating task:', error);
       toast({
@@ -78,22 +72,16 @@ export const useTasks = () => {
     }
   };
 
-  const updateTask = async (taskId: string, updates: TaskUpdate): Promise<Task | null> => {
+  const updateTask = async (taskId: string, updates: Partial<Task>): Promise<Task | null> => {
     try {
-      const { data, error } = await supabase
-        .from('tasks')
-        .update(updates)
-        .eq('id', taskId)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const response = await api.put(`/tasks/${taskId}`, updates);
+      const updatedTask = response.data.data || response.data;
       
       setTasks(prev => prev.map(task => 
-        task.id === taskId ? data : task
+        task.id === taskId ? updatedTask : task
       ));
       
-      return data;
+      return updatedTask;
     } catch (error) {
       console.error('Error updating task:', error);
       toast({
@@ -107,13 +95,7 @@ export const useTasks = () => {
 
   const deleteTask = async (taskId: string): Promise<boolean> => {
     try {
-      const { error } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', taskId);
-
-      if (error) throw error;
-      
+      await api.delete(`/tasks/${taskId}`);
       setTasks(prev => prev.filter(task => task.id !== taskId));
       return true;
     } catch (error) {
@@ -129,7 +111,7 @@ export const useTasks = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, [user]);
+  }, [user, token]);
 
   return {
     tasks,
@@ -151,14 +133,9 @@ export const useTaskFiles = (taskId?: string) => {
     
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('task_files')
-        .select('*')
-        .eq('task_id', taskId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setFiles(data || []);
+      // Предполагаем, что у вас есть эндпоинт для получения файлов задачи
+      const response = await api.get(`/tasks/${taskId}/files`);
+      setFiles(response.data.data || response.data);
     } catch (error) {
       console.error('Error fetching files:', error);
       toast({
@@ -171,18 +148,18 @@ export const useTaskFiles = (taskId?: string) => {
     }
   };
 
-  const addFile = async (fileData: Omit<TaskFile, 'id' | 'created_at'>): Promise<TaskFile | null> => {
+  const addFile = async (fileData: FormData): Promise<TaskFile | null> => {
     try {
-      const { data, error } = await supabase
-        .from('task_files')
-        .insert(fileData)
-        .select()
-        .single();
-
-      if (error) throw error;
+      // Предполагаем, что у вас есть эндпоинт для загрузки файлов
+      const response = await api.post('/files', fileData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       
-      setFiles(prev => [data, ...prev]);
-      return data;
+      const newFile = response.data.data || response.data;
+      setFiles(prev => [newFile, ...prev]);
+      return newFile;
     } catch (error) {
       console.error('Error adding file:', error);
       toast({
@@ -196,13 +173,7 @@ export const useTaskFiles = (taskId?: string) => {
 
   const removeFile = async (fileId: string): Promise<boolean> => {
     try {
-      const { error } = await supabase
-        .from('task_files')
-        .delete()
-        .eq('id', fileId);
-
-      if (error) throw error;
-      
+      await api.delete(`/files/${fileId}`);
       setFiles(prev => prev.filter(file => file.id !== fileId));
       return true;
     } catch (error) {

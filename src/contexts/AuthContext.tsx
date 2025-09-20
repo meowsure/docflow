@@ -1,104 +1,125 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 
-export type User = {
-  id: string;
-  telegram_id: number;
+interface User {
+  id: string | number;
+  telegram_id?: number;
   username?: string;
   first_name?: string;
   last_name?: string;
   full_name?: string;
-};
+  role_id?: number;
+  // Добавляем другие поля, которые могут приходить с сервера
+}
 
-export type AuthContextType = {
+interface AuthContextProps {
   user: User | null;
+  token: string | null;
+  setUser: (u: User | null) => void;
+  login: (initData: string) => Promise<void>;
+  logout: () => void;
   loading: boolean;
-  signInWithTelegram: (initData: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  updateUser: (user: User | null) => void;
-};
+}
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
-  return context;
-};
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(localStorage.getItem("auth_token"));
   const [loading, setLoading] = useState(true);
+  const lp = useLaunchParams();
 
-  const updateUser = (newUser: User | null) => {
-    setUser(newUser);
-    if (newUser) {
-      localStorage.setItem("docflow_user", JSON.stringify(newUser));
-    } else {
-      localStorage.removeItem("docflow_user");
-    }
-  };
-
-  const signInWithTelegram = async (initData: string) => {
+  // Функция для входа через Telegram
+  const login = async (initData: string) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke("telegram-auth", {
-        body: { initData },
+      const response = await fetch("/api/v1/auth/telegram", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ init_data: initData }),
       });
-      if (error) throw error;
 
-      const { user: authUser, access_token } = data;
-      setUser(authUser);
-      localStorage.setItem("docflow_user", JSON.stringify(authUser));
-      localStorage.setItem("docflow_token", access_token);
-    } catch (err) {
-      console.error("Telegram auth failed:", err);
-      throw err;
+      if (!response.ok) {
+        throw new Error(`Auth failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Сохраняем токен и пользователя
+      setToken(data.access_token);
+      setUser(data.user);
+      
+      // Сохраняем в localStorage для сохранения сессии
+      localStorage.setItem("auth_token", data.access_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const signOut = async () => {
+  const logout = () => {
     setUser(null);
-    localStorage.removeItem("docflow_user");
-    localStorage.removeItem("docflow_token");
-    await supabase.auth.signOut();
+    setToken(null);
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user");
   };
 
-  // Авто-вход через Telegram WebApp initData
   useEffect(() => {
     const initAuth = async () => {
-      try {
-        const savedUser = localStorage.getItem("docflow_user");
-        const savedToken = localStorage.getItem("docflow_token");
-
-        if (savedUser && savedToken) {
-          setUser(JSON.parse(savedUser));
-        } else {
-          // Ждем пока Telegram WebApp станет ready
-          if (window.Telegram?.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-
-            const initData = window.Telegram.WebApp.initData;
-            if (initData) {
-              await signInWithTelegram(initData);
-            }
+      // Если есть сохраненный токен и пользователь, восстанавливаем сессию
+      const savedToken = localStorage.getItem("auth_token");
+      const savedUser = localStorage.getItem("user");
+      
+      if (savedToken && savedUser) {
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+        
+        // Проверяем валидность токена
+        try {
+          const response = await fetch("/api/v1/auth/me", {
+            headers: {
+              Authorization: `Bearer ${savedToken}`,
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error("Token invalid");
           }
+        } catch (error) {
+          console.error("Token validation failed:", error);
+          logout();
         }
-      } catch (err) {
-        console.error("AuthProvider init error:", err);
-      } finally {
-        setLoading(false);
       }
+      
+      // Если есть данные от Telegram, пытаемся авторизоваться
+      if (lp?.tgWebAppInitData) {
+        try {
+          await login(lp.tgWebAppInitData);
+        } catch (error) {
+          console.error("Telegram auth failed:", error);
+        }
+      }
+      
+      setLoading(false);
     };
+
     initAuth();
-  }, []);
+  }, [lp?.tgWebAppInitData]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithTelegram, signOut, updateUser }}>
+    <AuthContext.Provider value={{ user, token, setUser, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+}

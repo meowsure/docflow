@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import TelegramAuth from "@/components/TelegramAuth";
-import TestAuth from "@/components/TestAuth";
 import Index from "./pages/Index";
 import TaskDetail from "./pages/TaskDetail";
 import CreateTask from "./pages/CreateTask";
@@ -13,6 +12,7 @@ import CreateShipment from "./pages/CreateShipment";
 import TasksList from "./pages/TasksList";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import { AppRoot } from '@telegram-apps/telegram-ui';
 
 const queryClient = new QueryClient();
 
@@ -28,8 +28,7 @@ const AppContent = () => {
   }
 
   if (!user) {
-    // return <TelegramAuth />;
-    return <TestAuth />;
+    return <TelegramAuth />;
   }
 
   return (
@@ -46,6 +45,10 @@ const AppContent = () => {
 };
 
 const App = () => (
+  <AppRoot
+      appearance={isDark ? 'dark' : 'light'}
+      platform={['macos', 'ios'].includes(lp.tgWebAppPlatform) ? 'ios' : 'base'}
+    >
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -57,6 +60,7 @@ const App = () => (
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
+  </AppRoot>
 );
 
 export default App;
