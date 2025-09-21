@@ -11,6 +11,7 @@ interface User {
   last_name?: string;
   full_name?: string;
   photo_url?: string;
+  auth_date: Date | number | string;
 }
 
 interface AuthContextProps {
@@ -23,8 +24,6 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,36 +34,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       try {
         const launchParams = retrieveLaunchParams();
-        const testParams = retrieveRawInitData();
-        // превращаем в объект
-        const params = new URLSearchParams(testParams);
         // достаём auth_date
-        const authDate = params.get("auth_date");
+        const authDate = launchParams.tgWebAppData?.auth_date;
         const tgUser = launchParams.tgWebAppData?.user;
 
         if (!tgUser) {
           setError("Нет данных пользователя tgWebAppData.user");
           return;
         }
-
-        // Собираем user JSON
-        const userJson = encodeURIComponent(JSON.stringify({
-          id: tgUser.id,
-          first_name: tgUser.first_name,
-          last_name: tgUser.last_name,
-          username: tgUser.username,
-          photo_url: tgUser.photo_url,
-          language_code: tgUser.language_code,
-        }));
-
-        // Строим initData строку (БЕЗ signature)
-        const initDataParts: string[] = [];
-        if (launchParams.tgWebAppData?.query_id) initDataParts.push(`query_id=${launchParams.tgWebAppData?.query_id}`);
-        initDataParts.push(`user=${userJson}`);
-        if (authDate) initDataParts.push(`auth_date=${authDate}`);
-        if (launchParams.tgWebAppData?.hash) initDataParts.push(`hash=${launchParams.tgWebAppData?.hash}`);
-
-        const cleanInitData = initDataParts.join("&");
 
         const mappedUser: User = {
           id: tgUser.id,
@@ -74,8 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           last_name: tgUser.last_name,
           full_name: `${tgUser.first_name || ""} ${tgUser.last_name || ""}`.trim(),
           photo_url: tgUser.photo_url,
+          auth_date: authDate,
         };
-        // setUser(mappedUser);
 
         // Отправляем на сервер
         try {
