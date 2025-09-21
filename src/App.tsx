@@ -13,6 +13,10 @@ import CreateShipment from "./pages/CreateShipment";
 import TasksList from "./pages/TasksList";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Logs from "./pages/Logs";
+import Shipments from "./pages/Shipments";
+import Notifications from "./pages/Notifications";
+import Invoices from "./pages/Invoices";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +43,10 @@ const AppContent = () => {
       <Route path="/create-shipment" element={<CreateShipment />} />
       <Route path="/tasks" element={<TasksList />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/invoices" element={<Invoices />} />
+      <Route path="/notifications" element={<Notifications />} />
+      <Route path="/shipments" element={<Shipments />} />
+      <Route path="/logs" element={<Logs />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
