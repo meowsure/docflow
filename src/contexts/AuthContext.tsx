@@ -36,8 +36,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const launchParams = retrieveLaunchParams();
         const launchParamsStr = launchParams.tgWebAppData;
-        const initDataHash = launchParamsStr.hash;
-        const initDataSignature = launchParamsStr.signature;
+        // Преобразуем объект в query string
+        const initDataString = Object.entries(launchParamsStr)
+          .map(([key, value]) => {
+            // Если значение является объектом (как user), преобразуем его в JSON строку
+            if (typeof value === 'object' && value !== null) {
+              return `${key}=${encodeURIComponent(JSON.stringify(value))}`;
+            }
+            // Для простых значений просто кодируем
+            return `${key}=${encodeURIComponent(value)}`;
+          })
+          .join('&');
 
         if (!launchParams) {
           setError("tgWebAppInitData отсутствует или имеет неверный формат");
@@ -65,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Отправляем на сервер
         try {
-          const response = await api.post("/auth/telegram", { initdata: launchParamsStr});
+          const response = await api.post("/auth/telegram", { initdata: initDataString });
 
           if (response.status === 200 && response.data) {
             // const { token, user } = response.data;
