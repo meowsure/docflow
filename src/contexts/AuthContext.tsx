@@ -97,8 +97,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
 
         } catch (apiError: any) {
-          // setError("Ошибка при авторизации на API: " + apiError.response?.data?.message || apiError.message || apiError);
-          setError("Было отправлено initData: " + cleanInitData);
+          setError("Ошибка при авторизации на API: " + apiError.response?.data?.message || apiError.message || apiError);
+          // setError("Было отправлено initData: " + cleanInitData);
         }
       } catch (e: any) {
         setError("Ошибка при получении launchParams: " + e.message);
