@@ -130,7 +130,7 @@ const ShipmentCard = ({ shipment, onDelete, isDeleting }: ShipmentCardProps) => 
 
       <CardFooter className="pt-3 flex justify-between gap-2">
         <Button variant="outline" size="sm" className="flex-1" asChild>
-          <Link to={`/shipment/${shipment.id}`}>
+          <Link to={`/shipments/${shipment.id}`}>
             <Eye className="w-4 h-4 mr-2" />
             Подробнее
           </Link>
