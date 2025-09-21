@@ -5,6 +5,9 @@ export interface Shipment {
   id: string;
   description: string;
   status: string;
+  external_id: string;
+  from_location: string;
+  to_location: string;
   created_at: string;
   updated_at: string;
 }

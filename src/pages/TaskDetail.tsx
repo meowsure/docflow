@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { tasks, loading } = useTasks();
+  const { tasks, loading, refetch, deleteTask } = useTasks();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -86,8 +86,6 @@ const TaskDetail = () => {
         return 'warning';
       case 'completed':
         return 'success';
-      case 'cancelled':
-        return 'destructive';
       default:
         return 'secondary';
     }
@@ -103,8 +101,6 @@ const TaskDetail = () => {
         return 'В работе';
       case 'completed':
         return 'Выполнено';
-      case 'cancelled':
-        return 'Отменено';
       default:
         return task.status;
     }
@@ -113,14 +109,14 @@ const TaskDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <Button variant="ghost" className="mb-4" onClick={() => navigate('/tasks')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Назад к задачам
           </Button>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
@@ -134,13 +130,30 @@ const TaskDetail = () => {
                 <p className="text-muted-foreground">ID: {task.id}</p>
               </div>
             </div>
-            
+
             <div className="flex space-x-2">
-              <Button variant="outline" size="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/tasks/edit/${task.id}`)}
+              >
                 <Edit className="w-4 h-4 mr-2" />
                 Редактировать
               </Button>
-              <Button variant="outline" size="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const success = await deleteTask(task.id);
+                  if (success) {
+                    toast({
+                      title: "Задача удалена",
+                      description: "Задача успешно удалена",
+                    });
+                    navigate("/tasks");
+                  }
+                }}
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Удалить
               </Button>
@@ -175,7 +188,7 @@ const TaskDetail = () => {
                       <p className="text-foreground">{task.goods_name}</p>
                     </div>
                   )}
-                  
+
                   {(task.goods_weight || task.goods_volume) && (
                     <div className="grid md:grid-cols-2 gap-4">
                       {task.goods_weight && (

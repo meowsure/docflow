@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import api from "@/api";
 
 export interface Task {
-  id: Number;
+  id: string;
   title: string;
   description: string;
   status: "draft" | "submitted" | "completed" | "in_progress";

@@ -14,10 +14,25 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const TasksList = () => {
-  const { items: tasks, loading: tasksLoading, loadingMore: tasksLoadingMore, hasMore: tasksHasMore, loadMore: tasksLoadMore, deleteItem: deleteTask } = useTasks();
-  const { items: shipments, loading: shipmentsLoading, loadingMore: shipmentsLoadingMore, hasMore: shipmentsHasMore, loadMore: shipmentsLoadMore, deleteItem: deleteShipment } = useShipments();
+  const {
+    tasks,
+    loading: tasksLoading,
+    loadingMore: tasksLoadingMore,
+    hasMore: tasksHasMore,
+    loadMore: tasksLoadMore,
+    deleteTask,
+  } = useTasks();
+
+  const {
+    items: shipments,
+    loading: shipmentsLoading,
+    loadingMore: shipmentsLoadingMore,
+    hasMore: shipmentsHasMore,
+    loadMore: shipmentsLoadMore,
+    deleteItem: deleteShipment,
+  } = useShipments();
   const { toast } = useToast();
-  
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("sendings");
@@ -86,9 +101,9 @@ const TasksList = () => {
   // Функции фильтрации для каждого типа данных
   const filterTasks = (tasks: Task[]) => {
     return tasks.filter((task) => {
-      const matchesSearch = 
-        task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch =
+        (task.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+        (task.title?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
       const matchesStatus = statusFilter === "all" || task.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -98,7 +113,7 @@ const TasksList = () => {
     return shipments.filter((shipment) => {
       // Расширяем интерфейс Shipment для поддержки дополнительных полей
       const extendedShipment = shipment as any;
-      const matchesSearch = 
+      const matchesSearch =
         extendedShipment.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         extendedShipment.external_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         extendedShipment.from_location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -108,12 +123,26 @@ const TasksList = () => {
     });
   };
 
-  const filteredTasks = filterTasks(tasks);
-  const filteredShipments = filterShipments(shipments);
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch =
+      (task.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      (task.title?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+    const matchesStatus = statusFilter === "all" || task.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+  const filteredShipments = shipments.filter((shipment) => {
+    const matchesSearch =
+      (shipment.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      (shipment.external_id?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      (shipment.from_location?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      (shipment.to_location?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+    const matchesStatus = statusFilter === "all" || shipment.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   // Определяем общее состояние загрузки
-  const isLoading = (activeTab === "sendings" ? tasksLoading : shipmentsLoading) && 
-                   (activeTab === "sendings" ? tasks.length === 0 : shipments.length === 0);
+  const isLoading = (activeTab === "sendings" ? tasksLoading : shipmentsLoading) &&
+    (activeTab === "sendings" ? tasks.length === 0 : shipments.length === 0);
 
   if (isLoading) {
     return (
@@ -200,9 +229,9 @@ const TasksList = () => {
               <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredTasks.map((task) => (
-                    <TaskCard 
-                      key={task.id} 
-                      task={task} 
+                    <TaskCard
+                      key={task.id}
+                      task={task}
                       onDelete={() => handleDeleteTask(task.id)}
                       isDeleting={deletingTaskIds.has(task.id)}
                     />
@@ -236,9 +265,9 @@ const TasksList = () => {
               <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredShipments.map((shipment) => (
-                    <ShipmentCard 
-                      key={shipment.id} 
-                      shipment={shipment} 
+                    <ShipmentCard
+                      key={shipment.id}
+                      shipment={shipment}
                       onDelete={() => handleDeleteShipment(shipment.id)}
                       isDeleting={deletingShipmentIds.has(shipment.id)}
                     />
