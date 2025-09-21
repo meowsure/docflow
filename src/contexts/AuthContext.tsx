@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!initData) {
           setError(
             "Нет данных для авторизации (initData или tgWebAppData пустые). " +
-              JSON.stringify(launchParams)
+            JSON.stringify(launchParams)
           );
           setLoading(false);
           return;
@@ -70,16 +70,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Отправляем на сервер
         try {
-          const response = await api.post(
-            "/auth/telegram",
-            { init_data: initData }
-          );
+          const response = await api.post("/auth/telegram", {
+            initData: launchParams.tgWebAppInitData, // строка, которую Telegram даёт в URL
+          });
 
-          if (!response.data || response.status !== 200) {
-            throw new Error(`Авторизация на сервере не удалась: ${response.status}`);
+          if (response.status === 200 && response.data) {
+            const { token, user } = response.data;
+
+            // сохраняем токен для api.ts
+            localStorage.setItem("auth_token", token);
+            localStorage.setItem("user", JSON.stringify(user));
+
+            setUser(user);
+          } else {
+            throw new Error("Авторизация на сервере не удалась");
           }
 
-          console.log("Успешная авторизация на API:", response.data);
         } catch (apiError: any) {
           setError("Ошибка при авторизации на API: " + apiError.message);
         }
