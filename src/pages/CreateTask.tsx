@@ -10,8 +10,10 @@ import Header from "@/components/Header";
 import { ArrowLeft, Send, FileText, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTasks } from '@/hooks/useTasks';
+import { useTaskFiles } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import api from '@/api';
 
 interface UploadedFile {
   id: string;
@@ -24,11 +26,13 @@ interface UploadedFile {
 const CreateTask = () => {
   const { toast } = useToast();
   const { createTask } = useTasks();
+  const { addFile } = useTaskFiles();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [taskType, setTaskType] = useState<'send_docs' | 'make_scan'>('send_docs');
   const [city, setCity] = useState<'Москва' | 'Другой город'>('Москва');
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -38,6 +42,15 @@ const CreateTask = () => {
         variant: "destructive",
         title: "Ошибка",
         description: "Необходимо загрузить хотя бы один файл"
+      });
+      return;
+    }
+
+    if (!title.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: "Укажите заголовок задачи"
       });
       return;
     }
@@ -54,23 +67,50 @@ const CreateTask = () => {
     try {
       setLoading(true);
       
+      // Создаем задачу
       const task = await createTask({
-        task_type: taskType,
+        title: title.trim(),
         description: description.trim(),
+        task_type: taskType,
         city,
-        status: 'submitted',
-        user_id: user?.id || ''
+        status: 'draft', // Используем статус 'draft' как в TaskController
       });
 
       if (task) {
-        toast({
-          title: "Задача создана",
-          description: "Заявка отправлена лид-менеджеру"
-        });
+        // Загружаем файлы и привязываем их к задаче
+        let uploadErrors = false;
+        
+        for (const file of files) {
+          try {
+            await addFile(task.id, file.file);
+          } catch (error) {
+            console.error('Error uploading file:', error);
+            uploadErrors = true;
+          }
+        }
+
+        if (uploadErrors) {
+          toast({
+            variant: "destructive",
+            title: "Ошибка",
+            description: "Не все файлы были загружены"
+          });
+        } else {
+          toast({
+            title: "Задача создана",
+            description: "Заявка отправлена лид-менеджеру"
+          });
+        }
+        
         navigate('/tasks');
       }
     } catch (error) {
       console.error('Create task error:', error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: "Не удалось создать задачу"
+      });
     } finally {
       setLoading(false);
     }
@@ -119,12 +159,22 @@ const CreateTask = () => {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Send className="w-5 h-5" />
-                  <span>Тип задачи</span>
+                  <span>Детали задачи</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="taskType">Что нужно сделать?</Label>
+                  <Label htmlFor="title">Заголовок задачи *</Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Краткое описание задачи"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="taskType">Тип задачи *</Label>
                   <Select value={taskType} onValueChange={(value: 'send_docs' | 'make_scan') => setTaskType(value)}>
                     <SelectTrigger>
                       <SelectValue />
@@ -138,7 +188,7 @@ const CreateTask = () => {
 
                 {taskType === 'send_docs' && (
                   <div>
-                    <Label htmlFor="city">Куда отправить?</Label>
+                    <Label htmlFor="city">Город назначения *</Label>
                     <Select value={city} onValueChange={(value: 'Москва' | 'Другой город') => setCity(value)}>
                       <SelectTrigger>
                         <SelectValue />
@@ -157,7 +207,7 @@ const CreateTask = () => {
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Опишите задачу: что важно учитывать? Адресаты, сроки и т.п."
+                    placeholder="Подробное описание задачи: что важно учитывать? Адресаты, сроки и т.п."
                     rows={4}
                   />
                 </div>
@@ -176,6 +226,12 @@ const CreateTask = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
+                    <span>Заголовок:</span>
+                    <span className="font-medium">
+                      {title.trim() ? title : 'Не заполнено'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
                     <span>Тип задачи:</span>
                     <span className="font-medium">
                       {taskType === 'send_docs' ? 'Отправка документов' : 'Сканирование'}
@@ -183,7 +239,7 @@ const CreateTask = () => {
                   </div>
                   {taskType === 'send_docs' && (
                     <div className="flex justify-between text-sm">
-                      <span>Направление:</span>
+                      <span>Город:</span>
                       <span className="font-medium">{city}</span>
                     </div>
                   )}
@@ -203,7 +259,7 @@ const CreateTask = () => {
                   onClick={handleSubmit} 
                   className="w-full"
                   size="lg"
-                  disabled={loading}
+                  disabled={loading || !title.trim() || !description.trim() || files.length === 0}
                 >
                   {loading ? (
                     <>
