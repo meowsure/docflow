@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
 import TaskCard from "@/components/TaskCard";
 import { Search, Filter, Package, Send } from "lucide-react";
-import axios from "axios";
+import { useTasks } from "@/hooks/useTasks";
 
 interface Task {
   id: string;
@@ -20,44 +20,23 @@ interface Task {
 }
 
 const TasksList = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { tasks, loading, loadMore, hasMore, loadingMore } = useTasks();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("access_token"); // или из useAuth
-        const res = await axios.get("/api/v1/tasks", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        // ⚠️ адаптируем поля API под фронт
-        const apiTasks: Task[] = res.data.data.map((t: any) => ({
-          id: t.id,
-          type: t.type,
-          description: t.description,
-          city: t.city,
-          created_at: new Date(t.created_at).toLocaleString("ru-RU", {
-            day: "numeric",
-            month: "short",
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          status: t.status,
-          filesCount: t.files?.length ?? 0,
-        }));
-        setTasks(apiTasks);
-      } catch (err) {
-        console.error("Ошибка загрузки задач", err);
-      } finally {
-        setLoading(false);
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 200
+      ) {
+        if (hasMore && !loadingMore) loadMore();
       }
     };
 
-    fetchTasks();
-  }, []);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasMore, loadingMore, loadMore]);
 
   const filterTasks = (tasks: Task[], type?: string) => {
     return tasks.filter((task) => {
