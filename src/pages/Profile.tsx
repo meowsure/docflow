@@ -69,10 +69,8 @@ const Profile: React.FC = () => {
               <CardContent className="p-8">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-6">
-                    <Avatar className="w-20 h-20">
-                      <AvatarFallback className="text-2xl font-bold bg-primary text-primary-foreground">
-                        <img src={user?.photo_url} alt={`Фото пользователя ${user?.first_name}`} className="rounded-full w-24 h-24 object-cover me-4" />
-                      </AvatarFallback>
+                    <Avatar className="w-24 h-24">
+                      <img src={user?.photo_url} alt={`Фото пользователя ${user?.first_name}`} className="rounded-full w-24 h-24 object-cover me-4" />
                     </Avatar>
 
                     <div>
