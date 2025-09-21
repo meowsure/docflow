@@ -35,6 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       try {
         const launchParams = retrieveLaunchParams();
+        const testParams = retrieveRawInitData();
         const tgUser = launchParams.tgWebAppData?.user;
 
         if (!tgUser) {
@@ -93,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         } catch (apiError: any) {
           // setError("Ошибка при авторизации на API: " + apiError.response?.data?.message || apiError.message || apiError);
-          setError("Было отправлено initData: " + launchParams.tgWebAppData?.auth_date);
+          setError("Было отправлено initData: " + testParams);
         }
       } catch (e: any) {
         setError("Ошибка при получении launchParams: " + e.message);
