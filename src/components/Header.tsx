@@ -11,6 +11,7 @@ const Header = () => {
   const groupedNav = [
     {
       label: "Документооборот",
+      icon: FileText,
       items: [
         { path: "/tasks", label: "Мои задачи", icon: List },
         { path: "/create-task", label: "Создать задачу", icon: Send },
@@ -19,17 +20,20 @@ const Header = () => {
     },
     {
       label: "Логистика",
+      icon: FileText,
       items: [
         { path: "/create-shipment", label: "Создать отгрузку", icon: Truck },
         { path: "/shipments", label: "Отгрузки", icon: Package },
       ],
     },
     {
+      icon: FileText,
       label: "Финансы",
       items: [{ path: "/invoices", label: "Счета и оплаты", icon: CreditCard }],
     },
     {
       label: "Система",
+      icon: FileText,
       items: [
         { path: "/logs", label: "Логи", icon: Database },
         { path: "/notifications", label: "Уведомления", icon: Bell },
@@ -68,6 +72,7 @@ const Header = () => {
                 <DropdownMenu key={group.label}>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm" className="flex items-center space-x-1">
+                      <group.icon className="w-4 h-4" />
                       <span>{group.label}</span>
                       <ChevronDown className="w-3 h-3" />
                     </Button>
