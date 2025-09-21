@@ -60,6 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (launchParams.tgWebAppData?.hash) initDataParts.push(`hash=${launchParams.tgWebAppData?.hash}`);
 
         const cleanInitData = initDataParts.join("&");
+
         const mappedUser: User = {
           id: tgUser.id,
           telegram_id: tgUser.id,
@@ -69,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           full_name: `${tgUser.first_name || ""} ${tgUser.last_name || ""}`.trim(),
           photo_url: tgUser.photo_url,
         };
-
+        setUser(mappedUser);
 
         // Отправляем на сервер
         try {
