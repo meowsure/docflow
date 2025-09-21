@@ -1,7 +1,8 @@
 // AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { retrieveLaunchParams } from "@tma.js/bridge";
+import { retrieveLaunchParams, retrieveRawInitData } from "@tma.js/bridge";
 import api from "@/api";
+import { json } from "stream/consumers";
 
 interface User {
   id: string | number;
@@ -32,17 +33,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initAuth = async () => {
       setLoading(true);
       try {
-        const launchParams = retrieveLaunchParams();
-        const initData = launchParams.tgWebAppData;
-        alert(initData);
+        const launchParams = retrieveRawInitData();
+        const initData = JSON.parse(launchParams);
+        // alert(initData);
 
-        if (!initData || typeof initData !== "string") {
+        if (!launchParams || typeof launchParams !== "string") {
           setError("tgWebAppInitData отсутствует или имеет неверный формат");
           setLoading(false);
-          // return;
+          return;
         }
 
-        const tgUser = launchParams.tgWebAppData?.user;
+        const tgUser = initData.tgWebAppData?.user;
         if (!tgUser) {
           setError("Нет данных пользователя tgWebAppData.user");
           setLoading(false);
@@ -63,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Отправляем на сервер
         try {
-          const response = await api.post("/auth/telegram", { init_data: initData });
+          const response = await api.post("/auth/telegram", { init_data: launchParams });
           
           if (response.status === 200 && response.data) {
             // const { token, user } = response.data;
