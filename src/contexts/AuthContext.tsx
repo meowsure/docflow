@@ -34,7 +34,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const launchParams = retrieveLaunchParams();
         // достаём auth_date
-        const authDate = launchParams.tgWebAppData?.auth_date;
         const tgUser = launchParams.tgWebAppData?.user;
 
         if (!tgUser) {
@@ -54,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Отправляем на сервер
         try {
-          const response = await api.post("/auth/telegram", { user: mappedUser, auth_date: authDate, });
+          const response = await api.post("/auth/telegram", { user: mappedUser, auth_date: Math.floor(new Date().getTime() / 1000), });
 
           if (response.status === 200 && response.data) {
             // const { token, user } = response.data;
