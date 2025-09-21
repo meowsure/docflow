@@ -81,12 +81,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             setLoading(false);
             setUser(user);
+            setError("Было отправлено initData: " + cleanInitData);
           } else {
             throw new Error("Авторизация на сервере не удалась");
           }
 
         } catch (apiError: any) {
-          setError("Ошибка при авторизации на API: " + apiError.response?.data?.message || apiError.message || apiError);
+          // setError("Ошибка при авторизации на API: " + apiError.response?.data?.message || apiError.message || apiError);
+          // setError("Было отправлено initData: " + cleanInitData);
         }
       } catch (e: any) {
         setError("Ошибка при получении launchParams: " + e.message);
