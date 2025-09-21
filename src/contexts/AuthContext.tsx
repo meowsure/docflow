@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { retrieveLaunchParams, retrieveRawInitData } from "@tma.js/bridge";
 import api from "@/api";
 import { json } from "stream/consumers";
+import { error } from "console";
 
 interface User {
   id: string | number;
@@ -24,9 +25,11 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
+const [errors, setErrors] = useState<string | null>(null);
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,14 +40,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // const initData = JSON.parse(launchParams);
 
         if (!launchParams) {
-          setError("tgWebAppInitData отсутствует или имеет неверный формат");
+          setErrors("tgWebAppInitData отсутствует или имеет неверный формат");
           setLoading(false);
           return;
         }
 
         const tgUser = launchParams.tgWebAppData?.user;
         if (!tgUser) {
-          setError("Нет данных пользователя tgWebAppData.user");
+          setErrors("Нет данных пользователя tgWebAppData.user");
           setLoading(false);
           return;
         }
@@ -59,11 +62,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           photo_url: tgUser.photo_url,
         };
 
-        
+
         // Отправляем на сервер
         try {
           const response = await api.post("/auth/telegram", { init_data: launchParams.tgWebAppData?.initData });
-          
+
           if (response.status === 200 && response.data) {
             // const { token, user } = response.data;
             const { access_token, user } = response.data;
@@ -79,10 +82,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
 
         } catch (apiError: any) {
-          setError("Ошибка при авторизации на API: " + apiError.message);
+          setErrors("Ошибка при авторизации на API: " + apiError.message);
         }
       } catch (e: any) {
-        setError("Ошибка при получении launchParams: " + e.message);
+        setErrors("Ошибка при получении launchParams: " + e.message);
       } finally {
         setLoading(false);
       }
@@ -107,3 +110,7 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
+
+export function getErr() {
+  return errors;
+};
