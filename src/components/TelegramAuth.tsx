@@ -3,9 +3,10 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import LockBrowser from "./lockBrowser";
+import Index from "@/pages/Index";
 
 const TelegramAuth: React.FC = () => {
-  const { error, loading } = useAuth();
+  const { user, error, loading } = useAuth();
 
   if (loading) {
     return (
@@ -15,9 +16,19 @@ const TelegramAuth: React.FC = () => {
     );
   }
 
+  if (!user) {
+    return (
+      <main>
+        <LockBrowser />
+        <p>{error}</p>
+      </main>
+    );
+  }
+
   return (
-    <LockBrowser />
+    <Index />
   );
+
 };
 
 export default TelegramAuth;

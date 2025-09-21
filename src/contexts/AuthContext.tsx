@@ -1,6 +1,6 @@
 // AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { retrieveLaunchParams, retrieveRawLaunchParams, retrieveRawInitData } from "@tma.js/bridge";
+import { retrieveLaunchParams } from "@tma.js/bridge";
 import api from "@/api";
 
 interface User {
@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       try {
         const launchParams = retrieveLaunchParams();
-        // достаём auth_date
+
         const tgUser = launchParams.tgWebAppData?.user;
 
         if (!tgUser) {
@@ -51,9 +51,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           photo_url: tgUser.photo_url
         };
 
+        // Преобразуем в массив (если требуется именно массив объектов)
+        const userArray = [mappedUser]; // Теперь это массив с одним элементом
+
+        // Для отправки на бекенд используйте JSON-сериализацию
+        const jsonData = JSON.stringify(userArray);
+
         // Отправляем на сервер
         try {
-          const response = await api.post("/auth/telegram", { user: mappedUser, auth_date: Math.floor(new Date().getTime() / 1000), });
+          const response = await api.post("/auth/telegram", { user: mappedUser, auth_date: Math.floor(new Date().getTime() / 1000) });
 
           if (response.status === 200 && response.data) {
             // const { token, user } = response.data;
@@ -72,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         } catch (apiError: any) {
           setError("Ошибка при авторизации на API: " + apiError.response?.data?.message || apiError.message || apiError);
-          // setError("Было отправлено initData: " + cleanInitData);
+          // setError("Было отправлено initData: " + jsonData);
         }
       } catch (e: any) {
         setError("Ошибка при получении launchParams: " + e.message);

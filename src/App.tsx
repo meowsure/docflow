@@ -17,11 +17,13 @@ import Logs from "./pages/Logs";
 import Shipments from "./pages/Shipments";
 import Notifications from "./pages/Notifications";
 import Invoices from "./pages/Invoices";
+import { retrieveLaunchParams } from "@tma.js/bridge";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { user, loading } = useAuth();
+  const launchParams = retrieveLaunchParams();
 
   if (loading) {
     return (
