@@ -37,13 +37,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const launchParams = retrieveLaunchParams();
         const launchParamsStr = launchParams.tgWebAppData;
         // Преобразуем объект в query string
+        // На фронтенде преобразуем объект в query string
         const initDataString = Object.entries(launchParamsStr)
           .map(([key, value]) => {
-            // Если значение является объектом (как user), преобразуем его в JSON строку
             if (typeof value === 'object' && value !== null) {
               return `${key}=${encodeURIComponent(JSON.stringify(value))}`;
             }
-            // Для простых значений просто кодируем
             return `${key}=${encodeURIComponent(value)}`;
           })
           .join('&');
