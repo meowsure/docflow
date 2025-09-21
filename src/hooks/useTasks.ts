@@ -5,14 +5,25 @@ import api from "@/api";
 
 export interface Task {
   id: string;
-  type: "send_docs" | "make_scan" | "shipment";
-  task_type: "send_docs" | "make_scan" | "shipment";
+  title: string;
   description: string;
-  status: "draft" | "submitted" | "completed" | 'in_progress';
+  status: "draft" | "submitted" | "completed" | "in_progress";
+  task_type: "send_docs" | "make_scan" | "shipment";
   city?: string;
+  creator_id: string;
+  assignee_id?: string;
   created_at: string;
   updated_at: string;
+  // Relationships
+  creator?: User;
+  assignee?: User;
   files?: TaskFile[];
+}
+
+export interface User {
+  id: string;
+  full_name: string;
+  // Add other user fields as needed
 }
 
 export interface TaskFile {
@@ -31,19 +42,28 @@ export interface TaskFile {
   mime_type?: string;
 }
 
+export interface PaginationMeta {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  // Add other pagination fields as needed
+}
+
 export const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
 
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   const fetchTasks = useCallback(
     async (pageToLoad: number = 1, append = false) => {
-      if (!user || !token) return;
+      if (!user) return;
 
       try {
         if (pageToLoad === 1) setLoading(true);
@@ -51,13 +71,13 @@ export const useTasks = () => {
 
         const response = await api.get(`/tasks?page=${pageToLoad}`);
         const tasksData: Task[] = response.data.data || [];
+        const paginationMeta: PaginationMeta = response.data.meta;
 
         setTasks((prev) => (append ? [...prev, ...tasksData] : tasksData));
+        setMeta(paginationMeta);
 
-        // проверяем есть ли еще страницы
-        const meta = response.data.meta;
-        setHasMore(meta && meta.current_page < meta.last_page);
-
+        // Check if there are more pages
+        setHasMore(paginationMeta && paginationMeta.current_page < paginationMeta.last_page);
         setPage(pageToLoad);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -71,12 +91,12 @@ export const useTasks = () => {
         setLoadingMore(false);
       }
     },
-    [user, token, toast]
+    [user, toast]
   );
 
   const loadMore = () => {
-    if (hasMore && !loadingMore) {
-      fetchTasks(page + 1, true);
+    if (hasMore && !loadingMore && meta) {
+      fetchTasks(meta.current_page + 1, true);
     }
   };
 
@@ -131,16 +151,17 @@ export const useTasks = () => {
     }
   };
 
-  // Автозагрузка первой страницы
+  // Auto-load first page
   useEffect(() => {
     fetchTasks(1);
-  }, [user, token, fetchTasks]);
+  }, [fetchTasks]);
 
   return {
     tasks,
     loading,
     loadingMore,
     hasMore,
+    meta,
     loadMore,
     createTask,
     updateTask,

@@ -7,22 +7,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
 import TaskCard from "@/components/TaskCard";
 import { Search, Filter, Package, Send } from "lucide-react";
-import { useTasks } from "@/hooks/useTasks";
-
-interface Task {
-  id: string;
-  type: "send_docs" | "make_scan" | "shipment";
-  description: string;
-  city?: string;
-  created_at: string;
-  status: "draft" | "submitted" | "completed";
-  filesCount: number;
-}
+import { useTasks, Task } from "@/hooks/useTasks";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TasksList = () => {
-  const { tasks, loading, loadMore, hasMore, loadingMore } = useTasks();
+  const { tasks, loading, loadingMore, hasMore, loadMore, deleteTask } = useTasks();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,17 +32,66 @@ const TasksList = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [hasMore, loadingMore, loadMore]);
 
+  const handleDeleteTask = async (taskId: string) => {
+    setDeletingIds(prev => new Set(prev).add(taskId));
+    try {
+      const success = await deleteTask(taskId);
+      if (success) {
+        toast({
+          title: "Задача удалена",
+          description: "Задача успешно удалена",
+        });
+      }
+    } catch (error) {
+      // Error handling is already in the hook
+    } finally {
+      setDeletingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(taskId);
+        return newSet;
+      });
+    }
+  };
+
   const filterTasks = (tasks: Task[], type?: string) => {
     return tasks.filter((task) => {
       const matchesSearch = task.description.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === "all" || task.status === statusFilter;
-      const matchesType = !type || task.type === type;
+      const matchesType = !type || task.task_type === type;
       return matchesSearch && matchesStatus && matchesType;
     });
   };
 
-  const sendingTasks = filterTasks(tasks.filter((t) => t.type === "send_docs" || t.type === "make_scan"));
-  const shipmentTasks = filterTasks(tasks.filter((t) => t.type === "shipment"));
+  const sendingTasks = filterTasks(tasks, "send_docs");
+  const scanTasks = filterTasks(tasks, "make_scan");
+  const shipmentTasks = filterTasks(tasks, "shipment");
+
+  const allSendingTasks = [...sendingTasks, ...scanTasks];
+
+  if (loading && tasks.length === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-6">
+            <Skeleton className="h-8 w-1/3 mb-2" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="h-40">
+                <CardContent className="p-4">
+                  <Skeleton className="h-4 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2 mb-4" />
+                  <Skeleton className="h-4 w-1/4" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -84,6 +127,7 @@ const TasksList = () => {
                   <SelectItem value="all">Все статусы</SelectItem>
                   <SelectItem value="draft">Черновики</SelectItem>
                   <SelectItem value="submitted">Отправленные</SelectItem>
+                  <SelectItem value="in_progress">В работе</SelectItem>
                   <SelectItem value="completed">Выполненные</SelectItem>
                 </SelectContent>
               </Select>
@@ -91,60 +135,80 @@ const TasksList = () => {
           </CardContent>
         </Card>
 
-        {loading ? (
-          <div className="text-center text-muted-foreground py-10">Загрузка задач...</div>
-        ) : (
-          <Tabs defaultValue="sendings" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="sendings" className="flex items-center space-x-2">
-                <Send className="w-4 h-4" />
-                <span>Отправки ({sendingTasks.length})</span>
-              </TabsTrigger>
-              <TabsTrigger value="shipments" className="flex items-center space-x-2">
-                <Package className="w-4 h-4" />
-                <span>Отгрузки ({shipmentTasks.length})</span>
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="sendings" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="sendings" className="flex items-center space-x-2">
+              <Send className="w-4 h-4" />
+              <span>Отправки ({allSendingTasks.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="shipments" className="flex items-center space-x-2">
+              <Package className="w-4 h-4" />
+              <span>Отгрузки ({shipmentTasks.length})</span>
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="sendings" className="space-y-6">
-              {sendingTasks.length > 0 ? (
+          <TabsContent value="sendings" className="space-y-6">
+            {allSendingTasks.length > 0 ? (
+              <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {sendingTasks.map((task) => (
-                    <TaskCard key={task.id} task={task} />
+                  {allSendingTasks.map((task) => (
+                    <TaskCard 
+                      key={task.id} 
+                      task={task} 
+                      onDelete={() => handleDeleteTask(task.id)}
+                      isDeleting={deletingIds.has(task.id)}
+                    />
                   ))}
                 </div>
-              ) : (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <Send className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-lg font-medium mb-2">Нет отправок</p>
-                    <p className="text-muted-foreground">Создайте свою первую отправку документов</p>
-                    <Button className="mt-4">Создать отправку</Button>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
+                {loadingMore && (
+                  <div className="flex justify-center mt-4">
+                    <div className="text-muted-foreground">Загрузка...</div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Send className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-lg font-medium mb-2">Нет отправок</p>
+                  <p className="text-muted-foreground">Создайте свою первую отправку документов</p>
+                  <Button className="mt-4">Создать отправку</Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
-            <TabsContent value="shipments" className="space-y-6">
-              {shipmentTasks.length > 0 ? (
+          <TabsContent value="shipments" className="space-y-6">
+            {shipmentTasks.length > 0 ? (
+              <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {shipmentTasks.map((task) => (
-                    <TaskCard key={task.id} task={task} />
+                    <TaskCard 
+                      key={task.id} 
+                      task={task} 
+                      onDelete={() => handleDeleteTask(task.id)}
+                      isDeleting={deletingIds.has(task.id)}
+                    />
                   ))}
                 </div>
-              ) : (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-lg font-medium mb-2">Нет отгрузок</p>
-                    <p className="text-muted-foreground">Создайте свою первую отгрузку товаров</p>
-                    <Button className="mt-4">Создать отгрузку</Button>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-          </Tabs>
-        )}
+                {loadingMore && (
+                  <div className="flex justify-center mt-4">
+                    <div className="text-muted-foreground">Загрузка...</div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-lg font-medium mb-2">Нет отгрузок</p>
+                  <p className="text-muted-foreground">Создайте свою первую отгрузку товаров</p>
+                  <Button className="mt-4">Создать отгрузку</Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
