@@ -13,7 +13,6 @@ import { useTasks } from '@/hooks/useTasks';
 import { useTaskFiles } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import api from '@/api';
 
 interface UploadedFile {
   id: string;
