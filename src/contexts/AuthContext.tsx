@@ -51,13 +51,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           photo_url: tgUser.photo_url,
           language_code: tgUser.language_code,
         }));
-
+        
         // Строим initData строку (БЕЗ signature)
         const initDataParts: string[] = [];
-        if (launchParams.query_id) initDataParts.push(`query_id=${launchParams.query_id}`);
+        if (launchParams.tgWebAppData?.query_id) initDataParts.push(`query_id=${launchParams.tgWebAppData?.query_id}`);
         initDataParts.push(`user=${userJson}`);
-        if (launchParams.auth_date) initDataParts.push(`auth_date=${launchParams.auth_date}`);
-        if (launchParams.hash) initDataParts.push(`hash=${launchParams.hash}`);
+        if (launchParams.tgWebAppData?.auth_date) initDataParts.push(`auth_date=${launchParams.tgWebAppData?.auth_date}`);
+        if (launchParams.tgWebAppData?.hash) initDataParts.push(`hash=${launchParams.tgWebAppData?.hash}`);
 
         const cleanInitData = initDataParts.join("&");
         const mappedUser: User = {
