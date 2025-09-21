@@ -10,7 +10,6 @@ import Header from "@/components/Header";
 import { ArrowLeft, Send, FileText, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTasks } from '@/hooks/useTasks';
-import { useTaskFiles } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,7 +24,6 @@ interface UploadedFile {
 const CreateTask = () => {
   const { toast } = useToast();
   const { createTask } = useTasks();
-  const { addFile } = useTaskFiles();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [files, setFiles] = useState<UploadedFile[]>([]);
@@ -81,7 +79,7 @@ const CreateTask = () => {
         
         for (const file of files) {
           try {
-            await addFile(task.id, file.file);
+            // await addFile(task.id, file.file);
           } catch (error) {
             console.error('Error uploading file:', error);
             uploadErrors = true;
