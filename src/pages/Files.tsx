@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Folder, File, Search, Upload, Download, Eye } from "lucide-react";
+import Header from "@/components/Header";
 
 const Files = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -82,78 +83,82 @@ const Files = () => {
   );
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Файлы</h1>
-          <p className="text-muted-foreground">Управление документами и файлами</p>
+    <div className="min-h-screen bg-background">
+      <Header/>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Файлы</h1>
+            <p className="text-muted-foreground">Управление документами и файлами</p>
+          </div>
+          <Button>
+            <Upload className="h-4 w-4 mr-2" />
+            Загрузить файл
+          </Button>
         </div>
-        <Button>
-          <Upload className="h-4 w-4 mr-2" />
-          Загрузить файл
-        </Button>
-      </div>
 
-      <div className="flex gap-4 items-center">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Поиск файлов..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        <div className="flex gap-4 items-center">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Поиск файлов..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-4">
-        {filteredFiles.map((file) => (
-          <Card key={file.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {getFileIcon(file.type)}
-                  <div>
-                    <h3 className="font-medium">{file.name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Folder className="h-3 w-3" />
-                      <span>{file.folder}</span>
-                      <span>•</span>
-                      <span>{file.size}</span>
-                      <span>•</span>
-                      <span>{file.uploadedAt}</span>
+        <div className="grid gap-4">
+          {filteredFiles.map((file) => (
+            <Card key={file.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {getFileIcon(file.type)}
+                    <div>
+                      <h3 className="font-medium">{file.name}</h3>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Folder className="h-3 w-3" />
+                        <span>{file.folder}</span>
+                        <span>•</span>
+                        <span>{file.size}</span>
+                        <span>•</span>
+                        <span>{file.uploadedAt}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge className={getStatusColor(file.status)}>
+                      {file.status}
+                    </Badge>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <Download className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Badge className={getStatusColor(file.status)}>
-                    {file.status}
-                  </Badge>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {filteredFiles.length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Folder className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">Файлы не найдены</h3>
+              <p className="text-muted-foreground">Попробуйте изменить поисковый запрос</p>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
-
-      {filteredFiles.length === 0 && (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Folder className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">Файлы не найдены</h3>
-            <p className="text-muted-foreground">Попробуйте изменить поисковый запрос</p>
-          </CardContent>
-        </Card>
-      )}
     </div>
+
   );
 };
 
