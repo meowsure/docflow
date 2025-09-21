@@ -28,22 +28,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  if (localStorage.getItem("user")) {
-    const usr = localStorage.getItem("user");
-    setLoading(false);
-    setUser(JSON.parse(usr || "{}"));
-
-    const logout = () => {
-      setUser(null);
-    };
-
-    return (
-      <AuthContext.Provider value={{ user, setUser, logout, error, loading }}>
-        {children}
-      </AuthContext.Provider>
-    );
-  }
-
   useEffect(() => {
     const initAuth = async () => {
       setLoading(true);
