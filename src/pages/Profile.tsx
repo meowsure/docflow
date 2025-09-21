@@ -13,7 +13,7 @@ import { ru } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 
 const Profile: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { tasks, loading } = useTasks();
 
   if (!user) return null;
@@ -90,11 +90,6 @@ const Profile: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  
-                  <Button variant="outline" onClick={signOut} className="shrink-0">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Выйти
-                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -215,6 +210,13 @@ const Profile: React.FC = () => {
                     <p className="text-foreground font-mono text-sm">{user.telegram_id}</p>
                   </div>
                   
+                  <Separator />
+
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Authtoken</label>
+                    <p className="text-foreground font-mono text-sm">{localStorage.getItem("auth_token")}</p>
+                  </div>
+
                   <Separator />
                   
                   <div>

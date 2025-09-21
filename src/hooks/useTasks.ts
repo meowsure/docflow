@@ -6,8 +6,9 @@ import api from "@/api";
 export interface Task {
   id: string;
   type: "send_docs" | "make_scan" | "shipment";
+  task_type: "send_docs" | "make_scan" | "shipment";
   description: string;
-  status: "draft" | "submitted" | "completed";
+  status: "draft" | "submitted" | "completed" | 'in_progress';
   city?: string;
   created_at: string;
   updated_at: string;
