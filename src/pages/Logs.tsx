@@ -100,8 +100,8 @@ const Logs = () => {
 
   const filteredLogs = mockLogs.filter(log => {
     const matchesSearch = log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         log.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         log.details.toLowerCase().includes(searchTerm.toLowerCase());
+      log.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.details.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLevel = selectedLevel === "all" || log.level === selectedLevel;
     return matchesSearch && matchesLevel;
   });
@@ -112,121 +112,125 @@ const Logs = () => {
   }, {} as Record<string, number>);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Логи системы</h1>
-          <p className="text-muted-foreground">Мониторинг активности и событий</p>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Логи системы</h1>
+            <p className="text-muted-foreground">Мониторинг активности и событий</p>
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <XCircle className="h-5 w-5 text-red-600" />
-              <div>
-                <p className="text-sm font-medium">Ошибки</p>
-                <p className="text-2xl font-bold text-red-600">{logCounts.error || 0}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-yellow-600" />
-              <div>
-                <p className="text-sm font-medium">Предупреждения</p>
-                <p className="text-2xl font-bold text-yellow-600">{logCounts.warning || 0}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <div>
-                <p className="text-sm font-medium">Успешно</p>
-                <p className="text-2xl font-bold text-green-600">{logCounts.success || 0}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Info className="h-5 w-5 text-blue-600" />
-              <div>
-                <p className="text-sm font-medium">Информация</p>
-                <p className="text-2xl font-bold text-blue-600">{logCounts.info || 0}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="flex gap-4 items-center">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Поиск в логах..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Уровень" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Все уровни</SelectItem>
-            <SelectItem value="error">Ошибки</SelectItem>
-            <SelectItem value="warning">Предупреждения</SelectItem>
-            <SelectItem value="success">Успешно</SelectItem>
-            <SelectItem value="info">Информация</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-3">
-        {filteredLogs.map((log) => (
-          <Card key={log.id} className="hover:shadow-md transition-shadow">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card>
             <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                {getLevelIcon(log.level)}
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium">{log.action}</h3>
-                    <Badge className={getLevelColor(log.level)}>
-                      {log.level.toUpperCase()}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{log.details}</p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>{log.timestamp}</span>
-                    <span>Пользователь: {log.user}</span>
-                    <span>IP: {log.ip}</span>
-                  </div>
+              <div className="flex items-center gap-2">
+                <XCircle className="h-5 w-5 text-red-600" />
+                <div>
+                  <p className="text-sm font-medium">Ошибки</p>
+                  <p className="text-2xl font-bold text-red-600">{logCounts.error || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-yellow-600" />
+                <div>
+                  <p className="text-sm font-medium">Предупреждения</p>
+                  <p className="text-2xl font-bold text-yellow-600">{logCounts.warning || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <div>
+                  <p className="text-sm font-medium">Успешно</p>
+                  <p className="text-2xl font-bold text-green-600">{logCounts.success || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Info className="h-5 w-5 text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium">Информация</p>
+                  <p className="text-2xl font-bold text-blue-600">{logCounts.info || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      {filteredLogs.length === 0 && (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">Логи не найдены</h3>
-            <p className="text-muted-foreground">Попробуйте изменить фильтры поиска</p>
-          </CardContent>
-        </Card>
-      )}
+        <div className="flex gap-4 items-center">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Поиск в логах..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Уровень" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Все уровни</SelectItem>
+              <SelectItem value="error">Ошибки</SelectItem>
+              <SelectItem value="warning">Предупреждения</SelectItem>
+              <SelectItem value="success">Успешно</SelectItem>
+              <SelectItem value="info">Информация</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-3">
+          {filteredLogs.map((log) => (
+            <Card key={log.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  {getLevelIcon(log.level)}
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium">{log.action}</h3>
+                      <Badge className={getLevelColor(log.level)}>
+                        {log.level.toUpperCase()}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{log.details}</p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>{log.timestamp}</span>
+                      <span>Пользователь: {log.user}</span>
+                      <span>IP: {log.ip}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {filteredLogs.length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">Логи не найдены</h3>
+              <p className="text-muted-foreground">Попробуйте изменить фильтры поиска</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
+
   );
 };
 

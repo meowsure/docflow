@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Check, AlertCircle, Info, MessageSquare, Settings } from "lucide-react";
+import Header from "@/components/Header";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([
@@ -118,106 +119,109 @@ const Notifications = () => {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Уведомления</h1>
-          <p className="text-muted-foreground">
-            {unreadCount > 0 ? `${unreadCount} непрочитанных уведомлений` : "Все уведомления прочитаны"}
-          </p>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Уведомления</h1>
+            <p className="text-muted-foreground">
+              {unreadCount > 0 ? `${unreadCount} непрочитанных уведомлений` : "Все уведомления прочитаны"}
+            </p>
+          </div>
+          {unreadCount > 0 && (
+            <Button onClick={markAllAsRead} variant="outline">
+              <Check className="h-4 w-4 mr-2" />
+              Отметить всё как прочитанное
+            </Button>
+          )}
         </div>
-        {unreadCount > 0 && (
-          <Button onClick={markAllAsRead} variant="outline">
-            <Check className="h-4 w-4 mr-2" />
-            Отметить всё как прочитанное
-          </Button>
-        )}
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-blue-600" />
-              <div>
-                <p className="text-sm font-medium">Всего</p>
-                <p className="text-2xl font-bold">{notifications.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-600" />
-              <div>
-                <p className="text-sm font-medium">Непрочитанные</p>
-                <p className="text-2xl font-bold text-red-600">{unreadCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Check className="h-5 w-5 text-green-600" />
-              <div>
-                <p className="text-sm font-medium">Прочитанные</p>
-                <p className="text-2xl font-bold text-green-600">{notifications.length - unreadCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="space-y-3">
-        {notifications.map((notification) => (
-          <Card 
-            key={notification.id} 
-            className={`hover:shadow-md transition-shadow cursor-pointer ${
-              !notification.isRead ? 'border-l-4 border-l-blue-500 bg-blue-50/50' : ''
-            }`}
-            onClick={() => markAsRead(notification.id)}
-          >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card>
             <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                {getTypeIcon(notification.type)}
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <h3 className={`font-medium ${!notification.isRead ? 'font-semibold' : ''}`}>
-                        {notification.title}
-                      </h3>
-                      {!notification.isRead && (
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      )}
-                    </div>
-                    <Badge className={getPriorityColor(notification.priority)}>
-                      {getPriorityText(notification.priority)}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{notification.message}</p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>{notification.timestamp}</span>
-                    <span>От: {notification.from}</span>
-                  </div>
+              <div className="flex items-center gap-2">
+                <Bell className="h-5 w-5 text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium">Всего</p>
+                  <p className="text-2xl font-bold">{notifications.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-red-600" />
+                <div>
+                  <p className="text-sm font-medium">Непрочитанные</p>
+                  <p className="text-2xl font-bold text-red-600">{unreadCount}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Check className="h-5 w-5 text-green-600" />
+                <div>
+                  <p className="text-sm font-medium">Прочитанные</p>
+                  <p className="text-2xl font-bold text-green-600">{notifications.length - unreadCount}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      {notifications.length === 0 && (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">Нет уведомлений</h3>
-            <p className="text-muted-foreground">Новые уведомления появятся здесь</p>
-          </CardContent>
-        </Card>
-      )}
+        <div className="space-y-3">
+          {notifications.map((notification) => (
+            <Card
+              key={notification.id}
+              className={`hover:shadow-md transition-shadow cursor-pointer ${!notification.isRead ? 'border-l-4 border-l-blue-500 bg-blue-50/50' : ''
+                }`}
+              onClick={() => markAsRead(notification.id)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  {getTypeIcon(notification.type)}
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <h3 className={`font-medium ${!notification.isRead ? 'font-semibold' : ''}`}>
+                          {notification.title}
+                        </h3>
+                        {!notification.isRead && (
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        )}
+                      </div>
+                      <Badge className={getPriorityColor(notification.priority)}>
+                        {getPriorityText(notification.priority)}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{notification.message}</p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>{notification.timestamp}</span>
+                      <span>От: {notification.from}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {notifications.length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">Нет уведомлений</h3>
+              <p className="text-muted-foreground">Новые уведомления появятся здесь</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
+
   );
 };
 
