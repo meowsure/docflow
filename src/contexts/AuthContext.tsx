@@ -1,6 +1,6 @@
 // AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { retrieveLaunchParams, retrieveRawLaunchParams } from "@tma.js/bridge";
+import { retrieveLaunchParams, retrieveRawLaunchParams, retrieveRawInitData } from "@tma.js/bridge";
 import api from "@/api";
 
 interface User {
@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const launchParams = retrieveLaunchParams();
         const launchParamsStr = launchParams.tgWebAppData;
         const { initDataRaw, initData } = retrieveLaunchParams();
-        const initRw = retrieveRawLaunchParams();
+        const initRw = retrieveRawInitData();
         const initDataString = Object.entries(launchParamsStr)
           .map(([key, value]) => {
             if (typeof value === 'object' && value !== null) {
