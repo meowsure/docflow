@@ -33,13 +33,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       try {
         const launchParams = retrieveLaunchParams();
-        const initData = launchParams.tgWebAppInitData;
-        alert(launchParams);
+        const initData = launchParams.tgWebAppData;
+        alert(initData);
 
         if (!initData || typeof initData !== "string") {
           setError("tgWebAppInitData отсутствует или имеет неверный формат");
           setLoading(false);
-          return;
+          // return;
         }
 
         const tgUser = launchParams.tgWebAppData?.user;
