@@ -24,7 +24,7 @@ const TelegramAuth: React.FC = () => {
   }
 
   return (
-    <div className="p-4 space-y-2">
+    <div className="p-4 space-y-2 bg-black/10">
       <p>Откройте приложение через бота в Telegram.</p>
       <code>{ error }</code>
     </div>
