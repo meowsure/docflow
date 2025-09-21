@@ -35,27 +35,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       try {
         const launchParams = retrieveLaunchParams();
-        const launchParamsStr = launchParams.tgWebAppData;
-        const rawInitData = retrieveRawInitData();
-        // Чистим строку от signature
-        const cleanInitData = rawInitData
-          .split("&")
-          .filter((part) => !part.startsWith("signature="))
-          .join("&");
-
-        if (!launchParams) {
-          setError("tgWebAppInitData отсутствует или имеет неверный формат");
-          setLoading(false);
-          return;
-        }
-
         const tgUser = launchParams.tgWebAppData?.user;
+
         if (!tgUser) {
           setError("Нет данных пользователя tgWebAppData.user");
-          setLoading(false);
           return;
         }
 
+        // Собираем user JSON
+        const userJson = encodeURIComponent(JSON.stringify({
+          id: tgUser.id,
+          first_name: tgUser.first_name,
+          last_name: tgUser.last_name,
+          username: tgUser.username,
+          photo_url: tgUser.photo_url,
+          language_code: tgUser.language_code,
+        }));
+
+        // Строим initData строку (БЕЗ signature)
+        const initDataParts: string[] = [];
+        if (launchParams.query_id) initDataParts.push(`query_id=${launchParams.query_id}`);
+        initDataParts.push(`user=${userJson}`);
+        if (launchParams.auth_date) initDataParts.push(`auth_date=${launchParams.auth_date}`);
+        if (launchParams.hash) initDataParts.push(`hash=${launchParams.hash}`);
+
+        const cleanInitData = initDataParts.join("&");
         const mappedUser: User = {
           id: tgUser.id,
           telegram_id: tgUser.id,
@@ -88,7 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         } catch (apiError: any) {
           // setError("Ошибка при авторизации на API: " + apiError.response?.data?.message || apiError.message || apiError);
-          // setError("Было отправлено initData: " + cleanInitData);
+          setError("Было отправлено initData: " + cleanInitData);
         }
       } catch (e: any) {
         setError("Ошибка при получении launchParams: " + e.message);
