@@ -2,13 +2,34 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 
-const lockBrowser: React.FC = () => {
+const LockBrowser: React.FC = () => {
 
   return (
-    <div className="p-4 space-y-2 bg-black/10">
-        <p>Это приложение доступно только в Telegram</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
+      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 max-w-md w-full text-center shadow-2xl border border-white/20">
+        <div className="mb-6">
+          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg 
+              className="w-12 h-12 text-white" 
+              viewBox="0 0 24 24" 
+              fill="currentColor"
+            >
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.05 5.56-5.022c.242-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.136-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+            </svg>
+          </div>
+          
+          <h1 className="text-2xl font-bold text-white mb-2">
+            Доступ только через Telegram
+          </h1>
+          
+          <p className="text-white/80">
+            Это приложение доступно исключительно 
+            через Telegram Web App
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default lockBrowser;
+export default LockBrowser;
