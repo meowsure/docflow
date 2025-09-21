@@ -28,6 +28,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  if(localStorage.getItem("user")) {
+    setLoading(false);
+    setUser(JSON.parse(localStorage.getItem("user") || "{}"));
+  }
+
   useEffect(() => {
     const initAuth = async () => {
       setLoading(true);
