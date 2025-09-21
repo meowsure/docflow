@@ -8,10 +8,10 @@ import FileUploader from "@/components/FileUploader";
 import Header from "@/components/Header";
 import { ArrowLeft, Package, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useShipments } from '@/hooks/useShipments';
+import { useFiles } from "@/hooks/useFiles";
 
 interface UploadedFile {
   id: string;
@@ -23,10 +23,11 @@ interface UploadedFile {
 
 const CreateShipment = () => {
   const { toast } = useToast();
-  const { fetchItems } = useShipments();
+  const { createItem } = useShipments();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const { uploadFile } = useFiles();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     address: '',
@@ -60,7 +61,7 @@ const CreateShipment = () => {
 
     if (!formData.address || !formData.goodsName || !formData.contractNumber) {
       toast({
-        variant: "destructive", 
+        variant: "destructive",
         title: "Ошибка",
         description: "Заполните обязательные поля"
       });
@@ -69,36 +70,41 @@ const CreateShipment = () => {
 
     try {
       setLoading(true);
-      
-      const task = await createTask({
-        task_type: 'shipment',
-        description: `Отгрузка: ${formData.goodsName}`,
+
+      const uploadedIds: string[] = [];
+      for (const f of files) {
+        const uploaded = await uploadFile(f.file);
+        if (uploaded) uploadedIds.push(uploaded.id);
+      }
+
+      const shipment = await createItem({
         address: formData.address,
+        work_schedule: formData.workSchedule,
+        request_code: formData.requestCode,
+        loading_contacts: formData.loadingContacts,
         shop_name: formData.shopName,
         goods_name: formData.goodsName,
         goods_volume: formData.goodsVolume,
         goods_weight: formData.goodsWeight,
         goods_package: formData.goodsPackage,
         contract_number: formData.contractNumber,
-        loading_date: formData.loadingDate,
+        loading_date: formData.loadingDate || null,
         loading_requirements: formData.loadingRequirements,
-        loading_contacts: formData.loadingContacts,
-        request_code: formData.requestCode,
-        schedule: formData.workSchedule,
         additional_info: formData.additionalInfo,
-        status: 'submitted',
-        user_id: user?.id || ''
+        status: "submitted",
+        created_by: user.id || "",
+        files: uploadedIds,
       });
 
-      if (task) {
+      if (shipment) {
         toast({
           title: "Отгрузка создана",
           description: "Заявка отправлена менеджеру отгрузок"
         });
-        navigate('/tasks');
+        navigate('/shipments'); // 👈 можно на список отгрузок
       }
     } catch (error) {
-      console.error('Create shipment error:', error);
+      console.error("Create shipment error:", error);
     } finally {
       setLoading(false);
     }
@@ -107,14 +113,14 @@ const CreateShipment = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <Button variant="ghost" className="mb-4" onClick={() => navigate('/')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Назад
           </Button>
-          
+
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-primary-foreground" />
@@ -160,7 +166,7 @@ const CreateShipment = () => {
                     placeholder="Введите полный адрес склада..."
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="workSchedule">Время работы склада</Label>
                   <Input
@@ -231,7 +237,7 @@ const CreateShipment = () => {
                       placeholder="Кол-во единиц, метры, штуки..."
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="goodsWeight">Вес товара</Label>
                     <Input
@@ -331,9 +337,9 @@ const CreateShipment = () => {
                     </span>
                   </div>
                 </div>
-                
-                <Button 
-                  onClick={handleSubmit} 
+
+                <Button
+                  onClick={handleSubmit}
                   className="w-full"
                   size="lg"
                   disabled={loading}
