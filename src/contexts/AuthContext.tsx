@@ -1,7 +1,7 @@
 // AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { retrieveLaunchParams } from "@tma.js/bridge";
-import axios from "axios";
+import api from "@/api";
 
 interface User {
   id: string | number;
@@ -70,8 +70,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Отправляем на сервер
         try {
-          const response = await axios.post(
-            "https://api.marzsure.ru:8444/api/v1/auth/telegram",
+          const response = await api.post(
+            "/auth/telegram",
             { init_data: initData }
           );
 
