@@ -33,19 +33,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       try {
         const launchParams = retrieveLaunchParams();
-
         const initData = launchParams.tgWebAppInitData;
-        if (!initData) {
-          setError("Нет tgWebAppInitData в параметрах");
-          setLoading(false);
-          return;
-        }
 
-        if (!initData) {
-          setError(
-            "Нет данных для авторизации (initData или tgWebAppData пустые). " +
-            JSON.stringify(launchParams)
-          );
+        if (!initData || typeof initData !== "string") {
+          setError("tgWebAppInitData отсутствует или имеет неверный формат");
           setLoading(false);
           return;
         }
@@ -72,12 +63,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Отправляем на сервер
         try {
           const response = await api.post("/auth/telegram", { init_data: initData });
-
+          
           if (response.status === 200 && response.data) {
-            const { token, user } = response.data;
+            // const { token, user } = response.data;
+            const { access_token, user } = response.data;
 
             // сохраняем токен для api.ts
-            localStorage.setItem("auth_token", token);
+            localStorage.setItem("auth_token", access_token);
             localStorage.setItem("user", JSON.stringify(user));
 
             setUser(user);
