@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
 
         } catch (apiError: any) {
-          setError("Ошибка при авторизации на API: " + apiError.message);
+          setError("Ошибка при авторизации на API: " + apiError);
         }
       } catch (e: any) {
         setError("Ошибка при получении launchParams: " + e.message);
