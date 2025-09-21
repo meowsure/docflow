@@ -59,8 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           photo_url: tgUser.photo_url,
         };
 
-        setUser(mappedUser);
-
+        
         // Отправляем на сервер
         try {
           const response = await api.post("/auth/telegram", { init_data: launchParams.tgWebAppData?.initData });
@@ -73,6 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             localStorage.setItem("auth_token", access_token);
             localStorage.setItem("user", JSON.stringify(user));
 
+            setLoading(false);
             setUser(user);
           } else {
             throw new Error("Авторизация на сервере не удалась");
