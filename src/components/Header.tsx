@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown } from "lucide-react";
+import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const location = useLocation();
   const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const groupedNav = [
     {
@@ -55,7 +57,7 @@ const Header = () => {
               <h1 className="text-xl font-semibold text-foreground">DocFlow CRM</h1>
             </Link>
 
-            {/* Навигация */}
+            {/* Навигация для десктопа */}
             <nav className="hidden md:flex items-center space-x-4">
               <Button
                 variant={location.pathname === "/" ? "default" : "ghost"}
@@ -92,15 +94,59 @@ const Header = () => {
             </nav>
           </div>
 
-          {/* Пользователь */}
+          {/* Пользователь + мобильное меню */}
           <div className="flex items-center space-x-2">
             {user ? (
-              <span className="font-medium">{user.first_name}</span>
+              <span className="font-medium hidden md:block">{user.first_name}</span>
             ) : (
-              <span className="text-muted-foreground">Демо Пользователь</span>
+              <span className="text-muted-foreground hidden md:block">Демо Пользователь</span>
             )}
+
+            {/* Кнопка мобильного меню */}
+            <Button
+              variant="ghost"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
           </div>
         </div>
+
+        {/* Мобильное меню */}
+        {mobileMenuOpen && (
+          <nav className="flex flex-col md:hidden mt-4 space-y-2">
+            <Link
+              to="/"
+              className={`flex items-center space-x-2 px-2 py-2 rounded hover:bg-muted ${
+                location.pathname === "/" ? "bg-muted" : ""
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Home className="w-4 h-4" />
+              <span>Главная</span>
+            </Link>
+
+            {groupedNav.map((group) => (
+              <div key={group.label} className="border-t pt-2">
+                <span className="text-sm font-semibold px-2">{group.label}</span>
+                <div className="flex flex-col mt-1 space-y-1">
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className="flex items-center space-x-2 px-4 py-2 rounded hover:bg-muted"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </nav>
+        )}
       </div>
     </header>
   );
