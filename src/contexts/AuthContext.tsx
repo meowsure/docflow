@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       try {
         const launchParams = retrieveLaunchParams();
-        const launchParamsStr = retrieveRawInitData();
+        const launchParamsStr = launchParams.tgWebAppData;
         const initData = JSON.stringify(launchParamsStr);
 
         if (!launchParams) {
