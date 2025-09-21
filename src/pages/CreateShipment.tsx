@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useShipments } from '@/hooks/useShipments';
 
 interface UploadedFile {
   id: string;
@@ -22,7 +23,7 @@ interface UploadedFile {
 
 const CreateShipment = () => {
   const { toast } = useToast();
-  const { createTask } = useTasks();
+  const { fetchItems } = useShipments();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [files, setFiles] = useState<UploadedFile[]>([]);
