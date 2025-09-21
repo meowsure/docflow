@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const launchParams = retrieveLaunchParams();
         const launchParamsStr = retrieveRawInitData();
-        const parsedLaunchParams = typeof launchParamsStr === "string" ? JSON.parse(launchParamsStr) : launchParamsStr;
+        const parsedLaunchParams = typeof launchParamsStr === "string" ? JSON.stringify(launchParamsStr) : launchParamsStr;
         // const initData = JSON.parse(launchParams);
 
         if (!launchParams) {
