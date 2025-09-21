@@ -11,7 +11,6 @@ interface User {
   last_name?: string;
   full_name?: string;
   photo_url?: string;
-  auth_date: Date | number | string;
 }
 
 interface AuthContextProps {
@@ -50,13 +49,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           first_name: tgUser.first_name,
           last_name: tgUser.last_name,
           full_name: `${tgUser.first_name || ""} ${tgUser.last_name || ""}`.trim(),
-          photo_url: tgUser.photo_url,
-          auth_date: authDate,
+          photo_url: tgUser.photo_url
         };
 
         // Отправляем на сервер
         try {
-          const response = await api.post("/auth/telegram", { initData: mappedUser });
+          const response = await api.post("/auth/telegram", { initData: mappedUser, auth_date: authDate, });
 
           if (response.status === 200 && response.data) {
             // const { token, user } = response.data;
