@@ -2,8 +2,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { retrieveLaunchParams, retrieveRawInitData } from "@tma.js/bridge";
 import api from "@/api";
-import { json } from "stream/consumers";
-import { error } from "console";
 
 interface User {
   id: string | number;
@@ -29,7 +27,7 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [errors, setErrors] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,14 +38,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // const initData = JSON.parse(launchParams);
 
         if (!launchParams) {
-          setErrors("tgWebAppInitData отсутствует или имеет неверный формат");
+          setError("tgWebAppInitData отсутствует или имеет неверный формат");
           setLoading(false);
           return;
         }
 
         const tgUser = launchParams.tgWebAppData?.user;
         if (!tgUser) {
-          setErrors("Нет данных пользователя tgWebAppData.user");
+          setError("Нет данных пользователя tgWebAppData.user");
           setLoading(false);
           return;
         }
@@ -82,10 +80,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
 
         } catch (apiError: any) {
-          setErrors("Ошибка при авторизации на API: " + apiError.message);
+          setError("Ошибка при авторизации на API: " + apiError.message);
         }
       } catch (e: any) {
-        setErrors("Ошибка при получении launchParams: " + e.message);
+        setError("Ошибка при получении launchParams: " + e.message);
       } finally {
         setLoading(false);
       }
