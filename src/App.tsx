@@ -19,6 +19,7 @@ import Notifications from "./pages/Notifications";
 import Invoices from "./pages/Invoices";
 import { retrieveLaunchParams } from "@tma.js/bridge";
 import Files from "./pages/Files";
+import ShipmentDetail from "./pages/ShipmentDetail";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const AppContent = () => {
       <Route path="/invoices" element={<Invoices />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/shipments" element={<Shipments />} />
+      <Route path="/shipments/:id" element={<ShipmentDetail />} />
       <Route path="/logs" element={<Logs />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

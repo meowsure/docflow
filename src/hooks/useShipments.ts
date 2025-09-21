@@ -26,7 +26,7 @@ export interface Shipment {
   created_by: string;
   created_at: string;
   updated_at: string;
-
+  creator: Array<{ id: string; username: string; telegram_id: string; first_name: string; last_name: string; photo_url?: string; full_name: string }>;
   files?: string[];
 }
 
