@@ -8,7 +8,6 @@ export interface Task {
   title: string;
   description: string;
   status: "draft" | "submitted" | "completed" | "in_progress";
-  task_type: "send_docs" | "make_scan" | "shipment";
   city?: string;
   creator_id: string;
   assignee_id?: string;

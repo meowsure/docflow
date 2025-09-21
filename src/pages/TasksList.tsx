@@ -6,34 +6,43 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
 import TaskCard from "@/components/TaskCard";
+import ShipmentCard from "@/components/ShipmentCard";
 import { Search, Filter, Package, Send } from "lucide-react";
 import { useTasks, Task } from "@/hooks/useTasks";
+import { useShipments, Shipment } from "@/hooks/useShipments";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const TasksList = () => {
-  const { tasks, loading, loadingMore, hasMore, loadMore, deleteTask } = useTasks();
+  const { items: tasks, loading: tasksLoading, loadingMore: tasksLoadingMore, hasMore: tasksHasMore, loadMore: tasksLoadMore, deleteItem: deleteTask } = useTasks();
+  const { items: shipments, loading: shipmentsLoading, loadingMore: shipmentsLoadingMore, hasMore: shipmentsHasMore, loadMore: shipmentsLoadMore, deleteItem: deleteShipment } = useShipments();
   const { toast } = useToast();
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState("sendings");
+  const [deletingTaskIds, setDeletingTaskIds] = useState<Set<string>>(new Set());
+  const [deletingShipmentIds, setDeletingShipmentIds] = useState<Set<string>>(new Set());
 
+  // Обработчики для бесконечной прокрутки
   useEffect(() => {
     const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - 200
-      ) {
-        if (hasMore && !loadingMore) loadMore();
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+        if (activeTab === 'sendings' && tasksHasMore && !tasksLoadingMore) {
+          tasksLoadMore();
+        } else if (activeTab === 'shipments' && shipmentsHasMore && !shipmentsLoadingMore) {
+          shipmentsLoadMore();
+        }
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [hasMore, loadingMore, loadMore]);
+  }, [activeTab, tasksHasMore, tasksLoadingMore, tasksLoadMore, shipmentsHasMore, shipmentsLoadingMore, shipmentsLoadMore]);
 
+  // Обработчики удаления
   const handleDeleteTask = async (taskId: string) => {
-    setDeletingIds(prev => new Set(prev).add(taskId));
+    setDeletingTaskIds(prev => new Set(prev).add(taskId));
     try {
       const success = await deleteTask(taskId);
       if (success) {
@@ -43,9 +52,9 @@ const TasksList = () => {
         });
       }
     } catch (error) {
-      // Error handling is already in the hook
+      // Обработка ошибок уже в хуке
     } finally {
-      setDeletingIds(prev => {
+      setDeletingTaskIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(taskId);
         return newSet;
@@ -53,22 +62,60 @@ const TasksList = () => {
     }
   };
 
-  const filterTasks = (tasks: Task[], type?: string) => {
+  const handleDeleteShipment = async (shipmentId: string) => {
+    setDeletingShipmentIds(prev => new Set(prev).add(shipmentId));
+    try {
+      const success = await deleteShipment(shipmentId);
+      if (success) {
+        toast({
+          title: "Отгрузка удалена",
+          description: "Отгрузка успешно удалена",
+        });
+      }
+    } catch (error) {
+      // Обработка ошибок уже в хуке
+    } finally {
+      setDeletingShipmentIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(shipmentId);
+        return newSet;
+      });
+    }
+  };
+
+  // Функции фильтрации для каждого типа данных
+  const filterTasks = (tasks: Task[]) => {
     return tasks.filter((task) => {
-      const matchesSearch = task.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = 
+        task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.title.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === "all" || task.status === statusFilter;
-      const matchesType = !type || task.task_type === type;
-      return matchesSearch && matchesStatus && matchesType;
+      return matchesSearch && matchesStatus;
     });
   };
 
-  const sendingTasks = filterTasks(tasks, "send_docs");
-  const scanTasks = filterTasks(tasks, "make_scan");
-  const shipmentTasks = filterTasks(tasks, "shipment");
+  const filterShipments = (shipments: Shipment[]) => {
+    return shipments.filter((shipment) => {
+      // Расширяем интерфейс Shipment для поддержки дополнительных полей
+      const extendedShipment = shipment as any;
+      const matchesSearch = 
+        extendedShipment.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        extendedShipment.external_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        extendedShipment.from_location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        extendedShipment.to_location?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "all" || shipment.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  };
 
-  const allSendingTasks = [...sendingTasks, ...scanTasks];
+  const filteredTasks = filterTasks(tasks);
+  const filteredShipments = filterShipments(shipments);
 
-  if (loading && tasks.length === 0) {
+  // Определяем общее состояние загрузки
+  const isLoading = (activeTab === "sendings" ? tasksLoading : shipmentsLoading) && 
+                   (activeTab === "sendings" ? tasks.length === 0 : shipments.length === 0);
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -99,8 +146,8 @@ const TasksList = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">Мои задачи</h1>
-          <p className="text-muted-foreground">Управляйте всеми вашими отправками и отгрузками</p>
+          <h1 className="text-2xl font-bold mb-2">Мои задачи и отгрузки</h1>
+          <p className="text-muted-foreground">Управляйте всеми вашими задачами и отгрузками</p>
         </div>
 
         {/* Фильтры */}
@@ -111,7 +158,7 @@ const TasksList = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Поиск по описанию..."
+                    placeholder="Поиск по описанию, названию или ID..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -129,40 +176,46 @@ const TasksList = () => {
                   <SelectItem value="submitted">Отправленные</SelectItem>
                   <SelectItem value="in_progress">В работе</SelectItem>
                   <SelectItem value="completed">Выполненные</SelectItem>
+                  <SelectItem value="confirmed">Подтвержденные</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="sendings" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="sendings" className="flex items-center space-x-2">
               <Send className="w-4 h-4" />
-              <span>Отправки ({allSendingTasks.length})</span>
+              <span>Задачи ({filteredTasks.length})</span>
             </TabsTrigger>
             <TabsTrigger value="shipments" className="flex items-center space-x-2">
               <Package className="w-4 h-4" />
-              <span>Отгрузки ({shipmentTasks.length})</span>
+              <span>Отгрузки ({filteredShipments.length})</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="sendings" className="space-y-6">
-            {allSendingTasks.length > 0 ? (
+            {filteredTasks.length > 0 ? (
               <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {allSendingTasks.map((task) => (
+                  {filteredTasks.map((task) => (
                     <TaskCard 
                       key={task.id} 
                       task={task} 
                       onDelete={() => handleDeleteTask(task.id)}
-                      isDeleting={deletingIds.has(task.id)}
+                      isDeleting={deletingTaskIds.has(task.id)}
                     />
                   ))}
                 </div>
-                {loadingMore && (
+                {tasksLoadingMore && (
                   <div className="flex justify-center mt-4">
-                    <div className="text-muted-foreground">Загрузка...</div>
+                    <div className="text-muted-foreground">Загрузка задач...</div>
+                  </div>
+                )}
+                {tasksHasMore && !tasksLoadingMore && (
+                  <div className="flex justify-center mt-4">
+                    <Button onClick={tasksLoadMore}>Загрузить еще задачи</Button>
                   </div>
                 )}
               </>
@@ -170,30 +223,35 @@ const TasksList = () => {
               <Card>
                 <CardContent className="p-8 text-center">
                   <Send className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-lg font-medium mb-2">Нет отправок</p>
-                  <p className="text-muted-foreground">Создайте свою первую отправку документов</p>
-                  <Button className="mt-4">Создать отправку</Button>
+                  <p className="text-lg font-medium mb-2">Нет задач</p>
+                  <p className="text-muted-foreground">Создайте свою первую задачу</p>
+                  <Button className="mt-4">Создать задачу</Button>
                 </CardContent>
               </Card>
             )}
           </TabsContent>
 
           <TabsContent value="shipments" className="space-y-6">
-            {shipmentTasks.length > 0 ? (
+            {filteredShipments.length > 0 ? (
               <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {shipmentTasks.map((task) => (
-                    <TaskCard 
-                      key={task.id} 
-                      task={task} 
-                      onDelete={() => handleDeleteTask(task.id)}
-                      isDeleting={deletingIds.has(task.id)}
+                  {filteredShipments.map((shipment) => (
+                    <ShipmentCard 
+                      key={shipment.id} 
+                      shipment={shipment} 
+                      onDelete={() => handleDeleteShipment(shipment.id)}
+                      isDeleting={deletingShipmentIds.has(shipment.id)}
                     />
                   ))}
                 </div>
-                {loadingMore && (
+                {shipmentsLoadingMore && (
                   <div className="flex justify-center mt-4">
-                    <div className="text-muted-foreground">Загрузка...</div>
+                    <div className="text-muted-foreground">Загрузка отгрузок...</div>
+                  </div>
+                )}
+                {shipmentsHasMore && !shipmentsLoadingMore && (
+                  <div className="flex justify-center mt-4">
+                    <Button onClick={shipmentsLoadMore}>Загрузить еще отгрузки</Button>
                   </div>
                 )}
               </>
@@ -202,7 +260,7 @@ const TasksList = () => {
                 <CardContent className="p-8 text-center">
                   <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-lg font-medium mb-2">Нет отгрузок</p>
-                  <p className="text-muted-foreground">Создайте свою первую отгрузку товаров</p>
+                  <p className="text-muted-foreground">Создайте свою первую отгрузку</p>
                   <Button className="mt-4">Создать отгрузку</Button>
                 </CardContent>
               </Card>

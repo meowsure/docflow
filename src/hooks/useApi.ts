@@ -2,7 +2,7 @@
 import { useAuth } from "../contexts/AuthContext";
 
 export const useApi = () => {
-  const { token } = useAuth();
+  const token = localStorage.getItem('auth_token');
 
   const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
     const headers = {
