@@ -6,9 +6,27 @@ import { Send, Package, FileText, Plus, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
+import { useShipments } from "@/hooks/useShipments";
 
 const Index = () => {
-  const { tasks, loading } = useTasks();
+  const {
+    tasks,
+    loading: tasksLoading,
+    loadingMore: tasksLoadingMore,
+    hasMore: tasksHasMore,
+    loadMore: tasksLoadMore,
+    deleteTask,
+  } = useTasks();
+
+  const {
+    items: shipments,
+    loading: shipmentsLoading,
+    loadingMore: shipmentsLoadingMore,
+    hasMore: shipmentsHasMore,
+    loadMore: shipmentsLoadMore,
+    deleteItem: deleteShipment,
+  } = useShipments();
+
   const { user } = useAuth();
 
   // Статистика
@@ -119,7 +137,7 @@ const Index = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
+            {tasksLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                 <p className="text-muted-foreground mt-2">Загрузка задач...</p>
@@ -127,15 +145,10 @@ const Index = () => {
             ) : recentTasks.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentTasks.map((task) => (
-                  <TaskCard key={task.id} task={{
-                    id: parseInt(task.id),
-                    type: task.task_type as 'send_docs' | 'make_scan' | 'shipment',
-                    description: task.description || 'Без описания',
-                    city: task.city || 'Не указан',
-                    createdAt: new Date(task.created_at).toLocaleDateString('ru-RU'),
-                    status: task.status as 'draft' | 'submitted' | 'in_progress' | 'completed' | 'cancelled',
-                    filesCount: 0
-                  }} />
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                  />
                 ))}
               </div>
             ) : (
