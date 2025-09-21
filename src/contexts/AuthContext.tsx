@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Отправляем на сервер
         try {
-          const response = await api.post("/auth/telegram", { initData: mappedUser, auth_date: authDate, });
+          const response = await api.post("/auth/telegram", { user: mappedUser, auth_date: authDate, });
 
           if (response.status === 200 && response.data) {
             // const { token, user } = response.data;
