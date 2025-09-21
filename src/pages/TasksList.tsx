@@ -133,7 +133,6 @@ const TasksList = () => {
   });
   const filteredShipments = shipments.filter((shipment) => {
     const matchesSearch =
-      (shipment.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
       (shipment.external_id?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
       (shipment.from_location?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
       (shipment.to_location?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);

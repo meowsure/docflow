@@ -80,9 +80,25 @@ const ShipmentCard = ({ shipment, onDelete, isDeleting }: ShipmentCardProps) => 
 
       <CardContent className="pb-3">
         <p className="text-sm text-foreground mb-3 line-clamp-2">
-          {shipment.description || `Отгрузка из ${extendedShipment.from_location || 'неизвестно'} в ${extendedShipment.to_location || 'неизвестно'}`}
+          {extendedShipment.goods_name
+            ? `Товар: ${extendedShipment.goods_name}`
+            : `Отгрузка (ID: ${shipment.id.slice(0, 8)})`}
         </p>
-        
+
+        {extendedShipment.shop_name && (
+          <div className="flex items-center space-x-1">
+            <Package className="w-3 h-3" />
+            <span>{extendedShipment.shop_name}</span>
+          </div>
+        )}
+
+        {extendedShipment.address && (
+          <div className="flex items-center space-x-1">
+            <MapPin className="w-3 h-3" />
+            <span>{extendedShipment.address}</span>
+          </div>
+        )}
+
         <div className="space-y-2 text-xs text-muted-foreground">
           {extendedShipment.from_location && extendedShipment.to_location && (
             <div className="flex items-center space-x-1">
@@ -90,21 +106,21 @@ const ShipmentCard = ({ shipment, onDelete, isDeleting }: ShipmentCardProps) => 
               <span>{extendedShipment.from_location} → {extendedShipment.to_location}</span>
             </div>
           )}
-          
+
           {extendedShipment.planned_date && (
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
               <span>План: {formatDate(extendedShipment.planned_date)}</span>
             </div>
           )}
-          
+
           {extendedShipment.actual_date && (
             <div className="flex items-center space-x-1">
               <CheckCircle className="w-3 h-3" />
               <span>Факт: {formatDate(extendedShipment.actual_date)}</span>
             </div>
           )}
-          
+
           <div className="flex items-center space-x-1">
             <Clock className="w-3 h-3" />
             <span>Создана: {formatDate(shipment.created_at)}</span>
@@ -119,11 +135,11 @@ const ShipmentCard = ({ shipment, onDelete, isDeleting }: ShipmentCardProps) => 
             Подробнее
           </Link>
         </Button>
-        
+
         {onDelete && (
-          <Button 
-            variant="destructive" 
-            size="sm" 
+          <Button
+            variant="destructive"
+            size="sm"
             onClick={onDelete}
             disabled={isDeleting}
             className="w-20"
