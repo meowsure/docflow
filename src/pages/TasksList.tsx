@@ -133,9 +133,14 @@ const TasksList = () => {
   });
   const filteredShipments = shipments.filter((shipment) => {
     const matchesSearch =
+      searchTerm.trim() === "" ||
       (shipment.external_id?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
       (shipment.from_location?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-      (shipment.to_location?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+      (shipment.to_location?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      (shipment.goods_name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      (shipment.shop_name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      (shipment.address?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+
     const matchesStatus = statusFilter === "all" || shipment.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
