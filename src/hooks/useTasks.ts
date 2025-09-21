@@ -4,11 +4,12 @@ import { useToast } from "@/hooks/use-toast";
 import api from "@/api";
 
 export interface Task {
-  id: string;
+  id: Number;
   title: string;
   description: string;
   status: "draft" | "submitted" | "completed" | "in_progress";
   city?: string;
+  task_type?: string;
   creator_id: string;
   assignee_id?: string;
   created_at: string;

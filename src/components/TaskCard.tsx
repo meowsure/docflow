@@ -1,41 +1,40 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Package, Send, Calendar, MapPin, Eye } from "lucide-react";
+import { FileText, Package, Send, Calendar, MapPin, Eye, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Task } from "@/hooks/useTasks";
 
 interface TaskCardProps {
-  task: {
-    id: number;
-    type: 'send_docs' | 'make_scan' | 'shipment';
-    description: string;
-    city?: string;
-    createdAt: string;
-    status: 'draft' | 'submitted' | 'completed' | 'in_progress' | 'cancelled';
-    filesCount: number;
-  };
+  task: Task;
+  onDelete?: () => void;
+  isDeleting?: boolean;
 }
 
-const TaskCard = ({ task }: TaskCardProps) => {
+const TaskCard = ({ task, onDelete, isDeleting }: TaskCardProps) => {
   const getTaskIcon = () => {
-    switch (task.type) {
+    switch (task.task_type) {
       case 'send_docs':
         return <Send className="w-4 h-4" />;
       case 'make_scan':
         return <FileText className="w-4 h-4" />;
       case 'shipment':
         return <Package className="w-4 h-4" />;
+      default:
+        return <FileText className="w-4 h-4" />;
     }
   };
 
   const getTaskTitle = () => {
-    switch (task.type) {
+    switch (task.task_type) {
       case 'send_docs':
         return 'Отправить документы';
       case 'make_scan':
         return 'Сделать скан';
       case 'shipment':
         return 'Отгрузка';
+      default:
+        return 'Задача';
     }
   };
 
@@ -49,9 +48,28 @@ const TaskCard = ({ task }: TaskCardProps) => {
         return 'default';
       case 'completed':
         return 'success';
-      case 'cancelled':
-        return 'destructive';
+      default:
+        return 'secondary';
     }
+  };
+
+  const getStatusText = () => {
+    switch (task.status) {
+      case 'draft':
+        return 'Черновик';
+      case 'submitted':
+        return 'Отправлено';
+      case 'in_progress':
+        return 'В работе';
+      case 'completed':
+        return 'Выполнено';
+      default:
+        return task.status;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ru-RU');
   };
 
   return (
@@ -68,43 +86,57 @@ const TaskCard = ({ task }: TaskCardProps) => {
             </div>
           </div>
           <Badge variant={getStatusColor()}>
-            {task.status === 'draft' && 'Черновик'}
-            {task.status === 'submitted' && 'Отправлено'}
-            {task.status === 'in_progress' && 'В работе'}
-            {task.status === 'completed' && 'Выполнено'}
-            {task.status === 'cancelled' && 'Отменено'}
+            {getStatusText()}
           </Badge>
         </div>
       </CardHeader>
 
       <CardContent className="pb-3">
-        <p className="text-sm text-foreground mb-3 line-clamp-2">{task.description}</p>
+        <p className="text-sm text-foreground mb-3 line-clamp-2">
+          {task.description || task.title || 'Без описания'}
+        </p>
         
-        <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-          <div className="flex items-center space-x-1">
-            <Calendar className="w-3 h-3" />
-            <span>{task.createdAt}</span>
-          </div>
+        <div className="space-y-2 text-xs text-muted-foreground">
           {task.city && (
             <div className="flex items-center space-x-1">
               <MapPin className="w-3 h-3" />
               <span>{task.city}</span>
             </div>
           )}
+          
           <div className="flex items-center space-x-1">
-            <FileText className="w-3 h-3" />
-            <span>{task.filesCount} файлов</span>
+            <Clock className="w-3 h-3" />
+            <span>Создана: {formatDate(task.created_at)}</span>
           </div>
+          
+          {task.updated_at !== task.created_at && (
+            <div className="flex items-center space-x-1">
+              <Calendar className="w-3 h-3" />
+              <span>Обновлена: {formatDate(task.updated_at)}</span>
+            </div>
+          )}
         </div>
       </CardContent>
 
-      <CardFooter className="pt-3">
-        <Button variant="outline" size="sm" className="w-full" asChild>
+      <CardFooter className="pt-3 flex justify-between gap-2">
+        <Button variant="outline" size="sm" className="flex-1" asChild>
           <Link to={`/task/${task.id}`}>
             <Eye className="w-4 h-4 mr-2" />
             Подробнее
           </Link>
         </Button>
+        
+        {onDelete && (
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={onDelete}
+            disabled={isDeleting}
+            className="w-20"
+          >
+            {isDeleting ? "..." : "Удалить"}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
