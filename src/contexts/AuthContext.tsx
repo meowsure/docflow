@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       try {
         const launchParams = retrieveLaunchParams();
-        const initData = JSON.stringify(launchParams);
+        // const initData = JSON.parse(launchParams);
 
         if (!launchParams) {
           setError("tgWebAppInitData отсутствует или имеет неверный формат");
@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Отправляем на сервер
         try {
-          const response = await api.post("/auth/telegram", { init_data: initData });
+          const response = await api.post("/auth/telegram", { init_data: launchParams.tgWebAppData?.initData });
           
           if (response.status === 200 && response.data) {
             // const { token, user } = response.data;
