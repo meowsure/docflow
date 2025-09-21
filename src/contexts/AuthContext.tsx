@@ -36,6 +36,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const launchParams = retrieveLaunchParams();
         const testParams = retrieveRawInitData();
+        // превращаем в объект
+        const params = new URLSearchParams(testParams);
+        // достаём auth_date
+        const authDate = params.get("auth_date");
         const tgUser = launchParams.tgWebAppData?.user;
 
         if (!tgUser) {
@@ -52,12 +56,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           photo_url: tgUser.photo_url,
           language_code: tgUser.language_code,
         }));
-        
+
         // Строим initData строку (БЕЗ signature)
         const initDataParts: string[] = [];
         if (launchParams.tgWebAppData?.query_id) initDataParts.push(`query_id=${launchParams.tgWebAppData?.query_id}`);
         initDataParts.push(`user=${userJson}`);
-        if (launchParams.tgWebAppData?.auth_date) initDataParts.push(`auth_date=${launchParams.tgWebAppData?.auth_date}`);
+        if (authDate) initDataParts.push(`auth_date=${authDate}`);
         if (launchParams.tgWebAppData?.hash) initDataParts.push(`hash=${launchParams.tgWebAppData?.hash}`);
 
         const cleanInitData = initDataParts.join("&");
@@ -94,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         } catch (apiError: any) {
           // setError("Ошибка при авторизации на API: " + apiError.response?.data?.message || apiError.message || apiError);
-          setError("Было отправлено initData: " + testParams);
+          setError("Было отправлено initData: " + cleanInitData);
         }
       } catch (e: any) {
         setError("Ошибка при получении launchParams: " + e.message);
