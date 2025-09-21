@@ -34,6 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const launchParams = retrieveLaunchParams();
         const initData = launchParams.tgWebAppInitData;
+        alert(launchParams.tgWebAppInitData);
 
         if (!initData || typeof initData !== "string") {
           setError("tgWebAppInitData отсутствует или имеет неверный формат");
