@@ -5,7 +5,9 @@ import api from '@/api'; // Импортируем настроенный экз
 
 export interface Task {
   id: string;
+  task_type: string;
   title: string;
+  city: string;
   description?: string;
   status: string;
   user_id: string;
@@ -27,11 +29,12 @@ export interface TaskFile {
 export const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
+  
 
   const fetchTasks = async () => {
-    if (!user || !token) return;
+    if (!user) return;
     
     try {
       const response = await api.get('/tasks');
@@ -49,7 +52,7 @@ export const useTasks = () => {
   };
 
   const createTask = async (taskData: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'user_id'>): Promise<Task | null> => {
-    if (!user || !token) return null;
+    if (!user) return null;
 
     try {
       const response = await api.post('/tasks', {

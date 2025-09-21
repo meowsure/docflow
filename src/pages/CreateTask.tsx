@@ -23,7 +23,7 @@ interface UploadedFile {
 
 const CreateTask = () => {
   const { toast } = useToast();
-  const { createTask, updateTask } = useTasks();
+  const { createTask } = useTasks();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [files, setFiles] = useState<UploadedFile[]>([]);
