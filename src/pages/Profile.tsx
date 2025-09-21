@@ -55,7 +55,7 @@ const Profile: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Мой профиль</h1>
@@ -71,10 +71,10 @@ const Profile: React.FC = () => {
                   <div className="flex items-center space-x-6">
                     <Avatar className="w-20 h-20">
                       <AvatarFallback className="text-2xl font-bold bg-primary text-primary-foreground">
-                        {user.first_name?.charAt(0)?.toUpperCase() || user.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                        <img src={user?.photo_url} alt={`Фото пользователя ${user?.first_name}`} className="rounded-full w-24 h-24 object-cover me-4" />
                       </AvatarFallback>
                     </Avatar>
-                    
+
                     <div>
                       <h2 className="text-2xl font-bold mb-1">
                         {user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Пользователь'}
@@ -140,8 +140,8 @@ const Profile: React.FC = () => {
                 ) : recentTasks.length > 0 ? (
                   <div className="space-y-3">
                     {recentTasks.map((task) => (
-                      <div key={task.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer" 
-                           onClick={() => window.location.href = `/task/${task.id}`}>
+                      <div key={task.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                        onClick={() => window.location.href = `/task/${task.id}`}>
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-2">
@@ -157,11 +157,11 @@ const Profile: React.FC = () => {
                               </div>
                               {getStatusBadge(task.status)}
                             </div>
-                            
+
                             <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                               {task.description || 'Без описания'}
                             </p>
-                            
+
                             <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                               <div className="flex items-center space-x-1">
                                 <Calendar className="w-3 h-3" />
@@ -209,7 +209,7 @@ const Profile: React.FC = () => {
                     <label className="text-sm font-medium text-muted-foreground">Telegram ID</label>
                     <p className="text-foreground font-mono text-sm">{user.telegram_id}</p>
                   </div>
-                  
+
                   <Separator />
 
                   <div>
@@ -218,14 +218,14 @@ const Profile: React.FC = () => {
                   </div>
 
                   <Separator />
-                  
+
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Username</label>
                     <p className="text-foreground">{user.username || 'Не указан'}</p>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Полное имя</label>
                     <p className="text-foreground">{user.full_name || 'Не указано'}</p>
@@ -246,14 +246,14 @@ const Profile: React.FC = () => {
                     Создать отправку
                   </Link>
                 </Button>
-                
+
                 <Button className="w-full justify-start" variant="outline" asChild>
                   <Link to="/create-shipment">
                     <Package className="w-4 h-4 mr-2" />
                     Создать отгрузку
                   </Link>
                 </Button>
-                
+
                 <Button className="w-full justify-start" variant="outline" asChild>
                   <Link to="/tasks">
                     <FileText className="w-4 h-4 mr-2" />

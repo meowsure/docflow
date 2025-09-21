@@ -36,7 +36,6 @@ const Index = () => {
           <div className="flex items-center bg-gradient-to-r from-primary/5 to-primary-glow/5 border border-primary/10 rounded-xl p-8">
             <img src={user?.photo_url} alt={`Фото пользователя ${user?.first_name}`} className="rounded-full w-24 h-24 object-cover me-4" />
             <div>
-
               <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
                 Добро пожаловать, {user?.first_name || 'Пользователь'}!
               </h1>
