@@ -22,6 +22,7 @@ import Files from "./pages/Files";
 import ShipmentDetail from "./pages/ShipmentDetail";
 import AdminUsers from "./pages/AdminUsers";
 import AdminRoles from "./pages/AdminRoles";
+import InvoiceDetail from "./pages/InvoiceDetail";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const AppContent = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="/files" element={<Files />} />
       <Route path="/invoices" element={<Invoices />} />
+      <Route path="/invoices/:id" element={<InvoiceDetail />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/shipments" element={<Shipments />} />
       <Route path="/shipments/:id" element={<ShipmentDetail />} />
