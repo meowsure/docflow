@@ -77,7 +77,7 @@ export default function AdminRoles() {
             ? role.permissions.filter(p => p !== permissionId)
             : [...role.permissions, permissionId];
 
-        const res = await api.put(`roles/${roleId}/permissions`, { permissions: permissions });
+        const res = await api.put(`roles/${roleId}/permissions`, { permissions: newPermissions });
 
         refetch();
 
