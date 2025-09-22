@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ const Logs = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAction, setSelectedAction] = useState("all");
   const [selectedEntity, setSelectedEntity] = useState("all");
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   // Получаем уникальные действия и сущности для фильтров
   const uniqueActions = Array.from(new Set(logs.map(log => log.action))).sort();
@@ -94,17 +95,29 @@ const Logs = () => {
     return acc;
   }, {} as Record<string, number>);
 
-  // Бесконечная прокрутка
+
+
+  // Используем Intersection Observer для бесконечного скролла
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-        if (hasMore && !loadingMore) loadMore();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
       }
     };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [hasMore, loadingMore, loadMore]);
+  }, [hasMore, loadingMore, loadMore])
 
   if (loading && logs.length === 0) {
     return (
@@ -243,67 +256,85 @@ const Logs = () => {
             </SelectContent>
           </Select>
         </div>
-        <InfiniteScroll
-          dataLength={filteredLogs.length}
-          next={loadMore}
-          hasMore={hasMore}
-          loader={<div className="text-center py-4">Загрузка...</div>}
-          endMessage={<div className="text-center py-4 text-muted-foreground">Это все логи</div>}
-        >
-          <div className="space-y-3">
-            {filteredLogs.map((log) => {
-              const level = getLogLevel(log.action);
-              return (
-                <Card key={log.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      {getLevelIcon(level)}
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center justify-between flex-wrap gap-2">
-                          <h3 className="font-medium">{log.action}</h3>
-                          <div className="flex gap-2 flex-wrap">
-                            <Badge className={getLevelColor(level)}>
-                              {level.toUpperCase()}
-                            </Badge>
-                            <Badge variant="outline">
-                              {log.entity_type}
-                            </Badge>
-                          </div>
-                        </div>
 
-                        {log.meta && Object.keys(log.meta).length > 0 && (
-                          <p className="text-sm text-muted-foreground">
-                            {JSON.stringify(log.meta)}
-                          </p>
-                        )}
-
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {formatDate(log.created_at)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {log.user?.full_name || `User #${log.user_id}`}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Activity className="h-3 w-3" />
-                            {log.ip}
-                          </span>
-                          {log.entity_id && (
-                            <span className="flex items-center gap-1">
-                              ID: {log.entity_id}
-                            </span>
-                          )}
+        <div className="space-y-3">
+          {filteredLogs.map((log) => {
+            const level = getLogLevel(log.action);
+            return (
+              <Card key={log.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    {getLevelIcon(level)}
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <h3 className="font-medium">{log.action}</h3>
+                        <div className="flex gap-2 flex-wrap">
+                          <Badge className={getLevelColor(level)}>
+                            {level.toUpperCase()}
+                          </Badge>
+                          <Badge variant="outline">
+                            {log.entity_type}
+                          </Badge>
                         </div>
                       </div>
+
+                      {log.meta && Object.keys(log.meta).length > 0 && (
+                        <p className="text-sm text-muted-foreground">
+                          {JSON.stringify(log.meta)}
+                        </p>
+                      )}
+
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {formatDate(log.created_at)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          {log.user?.full_name || `User #${log.user_id}`}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Activity className="h-3 w-3" />
+                          {log.ip}
+                        </span>
+                        {log.entity_id && (
+                          <span className="flex items-center gap-1">
+                            ID: {log.entity_id}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Элемент для наблюдения за появлением в viewport */}
+        <div ref={observerTarget} style={{ height: '20px' }} />
+
+        {loadingMore && (
+          <div className="flex justify-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <span className="ml-2 text-muted-foreground">Загрузка дополнительных логов...</span>
           </div>
-        </InfiniteScroll>
+        )}
+
+        {!hasMore && filteredLogs.length > 0 && (
+          <div className="text-center py-4 text-muted-foreground">
+            Это все логи
+          </div>
+        )}
+
+        {/* Резервная кнопка для загрузки */}
+        {hasMore && !loadingMore && (
+          <div className="flex justify-center">
+            <Button onClick={loadMore} variant="outline">
+              Загрузить еще
+            </Button>
+          </div>
+        )}
 
         {filteredLogs.length === 0 && (
           <Card>
