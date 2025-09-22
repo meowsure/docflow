@@ -6,7 +6,7 @@ export interface Role {
   name: string;
   description?: string;
   permissions: string[];
-  users: { id: string; first_name: string; last_name: string; username: string; photo_url: string }[];
+  users?: { id: string; first_name: string; last_name: string; username: string;};
   created_at: string;
   isSystem?: boolean;
   updated_at: string;
