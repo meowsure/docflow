@@ -126,14 +126,15 @@ export default function AdminRoles() {
                                 Создать роль
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                            <DialogHeader>
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+                            <DialogHeader className="pb-4">
                                 <DialogTitle>Создание новой роли</DialogTitle>
                                 <DialogDescription>
                                     Создайте новую роль и назначьте необходимые разрешения
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4">
+
+                            <div className="flex-1 overflow-hidden flex flex-col gap-4">
                                 <div>
                                     <Label htmlFor="role-name">Название роли</Label>
                                     <Input
@@ -143,39 +144,51 @@ export default function AdminRoles() {
                                         placeholder="Введите название роли"
                                     />
                                 </div>
-                                <div>
-                                    <Label>Разрешения</Label>
-                                    {Object.entries(groupedPermissions).map(([category, perms]) => (
-                                        <div key={category} className="mt-3">
-                                            <h4 className="font-medium text-sm mb-2">{category}</h4>
-                                            {perms.map((permission) => (
-                                                <div key={permission.id} className="flex items-center space-x-2 mb-2">
-                                                    <Switch
-                                                        checked={newRole.permissions.includes(permission.id)}
-                                                        onCheckedChange={(checked) => {
-                                                            if (checked) {
-                                                                setNewRole({
-                                                                    ...newRole,
-                                                                    permissions: [...newRole.permissions, permission.id]
-                                                                });
-                                                            } else {
-                                                                setNewRole({
-                                                                    ...newRole,
-                                                                    permissions: newRole.permissions.filter(p => p !== permission.id)
-                                                                });
-                                                            }
-                                                        }}
-                                                    />
-                                                    <div>
-                                                        <div className="text-sm font-medium">{permission.name}</div>
-                                                        <div className="text-xs text-muted-foreground">{permission.description}</div>
+
+                                <div className="flex-1 overflow-hidden flex flex-col">
+                                    <Label className="mb-2">Разрешения</Label>
+                                    <div className="border rounded-md flex-1 overflow-hidden">
+                                        <div className="h-[300px] overflow-auto">
+                                            <div className="p-4">
+                                                {Object.entries(groupedPermissions).map(([category, perms]) => (
+                                                    <div key={category} className="mb-6 last:mb-0">
+                                                        <h4 className="font-medium text-sm mb-3 sticky top-0 bg-background py-1">
+                                                            {category}
+                                                        </h4>
+                                                        <div className="grid grid-cols-1 gap-2">
+                                                            {perms.map((permission) => (
+                                                                <div key={permission.id} className="flex items-center space-x-3 p-2 rounded-md hover:bg-muted/50">
+                                                                    <Switch
+                                                                        checked={newRole.permissions.includes(permission.id)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            if (checked) {
+                                                                                setNewRole({
+                                                                                    ...newRole,
+                                                                                    permissions: [...newRole.permissions, permission.id]
+                                                                                });
+                                                                            } else {
+                                                                                setNewRole({
+                                                                                    ...newRole,
+                                                                                    permissions: newRole.permissions.filter(p => p !== permission.id)
+                                                                                });
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <div className="text-sm font-medium truncate">{permission.name}</div>
+                                                                        <div className="text-xs text-muted-foreground line-clamp-2">{permission.description}</div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                ))}
+                                            </div>
                                         </div>
-                                    ))}
+                                    </div>
                                 </div>
-                                <div className="flex justify-end space-x-2">
+
+                                <div className="flex justify-end space-x-2 pt-4 border-t">
                                     <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                                         Отмена
                                     </Button>
