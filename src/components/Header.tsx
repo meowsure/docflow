@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
 
@@ -118,8 +119,33 @@ const Header = () => {
                 <span className="absolute top-0 right-0 block w-2 h-2 bg-red-500 rounded-full ring-1 ring-white" />
               )}
             </Button>
+            // внутри твоего Header, заменяем блок имени пользователя:
             {user ? (
-              <span className="font-medium hidden md:block">{user.first_name}</span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center space-x-2">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={user.photo_url} alt={user.first_name} />
+                      <AvatarFallback>{user.first_name[0]}</AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium hidden md:block">{user.first_name}</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="flex items-center space-x-2">
+                      <User className="w-4 h-4" />
+                      <span>Профиль</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings" className="flex items-center space-x-2">
+                      <Settings className="w-4 h-4" />
+                      <span>Настройки</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <span className="text-muted-foreground hidden md:block">Демо Пользователь</span>
             )}
