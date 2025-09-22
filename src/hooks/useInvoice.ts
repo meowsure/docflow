@@ -29,7 +29,7 @@ export const useInvoices = () => {
   const fetchInvoices = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get("/api/v1/payments"); // index()
+      const { data } = await api.get("/payments"); // index()
       setInvoices(data);
     } finally {
       setLoading(false);
@@ -37,18 +37,18 @@ export const useInvoices = () => {
   };
 
   const getInvoice = async (id: string) => {
-    const { data } = await api.get(`/api/v1/payments/${id}`); // show()
+    const { data } = await api.get(`/payments/${id}`); // show()
     return data as Invoice;
   };
 
   const createInvoice = async (payload: Partial<Invoice>) => {
-    const { data } = await api.post("/api/v1/payments/invoice", payload);
+    const { data } = await api.post("/payments/invoice", payload);
     await fetchInvoices();
     return data;
   };
 
   const addPayment = async (invoiceId: string, payload: Partial<Payment>) => {
-    const { data } = await api.post(`/api/v1/payments/${invoiceId}/pay`, payload);
+    const { data } = await api.post(`/payments/${invoiceId}/pay`, payload);
     await fetchInvoices();
     return data;
   };
