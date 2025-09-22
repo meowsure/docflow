@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { CreditCard, FileText, Calendar, Search, Plus, Eye } from "lucide-react";
 import Header from "@/components/Header";
 import { useInvoices } from "@/hooks/useInvoice";
+import { useNavigate } from "react-router-dom";
 
 const Invoices = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigation = useNavigate();
 
   const { invoices, loading } = useInvoices();
 
@@ -143,7 +145,7 @@ const Invoices = () => {
                   <span className="text-sm text-muted-foreground">
                     {invoice.items} позиций
                   </span>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={()=>{navigation.}}>
                     <Eye className="h-4 w-4 mr-2" />
                     Просмотреть
                   </Button>
