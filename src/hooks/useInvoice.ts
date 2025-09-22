@@ -30,7 +30,7 @@ export const useInvoices = () => {
     setLoading(true);
     try {
       const { data } = await api.get("/invoices"); // index()
-      setInvoices(data);
+      setInvoices(data.data);
     } finally {
       setLoading(false);
     }
