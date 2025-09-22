@@ -147,7 +147,7 @@ const Header = () => {
                       <span>Профиль</span>
                     </Link>
                   </DropdownMenuItem>
-                  {(user.role.name === 'admin' || user.role.name === 'Admin') && (
+                  {(user.role.permissions_codes.includes("admin_access")) && (
                     <DropdownMenuItem asChild>
                       <Link to="/settings" className="flex items-center space-x-2">
                         <Settings className="w-4 h-4" />
