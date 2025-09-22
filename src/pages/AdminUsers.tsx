@@ -224,7 +224,7 @@ const AdminUsers = () => {
                                     <TableRow key={user.id}>
                                         <TableCell>
                                             <div className="flex items-center">
-                                                <img src={user.photo_url} alt="" className="w-14 h-14 rounded"/>
+                                                <img src={user.photo_url} alt="" className="w-14 h-14 rounded me-4"/>
                                                 <div>
                                                     <div className="font-medium">{user.full_name}</div>
                                                     <div className="text-sm text-muted-foreground">
