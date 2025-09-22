@@ -42,13 +42,13 @@ export const useInvoices = () => {
   };
 
   const createInvoice = async (payload: Partial<Invoice>) => {
-    const { data } = await api.post("invoices/{invoice}/payments", payload);
+    const { data } = await api.post("/invoices", payload);
     await fetchInvoices();
     return data;
   };
 
   const addPayment = async (invoiceId: string, payload: Partial<Payment>) => {
-    const { data } = await api.post(`/invoices/${invoiceId}/pay`, payload);
+    const { data } = await api.post(`/invoices/${invoiceId}/payments`, payload);
     await fetchInvoices();
     return data;
   };
