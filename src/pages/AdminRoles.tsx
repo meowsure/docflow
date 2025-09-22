@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Shield, Users, Settings, Trash } from "lucide-react";
 import Header from "@/components/Header";
 import { useRoles } from "@/hooks/useRoles";
+import { toast } from "@/hooks/use-toast";
 
 interface Permission {
     id: string;
@@ -46,11 +47,19 @@ const mockPermissions: Permission[] = [
     { id: "4", name: "Создание задач", description: "Возможность создавать новые задачи", category: "Задачи" },
     { id: "5", name: "Редактирование задач", description: "Возможность редактировать существующие задачи", category: "Задачи" },
     { id: "6", name: "Удаление задач", description: "Возможность удалять задачи", category: "Задачи" },
-    { id: "7", name: "Управление отгрузками", description: "Полный доступ к модулю отгрузок", category: "Логистика" },
-    { id: "8", name: "Просмотр финансов", description: "Доступ к финансовой отчетности", category: "Финансы" },
-    { id: "9", name: "Редактирование счетов", description: "Возможность редактировать счета и платежи", category: "Финансы" },
-    { id: "10", name: "Просмотр логов", description: "Доступ к системным логам", category: "Система" },
-    { id: "11", name: "Администратор", description: "Доступ администратора", category: "Система" },
+    { id: "7", name: "Создание отгрузкок", description: "Возможность создавать отгрузки", category: "Логистика" },
+    { id: "8", name: "Просмотр отгрузок", description: "Возможность просматривать все отгрузки", category: "Логистика" },
+    { id: "9", name: "Управление отгрузками", description: "Полный доступ к модулю отгрузок", category: "Логистика" },
+    { id: "10", name: "Просмотр финансов", description: "Доступ к финансовой отчетности", category: "Финансы" },
+    { id: "11", name: "Создание счета", description: "Возможность создавать счет на оплату", category: "Финансы" },
+    { id: "12", name: "Удаление счета", description: "Возможность удалять счет на оплату", category: "Финансы" },
+    { id: "13", name: "Редактирование счетов", description: "Возможность редактировать счета и платежи", category: "Финансы" },
+    { id: "14", name: "Просмотр логов", description: "Доступ к системным логам", category: "Система" },
+    { id: "15", name: "Администратор", description: "Доступ администратора", category: "Система" },
+    { id: "16", name: "Создавать задачу", description: "Возможность создавать задачу", category: "Документооборот" },
+    { id: "17", name: "Загрузка файлов", description: "Возможность загружать файлы", category: "Файлы" },
+    { id: "18", name: "Просмотр файлов", description: "Возможность просматривать файлы", category: "Файлы" },
+    { id: "19", name: "Удаление файлов", description: "Возможность удалять файлы", category: "Файлы" },
 ];
 
 export default function AdminRoles() {

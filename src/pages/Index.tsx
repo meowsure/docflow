@@ -12,20 +12,7 @@ const Index = () => {
   const {
     tasks,
     loading: tasksLoading,
-    loadingMore: tasksLoadingMore,
-    hasMore: tasksHasMore,
-    loadMore: tasksLoadMore,
-    deleteTask,
   } = useTasks();
-
-  const {
-    items: shipments,
-    loading: shipmentsLoading,
-    loadingMore: shipmentsLoadingMore,
-    hasMore: shipmentsHasMore,
-    loadMore: shipmentsLoadMore,
-    deleteItem: deleteShipment,
-  } = useShipments();
 
   const { user } = useAuth();
 
@@ -119,6 +106,16 @@ const Index = () => {
                   <div className="text-center">
                     <div className="font-semibold">Сделать скан</div>
                     <div className="text-xs text-muted-foreground">Сканирование документов</div>
+                  </div>
+                </Link>
+              </Button>
+
+              <Button className="h-24 p-6 flex-col space-y-3 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 border-primary/20" variant="outline" asChild>
+                <Link to="/create-task">
+                  <Send className="w-8 h-8 text-primary" />
+                  <div className="text-center">
+                    <div className="font-semibold">Создать счет</div>
+                    <div className="text-xs text-muted-foreground">Создать счет на оплату</div>
                   </div>
                 </Link>
               </Button>
