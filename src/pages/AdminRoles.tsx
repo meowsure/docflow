@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Plus, Shield, Users, Settings, Trash } from "lucide-react";
 import Header from "@/components/Header";
 import { useRoles } from "@/hooks/useRoles";
+import api from "@/api";
 
 interface Permission {
     id: string;
@@ -60,7 +61,7 @@ const mockPermissions: Permission[] = [
 ];
 
 export default function AdminRoles() {
-    const { items: roles, createItem, updateItem, deleteItem } = useRoles();
+    const { items: roles, createItem, updateItem, deleteItem, refetch } = useRoles();
     const [permissions] = useState<Permission[]>(mockPermissions);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [newRole, setNewRole] = useState({
@@ -76,7 +77,11 @@ export default function AdminRoles() {
             ? role.permissions.filter(p => p !== permissionId)
             : [...role.permissions, permissionId];
 
-        await updateItem(roleId, { permissions: newPermissions });
+        const res = await api.put(`roles/${roleId}/permissions`, { permissions: permissions });
+
+        refetch();
+
+        // await updateItem(roleId, { permissions: newPermissions });
     };
 
     const handleCreateRole = async () => {
