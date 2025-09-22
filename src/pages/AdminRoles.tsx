@@ -85,8 +85,8 @@ export default function AdminRoles() {
             title: "Изменения сохранены",
             description: res.data,
         });
-        refetch();
 
+        refetch();
         // await updateItem(roleId, { permissions: newPermissions });
     };
 
