@@ -15,6 +15,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useInvoices } from "@/hooks/useInvoice";
 import { Link } from "react-router-dom";
+import { useFinance } from "@/hooks/useFinance";
 
 const Invoices = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,7 +28,8 @@ const Invoices = () => {
     description: "",
   });
 
-  const { invoices, loading, createInvoice } = useInvoices();
+  // const { invoices, loading, createInvoice } = useInvoices();
+  const { items: invoices, loading, refetch, createItem, deleteItem } = useFinance();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -55,21 +57,26 @@ const Invoices = () => {
   );
 
   const handleCreateInvoice = async () => {
-    await createInvoice({
+
+    const invoice = await createItem({
       ...form,
       amount: parseFloat(form.amount),
       status: "Черновик",
       dueDate: new Date().toISOString().split("T")[0],
       createdDate: new Date().toISOString().split("T")[0],
     });
-    setOpen(false);
-    setForm({
-      number: "",
-      client: "",
-      amount: "",
-      currency: "₽",
-      description: "",
-    });
+
+    if (invoice) {
+      setOpen(false);
+      setForm({
+        number: "",
+        client: "",
+        amount: "",
+        currency: "₽",
+        description: "",
+      });
+    }
+
   };
 
   return (
