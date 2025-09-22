@@ -148,7 +148,7 @@ const Invoices = () => {
               </DialogContent>
             </Dialog>
           </div>
-          <Button>
+          <Button onClick={() => setOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Создать счет
           </Button>
