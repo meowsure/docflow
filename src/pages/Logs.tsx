@@ -1,72 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, AlertCircle, Info, CheckCircle, XCircle, Search } from "lucide-react";
+import { Database, AlertCircle, Info, CheckCircle, XCircle, Search, User, Calendar, Activity } from "lucide-react";
 import Header from "@/components/Header";
+import { useLogs } from "@/hooks/useLogs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Logs = () => {
+  const { items: logs, loading, loadingMore, hasMore, loadMore } = useLogs();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLevel, setSelectedLevel] = useState("all");
+  const [selectedAction, setSelectedAction] = useState("all");
+  const [selectedEntity, setSelectedEntity] = useState("all");
 
-  const mockLogs = [
-    {
-      id: 1,
-      timestamp: "2024-01-18 14:30:25",
-      level: "info",
-      action: "Пользователь вошёл в систему",
-      user: "admin@example.com",
-      ip: "192.168.1.100",
-      details: "Успешная авторизация через Telegram"
-    },
-    {
-      id: 2,
-      timestamp: "2024-01-18 14:25:10",
-      level: "success",
-      action: "Создана отгрузка",
-      user: "manager@example.com",
-      ip: "192.168.1.101",
-      details: "Отгрузка ОТГ-2024-001 успешно создана"
-    },
-    {
-      id: 3,
-      timestamp: "2024-01-18 14:20:45",
-      level: "warning",
-      action: "Неудачная попытка загрузки файла",
-      user: "user@example.com",
-      ip: "192.168.1.102",
-      details: "Файл превышает максимальный размер 10MB"
-    },
-    {
-      id: 4,
-      timestamp: "2024-01-18 14:15:30",
-      level: "error",
-      action: "Ошибка подключения к базе данных",
-      user: "system",
-      ip: "localhost",
-      details: "Превышено время ожидания подключения"
-    },
-    {
-      id: 5,
-      timestamp: "2024-01-18 14:10:15",
-      level: "info",
-      action: "Создана задача",
-      user: "manager@example.com",
-      ip: "192.168.1.101",
-      details: "Задача 'Проверить документы' назначена пользователю"
-    },
-    {
-      id: 6,
-      timestamp: "2024-01-18 14:05:00",
-      level: "success",
-      action: "Задача выполнена",
-      user: "user@example.com",
-      ip: "192.168.1.103",
-      details: "Задача 'Подготовить отчёт' помечена как выполненная"
+  // Получаем уникальные действия и сущности для фильтров
+  const uniqueActions = Array.from(new Set(logs.map(log => log.action))).sort();
+  const uniqueEntities = Array.from(new Set(logs.map(log => log.entity_type))).sort();
+
+  // Определяем уровень важности на основе действия
+  const getLogLevel = (action: string) => {
+    if (action.includes('error') || action.includes('fail') || action.includes('delete')) {
+      return "error";
+    } else if (action.includes('warn') || action.includes('invalid')) {
+      return "warning";
+    } else if (action.includes('success') || action.includes('complete') || action.includes('confirm')) {
+      return "success";
+    } else {
+      return "info";
     }
-  ];
+  };
 
   const getLevelIcon = (level: string) => {
     switch (level) {
@@ -98,18 +62,92 @@ const Logs = () => {
     }
   };
 
-  const filteredLogs = mockLogs.filter(log => {
-    const matchesSearch = log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.details.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLevel = selectedLevel === "all" || log.level === selectedLevel;
-    return matchesSearch && matchesLevel;
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ru-RU', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const filteredLogs = logs.filter(log => {
+    const matchesSearch = 
+      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.entity_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (log.user?.full_name && log.user.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      log.ip.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      JSON.stringify(log.meta).toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesAction = selectedAction === "all" || log.action === selectedAction;
+    const matchesEntity = selectedEntity === "all" || log.entity_type === selectedEntity;
+    
+    return matchesSearch && matchesAction && matchesEntity;
   });
 
-  const logCounts = mockLogs.reduce((acc, log) => {
-    acc[log.level] = (acc[log.level] || 0) + 1;
+  // Подсчет логов по уровням
+  const logCounts = filteredLogs.reduce((acc, log) => {
+    const level = getLogLevel(log.action);
+    acc[level] = (acc[level] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
+
+  // Бесконечная прокрутка
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+        if (hasMore && !loadingMore) loadMore();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasMore, loadingMore, loadMore]);
+
+  if (loading && logs.length === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto p-6 space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <Skeleton className="h-8 w-48 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-4">
+                  <Skeleton className="h-5 w-5 mb-2" />
+                  <Skeleton className="h-4 w-24 mb-1" />
+                  <Skeleton className="h-6 w-12" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="flex gap-4 items-center">
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-10 w-40" />
+            <Skeleton className="h-10 w-40" />
+          </div>
+
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Card key={i} className="p-4">
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4 mb-3" />
+                <Skeleton className="h-3 w-1/2" />
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -169,55 +207,107 @@ const Logs = () => {
           </Card>
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Поиск в логах..."
+              placeholder="Поиск по действию, сущности, пользователю или IP..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
-          <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+          
+          <Select value={selectedAction} onValueChange={setSelectedAction}>
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="Уровень" />
+              <SelectValue placeholder="Все действия" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Все уровни</SelectItem>
-              <SelectItem value="error">Ошибки</SelectItem>
-              <SelectItem value="warning">Предупреждения</SelectItem>
-              <SelectItem value="success">Успешно</SelectItem>
-              <SelectItem value="info">Информация</SelectItem>
+              <SelectItem value="all">Все действия</SelectItem>
+              {uniqueActions.map(action => (
+                <SelectItem key={action} value={action}>{action}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select value={selectedEntity} onValueChange={setSelectedEntity}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Все сущности" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Все сущности</SelectItem>
+              {uniqueEntities.map(entity => (
+                <SelectItem key={entity} value={entity}>{entity}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-3">
-          {filteredLogs.map((log) => (
-            <Card key={log.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  {getLevelIcon(log.level)}
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium">{log.action}</h3>
-                      <Badge className={getLevelColor(log.level)}>
-                        {log.level.toUpperCase()}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{log.details}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>{log.timestamp}</span>
-                      <span>Пользователь: {log.user}</span>
-                      <span>IP: {log.ip}</span>
+          {filteredLogs.map((log) => {
+            const level = getLogLevel(log.action);
+            return (
+              <Card key={log.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    {getLevelIcon(level)}
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <h3 className="font-medium">{log.action}</h3>
+                        <div className="flex gap-2 flex-wrap">
+                          <Badge className={getLevelColor(level)}>
+                            {level.toUpperCase()}
+                          </Badge>
+                          <Badge variant="outline">
+                            {log.entity_type}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {log.meta && Object.keys(log.meta).length > 0 && (
+                        <p className="text-sm text-muted-foreground">
+                          {JSON.stringify(log.meta)}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {formatDate(log.created_at)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          {log.user?.full_name || `User #${log.user_id}`}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Activity className="h-3 w-3" />
+                          {log.ip}
+                        </span>
+                        {log.entity_id && (
+                          <span className="flex items-center gap-1">
+                            ID: {log.entity_id}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
+
+        {loadingMore && (
+          <div className="flex justify-center">
+            <div className="text-muted-foreground">Загрузка дополнительных логов...</div>
+          </div>
+        )}
+
+        {hasMore && !loadingMore && (
+          <div className="flex justify-center">
+            <Button onClick={loadMore}>Загрузить еще</Button>
+          </div>
+        )}
 
         {filteredLogs.length === 0 && (
           <Card>
@@ -230,7 +320,6 @@ const Logs = () => {
         )}
       </div>
     </div>
-
   );
 };
 
