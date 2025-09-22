@@ -48,6 +48,7 @@ const Header = () => {
     {
       label: "Админ",
       icon: Settings,
+      visibleFor: ["Admin", "admin"],
       items: [
         { path: "/logs", label: "Логи", icon: Database },
         { path: "/admin/users", label: "Пользователи", icon: User },
@@ -82,27 +83,33 @@ const Header = () => {
                 </Link>
               </Button>
 
-              {groupedNav.map((group) => (
-                <DropdownMenu key={group.label}>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="flex items-center space-x-1">
-                      <group.icon className="w-4 h-4" />
-                      <span>{group.label}</span>
-                      <ChevronDown className="w-3 h-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    {group.items.map((item) => (
-                      <DropdownMenuItem key={item.path} asChild>
-                        <Link to={item.path} className="flex items-center space-x-2">
-                          <item.icon className="w-4 h-4" />
-                          <span>{item.label}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ))}
+              {groupedNav.map((group) => {
+                if (group.visibleFor && !group.visibleFor.includes(user.role.name)) {
+                  return null; // скрываем группу
+                }
+
+                return (
+                  <DropdownMenu key={group.label}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="flex items-center space-x-1">
+                        <group.icon className="w-4 h-4" />
+                        <span>{group.label}</span>
+                        <ChevronDown className="w-3 h-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {group.items.map((item) => (
+                        <DropdownMenuItem key={item.path} asChild>
+                          <Link to={item.path} className="flex items-center space-x-2">
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.label}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              })}
             </nav>
           </div>
 
