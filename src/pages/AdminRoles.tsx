@@ -82,7 +82,6 @@ export default function AdminRoles() {
         if (role) {
             setNewRole({ name: "", permissions: [] });
             setIsCreateDialogOpen(false);
-            // refetch(); // подтягиваем актуальный список
         }
     };
 
