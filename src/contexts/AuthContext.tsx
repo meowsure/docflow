@@ -33,12 +33,18 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
+
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Добавляем метод для обновления пользователя из локального контекста
+
+
   useEffect(() => {
+
     const initAuth = async () => {
       setLoading(true);
       try {

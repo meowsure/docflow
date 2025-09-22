@@ -1,12 +1,14 @@
 // TelegramAuth.tsx
-import React from "react";
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import LockBrowser from "./lockBrowser";
 import Index from "@/pages/Index";
+import { useToast } from '@/hooks/use-toast';
 
 const TelegramAuth: React.FC = () => {
   const { user, error, loading } = useAuth();
+  const { toast } = useToast();
 
   if (loading) {
     return (
@@ -20,7 +22,7 @@ const TelegramAuth: React.FC = () => {
     return (
       <main>
         <LockBrowser />
-        <p>{error}</p>
+        <Button>Request Login</Button>
       </main>
     );
   }
