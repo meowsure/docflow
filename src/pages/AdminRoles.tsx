@@ -28,7 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Shield, Users, Settings } from "lucide-react";
+import { Plus, Shield, Users, Settings, Trash } from "lucide-react";
 import Header from "@/components/Header";
 import { useRoles } from "@/hooks/useRoles";
 
@@ -58,7 +58,6 @@ export default function AdminRoles() {
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [newRole, setNewRole] = useState({
         name: "",
-        description: "",
         permissions: [] as string[],
     });
 
@@ -80,7 +79,7 @@ export default function AdminRoles() {
         });
 
         if (role) {
-            setNewRole({ name: "", description: "", permissions: [] });
+            setNewRole({ name: "", permissions: [] });
             setIsCreateDialogOpen(false);
             // refetch(); // подтягиваем актуальный список
         }
@@ -134,15 +133,6 @@ export default function AdminRoles() {
                                         value={newRole.name}
                                         onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
                                         placeholder="Введите название роли"
-                                    />
-                                </div>
-                                <div>
-                                    <Label htmlFor="role-description">Описание</Label>
-                                    <Textarea
-                                        id="role-description"
-                                        value={newRole.description}
-                                        onChange={(e) => setNewRole({ ...newRole, description: e.target.value })}
-                                        placeholder="Описание роли и её назначения"
                                     />
                                 </div>
                                 <div>
@@ -207,6 +197,7 @@ export default function AdminRoles() {
                                         <TableHead>Разрешения</TableHead>
                                         <TableHead>Тип</TableHead>
                                         <TableHead>Дата создания</TableHead>
+                                        <TableHead className="w-[100px]">Действия</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -240,6 +231,13 @@ export default function AdminRoles() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>{role.created_at}</TableCell>
+                                            <TableCell><Button
+                                                variant="ghost"
+                                                className="h-8 w-8 p-0"
+                                                onClick={() => handleDeleteRole(role.id)}
+                                            >
+                                                <Trash className="h-4 w-4" />
+                                            </Button></TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
