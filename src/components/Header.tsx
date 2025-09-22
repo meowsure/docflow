@@ -119,7 +119,7 @@ const Header = () => {
                 <span className="absolute top-0 right-0 block w-2 h-2 bg-red-500 rounded-full ring-1 ring-white" />
               )}
             </Button>
-            // внутри твоего Header, заменяем блок имени пользователя:
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
