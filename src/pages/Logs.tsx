@@ -8,6 +8,7 @@ import { Database, AlertCircle, Info, CheckCircle, XCircle, Search, User, Calend
 import Header from "@/components/Header";
 import { useLogs } from "@/hooks/useLogs";
 import { Skeleton } from "@/components/ui/skeleton";
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const Logs = () => {
   const { items: logs, loading, loadingMore, hasMore, loadMore } = useLogs();
@@ -73,16 +74,16 @@ const Logs = () => {
   };
 
   const filteredLogs = logs.filter(log => {
-    const matchesSearch = 
+    const matchesSearch =
       log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.entity_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (log.user?.full_name && log.user.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
       log.ip.toLowerCase().includes(searchTerm.toLowerCase()) ||
       JSON.stringify(log.meta).toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesAction = selectedAction === "all" || log.action === selectedAction;
     const matchesEntity = selectedEntity === "all" || log.entity_type === selectedEntity;
-    
+
     return matchesSearch && matchesAction && matchesEntity;
   });
 
@@ -217,7 +218,7 @@ const Logs = () => {
               className="pl-10"
             />
           </div>
-          
+
           <Select value={selectedAction} onValueChange={setSelectedAction}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Все действия" />
@@ -229,7 +230,7 @@ const Logs = () => {
               ))}
             </SelectContent>
           </Select>
-          
+
           <Select value={selectedEntity} onValueChange={setSelectedEntity}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Все сущности" />
@@ -242,72 +243,67 @@ const Logs = () => {
             </SelectContent>
           </Select>
         </div>
+        <InfiniteScroll
+          dataLength={filteredLogs.length}
+          next={loadMore}
+          hasMore={hasMore}
+          loader={<div className="text-center py-4">Загрузка...</div>}
+          endMessage={<div className="text-center py-4 text-muted-foreground">Это все логи</div>}
+        >
+          <div className="space-y-3">
+            {filteredLogs.map((log) => {
+              const level = getLogLevel(log.action);
+              return (
+                <Card key={log.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      {getLevelIcon(level)}
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <h3 className="font-medium">{log.action}</h3>
+                          <div className="flex gap-2 flex-wrap">
+                            <Badge className={getLevelColor(level)}>
+                              {level.toUpperCase()}
+                            </Badge>
+                            <Badge variant="outline">
+                              {log.entity_type}
+                            </Badge>
+                          </div>
+                        </div>
 
-        <div className="space-y-3">
-          {filteredLogs.map((log) => {
-            const level = getLogLevel(log.action);
-            return (
-              <Card key={log.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    {getLevelIcon(level)}
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center justify-between flex-wrap gap-2">
-                        <h3 className="font-medium">{log.action}</h3>
-                        <div className="flex gap-2 flex-wrap">
-                          <Badge className={getLevelColor(level)}>
-                            {level.toUpperCase()}
-                          </Badge>
-                          <Badge variant="outline">
-                            {log.entity_type}
-                          </Badge>
+                        {log.meta && Object.keys(log.meta).length > 0 && (
+                          <p className="text-sm text-muted-foreground">
+                            {JSON.stringify(log.meta)}
+                          </p>
+                        )}
+
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {formatDate(log.created_at)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            {log.user?.full_name || `User #${log.user_id}`}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Activity className="h-3 w-3" />
+                            {log.ip}
+                          </span>
+                          {log.entity_id && (
+                            <span className="flex items-center gap-1">
+                              ID: {log.entity_id}
+                            </span>
+                          )}
                         </div>
                       </div>
-                      
-                      {log.meta && Object.keys(log.meta).length > 0 && (
-                        <p className="text-sm text-muted-foreground">
-                          {JSON.stringify(log.meta)}
-                        </p>
-                      )}
-                      
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {formatDate(log.created_at)}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <User className="h-3 w-3" />
-                          {log.user?.full_name || `User #${log.user_id}`}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Activity className="h-3 w-3" />
-                          {log.ip}
-                        </span>
-                        {log.entity_id && (
-                          <span className="flex items-center gap-1">
-                            ID: {log.entity_id}
-                          </span>
-                        )}
-                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {loadingMore && (
-          <div className="flex justify-center">
-            <div className="text-muted-foreground">Загрузка дополнительных логов...</div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
-        )}
-
-        {hasMore && !loadingMore && (
-          <div className="flex justify-center">
-            <Button onClick={loadMore}>Загрузить еще</Button>
-          </div>
-        )}
+        </InfiniteScroll>
 
         {filteredLogs.length === 0 && (
           <Card>
