@@ -27,6 +27,7 @@ const Header = () => {
     {
       label: "Логистика",
       icon: Menu,
+      requiredPermission: "manage_shipments",
       items: [
         { path: "/create-shipment", label: "Создать отгрузку", icon: Truck },
         { path: "/shipments", label: "Отгрузки", icon: Package },
@@ -35,6 +36,7 @@ const Header = () => {
     {
       icon: Menu,
       label: "Финансы",
+      requiredPermission: "view_finances",
       items: [{ path: "/invoices", label: "Счета и оплаты", icon: CreditCard }],
     },
     {
