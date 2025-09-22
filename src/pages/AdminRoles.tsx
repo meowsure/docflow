@@ -30,22 +30,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Shield, Users, Settings } from "lucide-react";
 import Header from "@/components/Header";
+import { useRoles } from "@/hooks/useRoles";
 
 interface Permission {
     id: string;
     name: string;
     description: string;
     category: string;
-}
-
-interface Role {
-    id: string;
-    name: string;
-    description: string;
-    userCount: number;
-    permissions: string[];
-    isSystem: boolean;
-    createdAt: string;
 }
 
 const mockPermissions: Permission[] = [
@@ -61,93 +52,44 @@ const mockPermissions: Permission[] = [
     { id: "10", name: "Просмотр логов", description: "Доступ к системным логам", category: "Система" },
 ];
 
-const mockRoles: Role[] = [
-    {
-        id: "1",
-        name: "Администратор",
-        description: "Полный доступ ко всем функциям системы",
-        userCount: 2,
-        permissions: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
-        isSystem: true,
-        createdAt: "2024-01-01"
-    },
-    {
-        id: "2",
-        name: "Модератор",
-        description: "Управление контентом и пользователями",
-        userCount: 5,
-        permissions: ["1", "2", "4", "5", "6"],
-        isSystem: true,
-        createdAt: "2024-01-01"
-    },
-    {
-        id: "3",
-        name: "Менеджер по логистике",
-        description: "Управление отгрузками и логистическими процессами",
-        userCount: 8,
-        permissions: ["4", "5", "7"],
-        isSystem: false,
-        createdAt: "2024-02-15"
-    },
-    {
-        id: "4",
-        name: "Финансовый аналитик",
-        description: "Доступ к финансовым данным и отчетности",
-        userCount: 3,
-        permissions: ["8", "9"],
-        isSystem: false,
-        createdAt: "2024-03-01"
-    },
-    {
-        id: "5",
-        name: "Сотрудник",
-        description: "Базовые права для работы с задачами",
-        userCount: 25,
-        permissions: ["4"],
-        isSystem: true,
-        createdAt: "2024-01-01"
-    }
-];
-
 export default function AdminRoles() {
-    const [roles, setRoles] = useState<Role[]>(mockRoles);
+    const { items: roles, createItem, updateItem, deleteItem } = useRoles();
     const [permissions] = useState<Permission[]>(mockPermissions);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [newRole, setNewRole] = useState({
         name: "",
         description: "",
-        permissions: [] as string[]
+        permissions: [] as string[],
     });
 
-    const handlePermissionToggle = (roleId: string, permissionId: string) => {
-        setRoles(roles.map(role => {
-            if (role.id === roleId && !role.isSystem) {
-                const hasPermission = role.permissions.includes(permissionId);
-                return {
-                    ...role,
-                    permissions: hasPermission
-                        ? role.permissions.filter(p => p !== permissionId)
-                        : [...role.permissions, permissionId]
-                };
-            }
-            return role;
-        }));
+    const handlePermissionToggle = async (roleId: string, permissionId: string) => {
+        const role = roles.find(r => r.id === roleId);
+        if (!role || role.isSystem) return;
+
+        const newPermissions = role.permissions.includes(permissionId)
+            ? role.permissions.filter(p => p !== permissionId)
+            : [...role.permissions, permissionId];
+
+        await updateItem(roleId, { permissions: newPermissions });
     };
 
-    const handleCreateRole = () => {
-        const role: Role = {
-            id: (roles.length + 1).toString(),
+    const handleCreateRole = async () => {
+        const role = await createItem({
             name: newRole.name,
-            description: newRole.description,
-            userCount: 0,
             permissions: newRole.permissions,
-            isSystem: false,
-            createdAt: new Date().toISOString().split('T')[0]
-        };
+        });
 
-        setRoles([...roles, role]);
-        setNewRole({ name: "", description: "", permissions: [] });
-        setIsCreateDialogOpen(false);
+        if (role) {
+            setNewRole({ name: "", description: "", permissions: [] });
+            setIsCreateDialogOpen(false);
+        }
+    };
+
+    const handleDeleteRole = async (roleId: string) => {
+        const confirmed = confirm("Вы уверены, что хотите удалить эту роль?");
+        if (!confirmed) return;
+
+        await deleteItem(roleId);
     };
 
     const groupedPermissions = permissions.reduce((acc, permission) => {
@@ -296,7 +238,7 @@ export default function AdminRoles() {
                                                     {role.isSystem ? "Системная" : "Пользовательская"}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell>{role.createdAt}</TableCell>
+                                            <TableCell>{role.created_at}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
