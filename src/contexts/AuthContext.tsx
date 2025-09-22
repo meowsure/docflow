@@ -17,6 +17,7 @@ export interface User {
     id: string;
     name: string;
     permissions: string[];
+    permissions_codes: string[];
   } | null;
   created_at?: string;
   updated_at?: string;

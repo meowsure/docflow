@@ -48,7 +48,7 @@ const Header = () => {
     {
       label: "Админ",
       icon: Settings,
-      visibleFor: ["Admin", "admin"],
+      requiredPermission: "admin_access",
       items: [
         { path: "/logs", label: "Логи", icon: Database },
         { path: "/admin/users", label: "Пользователи", icon: User },
@@ -84,8 +84,8 @@ const Header = () => {
               </Button>
 
               {groupedNav.map((group) => {
-                if (group.visibleFor && !group.visibleFor.includes(user.role.name)) {
-                  return null; // скрываем группу
+                if (group.requiredPermission && !user.role.permissions_codes.includes(group.requiredPermission)) {
+                  return null;
                 }
 
                 return (

@@ -6,6 +6,7 @@ export interface Role {
   name: string;
   description?: string;
   permissions: string[];
+  permissions_codes: string[];
   users?: { id: string; first_name: string; last_name: string; username: string;};
   created_at: string;
   isSystem?: boolean;
