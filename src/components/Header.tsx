@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -52,111 +53,119 @@ const Header = () => {
     },
   ];
 
-return (
-  <header className="border-b bg-card shadow-sm">
-    <div className="container mx-auto px-4 py-4">
-      <div className="flex items-center justify-between">
-        {/* Лого */}
-        <div className="flex items-center space-x-8">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
-              <FileText className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <h1 className="text-xl font-semibold text-foreground">DocFlow CRM</h1>
-          </Link>
+  return (
+    <header className="border-b bg-card shadow-sm">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          {/* Лого */}
+          <div className="flex items-center space-x-8">
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
+                <FileText className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <h1 className="text-xl font-semibold text-foreground">DocFlow CRM</h1>
+            </Link>
 
-          {/* Навигация для десктопа */}
-          <nav className="hidden md:flex items-center space-x-4">
+            {/* Навигация для десктопа */}
+            <nav className="hidden md:flex items-center space-x-4">
+              <Button
+                variant={location.pathname === "/" ? "default" : "ghost"}
+                size="sm"
+                asChild
+              >
+                <Link to="/" className="flex items-center space-x-2">
+                  <Home className="w-4 h-4" />
+                  <span>Главная</span>
+                </Link>
+              </Button>
+
+              {groupedNav.map((group) => (
+                <DropdownMenu key={group.label}>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="flex items-center space-x-1">
+                      <group.icon className="w-4 h-4" />
+                      <span>{group.label}</span>
+                      <ChevronDown className="w-3 h-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {group.items.map((item) => (
+                      <DropdownMenuItem key={item.path} asChild>
+                        <Link to={item.path} className="flex items-center space-x-2">
+                          <item.icon className="w-4 h-4" />
+                          <span>{item.label}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ))}
+            </nav>
+          </div>
+
+          {/* Пользователь + мобильное меню */}
+          <div className="flex items-center space-x-2">
             <Button
-              variant={location.pathname === "/" ? "default" : "ghost"}
+              variant="ghost"
+              onClick={() => navigate('notifications')} // Заглушка
               size="sm"
-              asChild
             >
-              <Link to="/" className="flex items-center space-x-2">
-                <Home className="w-4 h-4" />
-                <span>Главная</span>
-              </Link>
+              <Bell className="w-5 h-5" />
             </Button>
+            {user ? (
+              <span className="font-medium hidden md:block">{user.first_name}</span>
+            ) : (
+              <span className="text-muted-foreground hidden md:block">Демо Пользователь</span>
+            )}
+
+            {/* Кнопка мобильного меню */}
+
+            <Button
+              variant="ghost"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
+        </div>
+
+        {/* Мобильное меню */}
+        {mobileMenuOpen && (
+          <nav className="flex flex-col md:hidden mt-4 space-y-2">
+            <Link
+              to="/"
+              className={`flex items-center space-x-2 px-2 py-2 rounded hover:bg-muted ${location.pathname === "/" ? "bg-muted" : ""
+                }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Home className="w-4 h-4" />
+              <span>Главная</span>
+            </Link>
 
             {groupedNav.map((group) => (
-              <DropdownMenu key={group.label}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="flex items-center space-x-1">
-                    <group.icon className="w-4 h-4" />
-                    <span>{group.label}</span>
-                    <ChevronDown className="w-3 h-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
+              <div key={group.label} className="border-t pt-2">
+                <span className="text-sm font-semibold px-2">{group.label}</span>
+                <div className="flex flex-col mt-1 space-y-1">
                   {group.items.map((item) => (
-                    <DropdownMenuItem key={item.path} asChild>
-                      <Link to={item.path} className="flex items-center space-x-2">
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.label}</span>
-                      </Link>
-                    </DropdownMenuItem>
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className="flex items-center space-x-2 px-4 py-2 rounded hover:bg-muted"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </Link>
                   ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </div>
+              </div>
             ))}
           </nav>
-        </div>
-
-        {/* Пользователь + мобильное меню */}
-        <div className="flex items-center space-x-2">
-          {user ? (
-            <span className="font-medium hidden md:block">{user.first_name}</span>
-          ) : (
-            <span className="text-muted-foreground hidden md:block">Демо Пользователь</span>
-          )}
-
-          {/* Кнопка мобильного меню */}
-          <Button
-            variant="ghost"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
-        </div>
+        )}
       </div>
-
-      {/* Мобильное меню */}
-      {mobileMenuOpen && (
-        <nav className="flex flex-col md:hidden mt-4 space-y-2">
-          <Link
-            to="/"
-            className={`flex items-center space-x-2 px-2 py-2 rounded hover:bg-muted ${location.pathname === "/" ? "bg-muted" : ""
-              }`}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <Home className="w-4 h-4" />
-            <span>Главная</span>
-          </Link>
-
-          {groupedNav.map((group) => (
-            <div key={group.label} className="border-t pt-2">
-              <span className="text-sm font-semibold px-2">{group.label}</span>
-              <div className="flex flex-col mt-1 space-y-1">
-                {group.items.map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className="flex items-center space-x-2 px-4 py-2 rounded hover:bg-muted"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <item.icon className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
-        </nav>
-      )}
-    </div>
-  </header>
-);
+    </header>
+  );
 };
 
 export default Header;
