@@ -50,6 +50,7 @@ const mockPermissions: Permission[] = [
     { id: "8", name: "Просмотр финансов", description: "Доступ к финансовой отчетности", category: "Финансы" },
     { id: "9", name: "Редактирование счетов", description: "Возможность редактировать счета и платежи", category: "Финансы" },
     { id: "10", name: "Просмотр логов", description: "Доступ к системным логам", category: "Система" },
+    { id: "11", name: "Администратор", description: "Доступ администратора", category: "Система" },
 ];
 
 export default function AdminRoles() {
