@@ -12,14 +12,14 @@ export interface User {
   full_name?: string;
   photo_url?: string;
   email?: string;
-  role_id: string;
-  role: {
+  role_id?: string;
+  role?: {
     id: string;
     name: string;
     permissions: string[];
   } | null;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface AuthContextProps {
