@@ -231,13 +231,16 @@ export default function AdminRoles() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>{role.created_at}</TableCell>
-                                            <TableCell><Button
-                                                variant="ghost"
-                                                className="h-8 w-8 p-0"
-                                                onClick={() => handleDeleteRole(role.id)}
-                                            >
-                                                <Trash className="h-4 w-4" />
-                                            </Button></TableCell>
+                                            <TableCell>{/* Кнопка удаления показывается только для несистемных ролей */}
+                                                {!role.isSystem && (
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteRole(role.id)}
+                                                    >
+                                                        <Trash className="h-4 w-4" />
+                                                    </Button>
+                                                )}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
