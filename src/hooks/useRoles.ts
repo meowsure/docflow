@@ -10,7 +10,7 @@ export interface Role {
   created_at: string;
   isSystem?: boolean;
   updated_at: string;
-  userCount?: number; // Optional property to hold the number of users in this role
+  users_count?: number; // Optional property to hold the number of users in this role
 }
 
 export const useRoles = () => {

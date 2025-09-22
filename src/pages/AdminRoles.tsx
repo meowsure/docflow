@@ -53,7 +53,7 @@ const mockPermissions: Permission[] = [
 ];
 
 export default function AdminRoles() {
-    const { items: roles, createItem, updateItem, deleteItem } = useRoles();
+    const { items: roles, createItem, updateItem, deleteItem, refetch } = useRoles();
     const [permissions] = useState<Permission[]>(mockPermissions);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [newRole, setNewRole] = useState({
@@ -82,6 +82,7 @@ export default function AdminRoles() {
         if (role) {
             setNewRole({ name: "", description: "", permissions: [] });
             setIsCreateDialogOpen(false);
+            refetch(); // подтягиваем актуальный список
         }
     };
 
@@ -225,7 +226,7 @@ export default function AdminRoles() {
                                             <TableCell>
                                                 <div className="flex items-center space-x-1">
                                                     <Users className="h-4 w-4 text-muted-foreground" />
-                                                    <span>{role.userCount ? role.userCount : 0}</span>
+                                                    <span>{role.users_count ? role.users_count : 0}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
@@ -243,12 +244,6 @@ export default function AdminRoles() {
                                     ))}
                                 </TableBody>
                             </Table>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardContent className="p-4 text-xs text-muted-foreground overflow-x-auto max-h-64">
-                            <pre>{JSON.stringify(roles, null, 2)}</pre>
                         </CardContent>
                     </Card>
 
