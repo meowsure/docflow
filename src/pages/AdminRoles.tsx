@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Plus, Shield, Users, Settings, Trash } from "lucide-react";
 import Header from "@/components/Header";
 import { useRoles } from "@/hooks/useRoles";
+import { useToast } from "@/hooks/use-toast";
 import api from "@/api";
 
 interface Permission {
@@ -68,6 +69,7 @@ export default function AdminRoles() {
         name: "",
         permissions: [] as string[],
     });
+    const { toast } = useToast();
 
     const handlePermissionToggle = async (roleId: string, permissionId: string) => {
         const role = roles.find(r => r.id === roleId);
@@ -78,7 +80,11 @@ export default function AdminRoles() {
             : [...role.permissions, permissionId];
 
         const res = await api.put(`roles/${roleId}/permissions`, { permissions: newPermissions });
-
+        toast({
+            variant: "default",
+            title: "Изменения сохранены",
+            description: res.data,
+        });
         refetch();
 
         // await updateItem(roleId, { permissions: newPermissions });
