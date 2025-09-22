@@ -21,16 +21,15 @@ const Header = () => {
       items: [
         { path: "/tasks", label: "Мои задачи", icon: List },
         { path: "/create-task", label: "Создать задачу", icon: Send, requiredPermission: "create_task" },
-        { path: "/files", label: "Файлы", icon: Folder },
+        { path: "/files", label: "Файлы", icon: Folder, requiredPermission: "view_files" },
       ],
     },
     {
       label: "Логистика",
       icon: Menu,
-      requiredPermission: "manage_shipments",
       items: [
-        { path: "/create-shipment", label: "Создать отгрузку", icon: Truck },
-        { path: "/shipments", label: "Отгрузки", icon: Package },
+        { path: "/create-shipment", label: "Создать отгрузку", icon: Truck, requiredPermission:'create_shipments'},
+        { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission:'view_shipments'},
       ],
     },
     {
@@ -38,14 +37,6 @@ const Header = () => {
       label: "Финансы",
       requiredPermission: "view_finances",
       items: [{ path: "/invoices", label: "Счета и оплаты", icon: CreditCard }],
-    },
-    {
-      label: "Система",
-      icon: Menu,
-      items: [
-        { path: "/notifications", label: "Уведомления", icon: Bell },
-        { path: "/profile", label: "Профиль", icon: User },
-      ],
     },
     {
       label: "Админ",
