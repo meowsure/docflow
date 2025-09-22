@@ -9,9 +9,11 @@ import Header from "@/components/Header";
 import { useLogs } from "@/hooks/useLogs";
 import { Skeleton } from "@/components/ui/skeleton";
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useLogsPagination } from "@/hooks/useLogsPagination";
 
 const Logs = () => {
-  const { items: logs, loading, loadingMore, hasMore, loadMore } = useLogs();
+  // const { items: logs, loading, loadingMore, hasMore, loadMore } = useLogs();
+  const { logs, loading, loadingMore, hasMore, loadMore } = useLogsPagination();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAction, setSelectedAction] = useState("all");
   const [selectedEntity, setSelectedEntity] = useState("all");
