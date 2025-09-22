@@ -57,7 +57,7 @@ export const useCrud = <T extends { id: string }>(endpoint: string) => {
       toast({
         variant: "destructive",
         title: "Ошибка",
-        description: "Не удалось создать запись",
+        description: "Не удалось создать запись: "+ err.data ? err.data.message : err.data.message,
       });
       return null;
     }
