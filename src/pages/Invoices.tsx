@@ -5,15 +5,29 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { CreditCard, FileText, Calendar, Search, Plus, Eye } from "lucide-react";
 import Header from "@/components/Header";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { useInvoices } from "@/hooks/useInvoice";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 const Invoices = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const navigation = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    number: "",
+    client: "",
+    amount: "",
+    currency: "₽",
+    description: "",
+  });
 
-  const { invoices, loading } = useInvoices();
+  const { invoices, loading, createInvoice } = useInvoices();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -40,6 +54,24 @@ const Invoices = () => {
     invoice.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleCreateInvoice = async () => {
+    await createInvoice({
+      ...form,
+      amount: parseFloat(form.amount),
+      status: "Черновик",
+      dueDate: new Date().toISOString().split("T")[0],
+      createdDate: new Date().toISOString().split("T")[0],
+    });
+    setOpen(false);
+    setForm({
+      number: "",
+      client: "",
+      amount: "",
+      currency: "₽",
+      description: "",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -48,6 +80,73 @@ const Invoices = () => {
           <div>
             <h1 className="text-3xl font-bold">Счета и оплаты</h1>
             <p className="text-muted-foreground">Управление счетами и платежами</p>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Создать счёт
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Новый счёт</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <Label htmlFor="number">Номер счёта</Label>
+                    <Input
+                      id="number"
+                      value={form.number}
+                      onChange={(e) =>
+                        setForm({ ...form, number: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="client">Клиент</Label>
+                    <Input
+                      id="client"
+                      value={form.client}
+                      onChange={(e) =>
+                        setForm({ ...form, client: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="amount">Сумма</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      value={form.amount}
+                      onChange={(e) =>
+                        setForm({ ...form, amount: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="currency">Валюта</Label>
+                    <Input
+                      id="currency"
+                      value={form.currency}
+                      onChange={(e) =>
+                        setForm({ ...form, currency: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Описание</Label>
+                    <Input
+                      id="description"
+                      value={form.description}
+                      onChange={(e) =>
+                        setForm({ ...form, description: e.target.value })
+                      }
+                    />
+                  </div>
+                  <Button onClick={handleCreateInvoice}>Сохранить</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
