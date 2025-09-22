@@ -5,60 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { CreditCard, FileText, Calendar, Search, Plus, Eye } from "lucide-react";
 import Header from "@/components/Header";
+import { useInvoices } from "@/hooks/useInvoice";
 
 const Invoices = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const mockInvoices = [
-    {
-      id: 1,
-      number: "СЧ-2024-001",
-      client: "ООО Торговый дом",
-      amount: 125000,
-      currency: "₽",
-      status: "Оплачен",
-      dueDate: "2024-01-20",
-      createdDate: "2024-01-10",
-      items: 5,
-      description: "Поставка строительных материалов"
-    },
-    {
-      id: 2,
-      number: "СЧ-2024-002",
-      client: "ИП Петров",
-      amount: 45000,
-      currency: "₽",
-      status: "Ожидает оплаты",
-      dueDate: "2024-01-25",
-      createdDate: "2024-01-15",
-      items: 3,
-      description: "Услуги по доставке"
-    },
-    {
-      id: 3,
-      number: "СЧ-2024-003",
-      client: "ЗАО Строй Инвест",
-      amount: 89500,
-      currency: "₽",
-      status: "Просрочен",
-      dueDate: "2024-01-12",
-      createdDate: "2024-01-05",
-      items: 8,
-      description: "Комплектующие для оборудования"
-    },
-    {
-      id: 4,
-      number: "СЧ-2024-004",
-      client: "ООО Металл Сервис",
-      amount: 200000,
-      currency: "₽",
-      status: "Черновик",
-      dueDate: "2024-01-30",
-      createdDate: "2024-01-18",
-      items: 12,
-      description: "Металлопрокат и фурнитура"
-    }
-  ];
+  const { invoices, loading } = useInvoices();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -76,13 +28,13 @@ const Invoices = () => {
   };
 
   const formatAmount = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('ru-RU').format(amount) + ' ' + currency;
+    return new Intl.NumberFormat("ru-RU").format(amount) + " " + (currency || "₽");
   };
 
-  const filteredInvoices = mockInvoices.filter(invoice =>
-    invoice.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    invoice.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    invoice.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredInvoices = invoices.filter((invoice) =>
+    invoice.number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    invoice.client?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    invoice.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
