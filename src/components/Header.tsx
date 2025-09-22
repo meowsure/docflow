@@ -20,7 +20,7 @@ const Header = () => {
       icon: Menu,
       items: [
         { path: "/tasks", label: "Мои задачи", icon: List },
-        { path: "/create-task", label: "Создать задачу", icon: Send },
+        { path: "/create-task", label: "Создать задачу", icon: Send, requiredPermission: "create_task" },
         { path: "/files", label: "Файлы", icon: Folder },
       ],
     },
@@ -100,14 +100,22 @@ const Header = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {group.items.map((item) => (
-                        <DropdownMenuItem key={item.path} asChild>
-                          <Link to={item.path} className="flex items-center space-x-2">
-                            <item.icon className="w-4 h-4" />
-                            <span>{item.label}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
+
+                      {group.items.map((item) => {
+                        // Проверяем наличие прав для этого пункта меню
+                        if (item.requiredPermission && !user.role.permissions_codes.includes(item.requiredPermission)) {
+                          return null;
+                        }
+
+                        return (
+                          <DropdownMenuItem key={item.path} asChild>
+                            <Link to={item.path} className="flex items-center space-x-2">
+                              <item.icon className="w-4 h-4" />
+                              <span>{item.label}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        );
+                      })}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 );
