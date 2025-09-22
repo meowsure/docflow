@@ -13,7 +13,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { useInvoices } from "@/hooks/useInvoice";
 import { Link } from "react-router-dom";
 import { useFinance } from "@/hooks/useFinance";
 
