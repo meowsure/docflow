@@ -62,7 +62,7 @@ const mockPermissions: Permission[] = [
 ];
 
 export default function AdminRoles() {
-    const { items: roles, createItem, updateItem, deleteItem, refetch } = useRoles();
+    const { items: roles, createItem, updateItem, deleteItem } = useRoles();
     const [permissions] = useState<Permission[]>(mockPermissions);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [newRole, setNewRole] = useState({
