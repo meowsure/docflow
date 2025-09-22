@@ -223,10 +223,13 @@ const AdminUsers = () => {
                                 {filteredUsers.map((user) => (
                                     <TableRow key={user.id}>
                                         <TableCell>
-                                            <div>
-                                                <div className="font-medium">{user.full_name}</div>
-                                                <div className="text-sm text-muted-foreground">
-                                                    {user.email || "Email не указан"}
+                                            <div className="flex align-items-center">
+                                                <img src={user.photo_url} alt="" className="w-24 h-24 rounded"/>
+                                                <div>
+                                                    <div className="font-medium">{user.full_name}</div>
+                                                    <div className="text-sm text-muted-foreground">
+                                                        {user.email || "Email не указан"}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </TableCell>
