@@ -4,8 +4,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const Header = () => {
+  const { items: notifications } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -107,10 +109,14 @@ const Header = () => {
           <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
-              onClick={() => navigate('notifications')} // Заглушка
+              onClick={() => navigate('/notifications')}
               size="sm"
+              className="relative"
             >
               <Bell className="w-5 h-5" />
+              {notifications.some(n => !n.is_read) && (
+                <span className="absolute top-0 right-0 block w-2 h-2 bg-red-500 rounded-full ring-1 ring-white" />
+              )}
             </Button>
             {user ? (
               <span className="font-medium hidden md:block">{user.first_name}</span>
