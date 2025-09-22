@@ -218,14 +218,14 @@ export default function AdminRoles() {
                                                         <span className="font-medium">{role.name}</span>
                                                     </div>
                                                     <div className="text-sm text-muted-foreground mt-1">
-                                                        {role.description}
+                                                        {role.description ? role.description : "Нет описания"}
                                                     </div>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center space-x-1">
                                                     <Users className="h-4 w-4 text-muted-foreground" />
-                                                    <span>{role.userCount}</span>
+                                                    <span>{role.userCount ? role.userCount : 0}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
@@ -243,6 +243,12 @@ export default function AdminRoles() {
                                     ))}
                                 </TableBody>
                             </Table>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardContent className="p-4 text-xs text-muted-foreground overflow-x-auto max-h-64">
+                            <pre>{JSON.stringify(roles, null, 2)}</pre>
                         </CardContent>
                     </Card>
 
