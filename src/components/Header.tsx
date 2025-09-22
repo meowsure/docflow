@@ -138,12 +138,14 @@ const Header = () => {
                       <span>Профиль</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/settings" className="flex items-center space-x-2">
-                      <Settings className="w-4 h-4" />
-                      <span>Настройки</span>
-                    </Link>
-                  </DropdownMenuItem>
+                  {(user.role.name === 'admin' || user.role.name === 'Admin') && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/settings" className="flex items-center space-x-2">
+                        <Settings className="w-4 h-4" />
+                        <span>Настройки</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (

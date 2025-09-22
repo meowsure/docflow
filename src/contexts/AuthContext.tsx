@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { retrieveLaunchParams } from "@tma.js/bridge";
 import api from "@/api";
 
-interface User {
+export interface User {
   id: string | number;
   telegram_id?: number;
   username?: string;
@@ -11,6 +11,15 @@ interface User {
   last_name?: string;
   full_name?: string;
   photo_url?: string;
+  email?: string;
+  role_id: string;
+  role: {
+    id: string;
+    name: string;
+    permissions: string[];
+  } | null;
+  created_at: string;
+  updated_at: string;
 }
 
 interface AuthContextProps {
