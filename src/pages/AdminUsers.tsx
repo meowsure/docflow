@@ -223,8 +223,8 @@ const AdminUsers = () => {
                                 {filteredUsers.map((user) => (
                                     <TableRow key={user.id}>
                                         <TableCell>
-                                            <div className="flex align-items-center">
-                                                <img src={user.photo_url} alt="" className="w-24 h-24 rounded"/>
+                                            <div className="flex items-center">
+                                                <img src={user.photo_url} alt="" className="w-14 h-14 rounded"/>
                                                 <div>
                                                     <div className="font-medium">{user.full_name}</div>
                                                     <div className="text-sm text-muted-foreground">
