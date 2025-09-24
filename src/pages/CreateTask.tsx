@@ -37,14 +37,14 @@ const CreateTask = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (files.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Ошибка",
-        description: "Необходимо загрузить хотя бы один файл"
-      });
-      return;
-    }
+    // if (files.length === 0) {
+    //   toast({
+    //     variant: "destructive",
+    //     title: "Ошибка",
+    //     description: "Необходимо загрузить хотя бы один файл"
+    //   });
+    //   return;
+    // }
 
     if (!title.trim()) {
       toast({
