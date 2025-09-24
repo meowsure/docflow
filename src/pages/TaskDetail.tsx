@@ -172,8 +172,8 @@ const TaskDetail = () => {
               </div>
             </div>
 
-            {task.creator_id == currentUser.id && (
-              <div className="flex space-x-2">
+            <div className="flex space-x-2">
+              {task.creator_id == currentUser.id && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -182,28 +182,27 @@ const TaskDetail = () => {
                   <Edit className="w-4 h-4 mr-2" />
                   Редактировать
                 </Button>
-                {currentUser.id === task.creator.id && (currentUser.role.name == "Администратор" || currentUser.role.permissions_codes.includes('delete_tasks')) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={async () => {
-                      const success = await deleteTask(task.id);
-                      if (success) {
-                        toast({
-                          title: "Задача удалена",
-                          description: "Задача успешно удалена",
-                        });
-                        navigate("/tasks");
-                      }
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Удалить
-                  </Button>
-                )}
-
-              </div>
-            )}
+              )}
+              {currentUser.id === task.creator.id && (currentUser.role.name == "Администратор" || currentUser.role.permissions_codes.includes('delete_tasks')) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    const success = await deleteTask(task.id);
+                    if (success) {
+                      toast({
+                        title: "Задача удалена",
+                        description: "Задача успешно удалена",
+                      });
+                      navigate("/tasks");
+                    }
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Удалить
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
