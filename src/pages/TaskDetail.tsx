@@ -17,7 +17,7 @@ const TaskDetail = () => {
   const { tasks, loading, refetch, deleteTask, updateTask } = useTasks();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth();
 
   // Найти задачу по ID
   const task = tasks.find(t => t.id === id);
@@ -274,14 +274,17 @@ const TaskDetail = () => {
 
           {/* Боковая панель */}
           <div className="space-y-6">
-            <Button
-              variant="outline"
-              className="w-full mb-4"
-              onClick={() => handleStatusChange('in_progress')}
-            >
-              <User className="w-4 h-4 mr-2" />
-              Приступить к выполнению задачи
-            </Button>
+            {task.assignee.id == currentUser.id && task.status === 'draft' && (
+              <Button
+                variant="outline"
+                className="w-full mb-4"
+                onClick={() => handleStatusChange('in_progress')}
+              >
+                <User className="w-4 h-4 mr-2" />
+                Приступить к выполнению задачи
+              </Button>
+            )}
+
             <Card>
               <CardHeader>
                 <CardTitle>Информация о задаче</CardTitle>
