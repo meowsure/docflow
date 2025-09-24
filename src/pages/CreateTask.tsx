@@ -214,7 +214,7 @@ const CreateTask = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Москва">🏙 В Москву</SelectItem>
+                        <SelectItem value="Москву">🏙 В Москву</SelectItem>
                         <SelectItem value="Другой город">🚚 В другой город</SelectItem>
                       </SelectContent>
                     </Select>
