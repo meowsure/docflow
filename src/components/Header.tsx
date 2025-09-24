@@ -41,9 +41,8 @@ const Header = () => {
     {
       icon: Cog,
       label: "Управление",
-      requiredPermission: "view_finances",
+      requiredPermission: "settings",
       items: [
-        { path: "/invoices", label: "Счета и оплаты", icon: CreditCard }, 
         { path: "/admin/users", label: "Пользователи", icon: User, requiredPermission: 'manage_users' },
         { path: "/admin/roles", label: "Роли", icon: Group, requiredPermission: 'manage_roles' }],
     },
