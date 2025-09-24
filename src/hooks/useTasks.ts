@@ -113,7 +113,7 @@ export const useTasks = () => {
       toast({
         variant: "destructive",
         title: "Ошибка",
-        description: "Не удалось создать задачу",
+        description: "Не удалось создать задачу: " + (error.message ? error.data.message : error.message),
       });
       return null;
     }
