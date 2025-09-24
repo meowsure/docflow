@@ -40,7 +40,7 @@ interface Permission {
     category: string;
 }
 
-const mockPermissions: Permission[] = [
+const permissionsList: Permission[] = [
     { id: "1", name: "Просмотр пользователей", description: "Возможность просматривать список пользователей", category: "Пользователи" },
     { id: "2", name: "Редактирование пользователей", description: "Возможность редактировать данные пользователей", category: "Пользователи" },
     { id: "3", name: "Удаление пользователей", description: "Возможность удалять пользователей", category: "Пользователи" },
@@ -65,7 +65,7 @@ const mockPermissions: Permission[] = [
 
 export default function AdminRoles() {
     const { items: roles, createItem, updateItem, deleteItem, refetch } = useRoles();
-    const [permissions] = useState<Permission[]>(mockPermissions);
+    const [permissions] = useState<Permission[]>(permissionsList);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [newRole, setNewRole] = useState({
         name: "",
