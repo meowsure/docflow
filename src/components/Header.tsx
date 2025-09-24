@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group, File, Atom } from "lucide-react";
+import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group, File, Atom, Cog, ArrowsUpFromLine } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,13 +28,19 @@ const Header = () => {
       label: "Логистика",
       icon: Truck,
       items: [
-        { path: "/create-shipment", label: "Создать отгрузку", icon: Truck, requiredPermission:'create_shipments'},
+        { path: "/create-shipment", label: "Создать отгрузку", icon: ArrowsUpFromLine, requiredPermission:'create_shipments'},
         { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission:'view_shipments'},
       ],
     },
     {
-      icon: Atom,
+      icon: CreditCard,
       label: "Финансы",
+      requiredPermission: "view_finances",
+      items: [{ path: "/invoices", label: "Счета и оплаты", icon: CreditCard }],
+    },
+    {
+      icon: Cog,
+      label: "Управление",
       requiredPermission: "view_finances",
       items: [{ path: "/invoices", label: "Счета и оплаты", icon: CreditCard }],
     },
@@ -154,6 +160,7 @@ const Header = () => {
                       </Link>
                     </DropdownMenuItem>
                   )}
+                  
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
