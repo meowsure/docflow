@@ -7,7 +7,7 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  status: "draft" | "submitted" | "completed" | "in_progress" | "created";
+  status: "draft" | "submitted" | "completed" | "in_progress" | "created" | "new" | "done" | "cancelled";
   city?: string;
   task_type?: string;
   creator_id: string;
