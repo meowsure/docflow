@@ -324,7 +324,7 @@ const TaskDetail = () => {
                 </div>
                 {task.assignee.id && (
                   <div>
-                    <CardTitle>Ответственный</CardTitle>
+                    <CardTitle className='my-3'>Ответственный</CardTitle>
                     <div className="flex items-center space-x-3 text-sm">
                       {task.assignee.photo_url && (
                         <Avatar className="w-8 h-8">
