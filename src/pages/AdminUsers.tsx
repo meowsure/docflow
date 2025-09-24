@@ -74,7 +74,6 @@ const AdminUsers = () => {
     const filteredUsers = users.filter(
         (user) =>
             user.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
             user.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
