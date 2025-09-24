@@ -82,6 +82,8 @@ const TaskDetail = () => {
         return 'secondary';
       case 'submitted':
         return 'default';
+      case 'created':
+        return 'default';
       case 'in_progress':
         return 'warning';
       case 'completed':
@@ -95,6 +97,8 @@ const TaskDetail = () => {
     switch (task.status) {
       case 'draft':
         return 'Черновик';
+      case 'created':
+        return 'Создано';
       case 'submitted':
         return 'Отправлено';
       case 'in_progress':
@@ -169,6 +173,9 @@ const TaskDetail = () => {
                 <CardTitle>Описание задачи</CardTitle>
               </CardHeader>
               <CardContent>
+                <p className="text-foreground leading-relaxed">
+                  {task.title || 'Заголовок отсутствует'}
+                </p>
                 <p className="text-foreground leading-relaxed">
                   {task.description || 'Описание отсутствует'}
                 </p>
