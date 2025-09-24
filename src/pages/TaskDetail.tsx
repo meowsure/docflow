@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Header from "@/components/Header";
-import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash2, ArrowRight } from "lucide-react";
+import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash2, ArrowRight, CheckCircle, X } from "lucide-react";
 import { useTasks } from '@/hooks/useTasks';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
@@ -230,6 +230,26 @@ const TaskDetail = () => {
               >
                 <ArrowRight className="w-4 h-4 mr-2" />
                 Сдать задачу
+              </Button>
+            )}
+
+            {task.creator_id == currentUser.id && task.status === 'submitted' ? (
+              <Button
+                variant="outline"
+                className="w-full mb-2"
+                onClick={() => handleStatusChange('done')}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Подтвердить выполнение задачи
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="w-full mb-2"
+                onClick={() => handleStatusChange('draft')}
+              >
+                <X className="w-4 h-4 mr-2" />
+                Вернуть задачу в работу
               </Button>
             )}
 
