@@ -61,6 +61,9 @@ const permissionsList: Permission[] = [
     { id: "18", name: "Удаление файлов", description: "Возможность удалять файлы", category: "Файлы" },
     { id: "19", name: "Активация аккаунта", description: "Возможность активации пользователей", category: "Пользователи" },
     { id: "20", name: "Де-активация аккаунта", description: "Возможность деактивации пользователей", category: "Пользователи" },
+    { id: "21", name: "Доступ к управлению", description: "Управление разделом", category: "Управление" },
+    { id: "22", name: "Полный доступ к пользователям", description: "Управление пользователями", category: "Управление" },
+    { id: "23", name: "Полный доступ к ролям", description: "Управление ролями", category: "Управление" },
 ];
 
 export default function AdminRoles() {
