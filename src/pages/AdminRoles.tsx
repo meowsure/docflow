@@ -59,6 +59,8 @@ const mockPermissions: Permission[] = [
     { id: "16", name: "Загрузка файлов", description: "Возможность загружать файлы", category: "Файлы" },
     { id: "17", name: "Просмотр файлов", description: "Возможность просматривать файлы", category: "Файлы" },
     { id: "18", name: "Удаление файлов", description: "Возможность удалять файлы", category: "Файлы" },
+    { id: "19", name: "Активация аккаунта", description: "Возможность активации пользователей", category: "Пользователи" },
+    { id: "20", name: "Де-активация аккаунта", description: "Возможность деактивации пользователей", category: "Пользователи" },
 ];
 
 export default function AdminRoles() {
