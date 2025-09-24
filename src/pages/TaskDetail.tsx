@@ -11,6 +11,7 @@ import { useTasks } from '@/hooks/useTasks';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { Arrow } from '@radix-ui/react-tooltip';
+import { TaskFile } from "@/hooks/useFiles";
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -346,43 +347,82 @@ const TaskDetail = () => {
                 <CardTitle>Прикрепленные файлы</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">Файлы пока не загружены</p>
-                </div>
+                {!task.files || task.files.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">Файлы пока не загружены</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {task.files.map((file) => {
+                      // Функция для форматирования размера файла
+                      const formatFileSize = (bytes: number | null) => {
+                        if (!bytes) return '0 Б';
+                        const units = ['Б', 'КБ', 'МБ', 'ГБ'];
+                        let size = bytes;
+                        let unitIndex = 0;
+                        while (size >= 1024 && unitIndex < units.length - 1) {
+                          size /= 1024;
+                          unitIndex++;
+                        }
+                        return `${size.toFixed(1)} ${units[unitIndex]}`;
+                      };
 
-                {task.files && task.files.map((file) => (
-                  <Card key={file.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {getFileIcon(file.mime.split('/')[1])}
-                          <div>
-                            <h3 className="font-medium">Файл</h3>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Folder className="h-3 w-3" />
-                              <span>{file.entity_type ? file.folder : 'Не указана'}</span>
-                              <span>•</span>
-                              <span>{file.size}</span>
-                              <span>•</span>
-                              <span>{file.created_at}</span>
+                      // Функция для форматирования даты
+                      const formatDate = (dateString: string) => {
+                        return new Date(dateString).toLocaleDateString('ru-RU', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        });
+                      };
+
+                      return (
+                        <div key={file.id} className="flex items-center justify-between p-3 border rounded-lg hover:shadow-md transition-shadow">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {getFileIcon(file.mime?.split('/')[1] || 'file')}
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-medium truncate">{file.name || 'Файл'}</h3>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+                                <span>{formatFileSize(file.size)}</span>
+                                <span>•</span>
+                                <span>{formatDate(file.created_at)}</span>
+                                {file.mime && (
+                                  <>
+                                    <span>•</span>
+                                    <span>{file.mime.split('/')[1]?.toUpperCase()}</span>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </div>
+                          <div className="flex items-center gap-2 ml-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open(file.path || file.path, '_blank')}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                // Создаем временную ссылку для скачивания
+                                const link = document.createElement('a');
+                                link.href = file.path || file.file_path || '';
+                                link.download = file.file_name || 'download';
+                                link.click();
+                              }}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3">
-
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Download className="h-4 w-4" />
-                          </Button>
-
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

@@ -13,14 +13,7 @@ import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useUsers } from '@/hooks/useUsers';
-
-interface UploadedFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  file: File;
-}
+import { useFiles, TaskFile } from '@/hooks/useFiles';
 
 const CreateTask = () => {
   const { toast } = useToast();
@@ -28,7 +21,8 @@ const CreateTask = () => {
   const { user: currentUser } = useAuth();
   const { items: users } = useUsers();
   const navigate = useNavigate();
-  const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [files, setFiles] = useState<TaskFile[]>([]);
+  const { uploadFile, attachFilesToTask, uploading: filesUploading } = useFiles();
   const [taskType, setTaskType] = useState<'send_docs' | 'make_scan'>('send_docs');
   const [city, setCity] = useState<'Москву' | 'Другой город'>('Москву');
   const [title, setTitle] = useState('');
@@ -37,14 +31,14 @@ const CreateTask = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    // if (files.length === 0) {
-    //   toast({
-    //     variant: "destructive",
-    //     title: "Ошибка",
-    //     description: "Необходимо загрузить хотя бы один файл"
-    //   });
-    //   return;
-    // }
+    if (files.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: "Необходимо загрузить хотя бы один файл"
+      });
+      return;
+    }
 
     if (!title.trim()) {
       toast({
@@ -75,29 +69,50 @@ const CreateTask = () => {
         assignee_id: assignee,
       });
 
-      if (task) {
-        // Загружаем файлы и привязываем их к задаче
+      if (task && task.id) {
         let uploadErrors = false;
+        const uploadedFileIds: string[] = [];
 
-        for (const file of files) {
-          try {
-            // await addFile(task.id, file.file);
-          } catch (error) {
-            console.error('Error uploading file:', error);
-            uploadErrors = true;
+        // Загружаем файлы и привязываем их к задаче
+        if (files.length > 0) {
+          for (const fileData of files) {
+            try {
+              // Загружаем файл и сразу привязываем к задаче
+              const uploadedFile = await uploadFile(
+                fileData.file,
+                'App\\Models\\Task', // entity_type для Laravel
+                task.id // entity_id - ID созданной задачи
+              );
+
+              if (uploadedFile && uploadedFile.id) {
+                uploadedFileIds.push(uploadedFile.id);
+              } else {
+                uploadErrors = true;
+              }
+            } catch (error) {
+              console.error('Error uploading file:', error);
+              uploadErrors = true;
+            }
           }
+
+          // Альтернативный подход: прикрепление уже загруженных файлов по ID
+          // if (uploadedFileIds.length > 0) {
+          //   await attachFilesToTask(task.id, uploadedFileIds);
+          // }
         }
 
-        if (uploadErrors) {
+        if (uploadErrors && files.length > 0) {
           toast({
             variant: "destructive",
-            title: "Ошибка",
-            description: "Не все файлы были загружены"
+            title: "Частичная ошибка",
+            description: "Задача создана, но не все файлы были загружены"
           });
         } else {
           toast({
             title: "Задача создана",
-            description: "Заявка отправлена лид-менеджеру"
+            description: files.length > 0
+              ? "Задача и файлы успешно созданы"
+              : "Задача успешно создана"
           });
         }
 
