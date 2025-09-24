@@ -197,7 +197,7 @@ const CreateTask = () => {
                       {users.map((user) => (
                         user.id === currentUser.id ? null : (
                           <SelectItem key={user.id} value={user.id}>
-                            {user.full_name} {user.role ? `(${user.role.name})` : ''}
+                            {user.full_name}
                           </SelectItem>
                         )
                       ))}
