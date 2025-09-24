@@ -93,6 +93,9 @@ const TaskCard = ({ task, onDelete, isDeleting }: TaskCardProps) => {
 
       <CardContent className="pb-3">
         <p className="text-sm text-foreground mb-3 line-clamp-2">
+          {task.title || 'Без заголовка'}
+        </p>
+        <p className="text-sm text-foreground mb-3 line-clamp-2">
           {task.description || task.title || 'Без описания'}
         </p>
         
