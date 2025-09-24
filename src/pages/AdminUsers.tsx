@@ -23,7 +23,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Search, Shield, RefreshCw, CheckCircle } from "lucide-react";
+import { MoreHorizontal, Search, Shield, RefreshCw, CheckCircle, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { useUsers, User } from "@/hooks/useUsers";
@@ -343,26 +343,24 @@ const AdminUsers = () => {
                                                             Сделать {getRoleLabel(role.name)}
                                                         </DropdownMenuItem>
                                                     ))}
-                                                    {currentUser?.role?.permissions.includes('activate_user') && (
-                                                        !user.isActive ? (
-                                                            <DropdownMenuItem
-                                                                onClick={() => activateUser(user.id)}
-                                                                disabled={isUpdating[user.id]}
-                                                            >
-                                                                <CheckCircle className="h-4 w-4 mr-2" />
-                                                                Активировать аккаунт
-                                                            </DropdownMenuItem>
-                                                        ) : (
-                                                            <DropdownMenuItem
-                                                                onClick={() => deactivateUser(user.id)}
-                                                                disabled={isUpdating[user.id]}
-                                                            >
-                                                                <CheckCircle className="h-4 w-4 mr-2" />
-                                                                Деактивировать аккаунт
-                                                            </DropdownMenuItem>
-                                                        )
+                                                    {currentUser?.role?.permissions_codes.includes('activate_user') && !user.isActive && (
+                                                        <DropdownMenuItem
+                                                            onClick={() => activateUser(user.id)}
+                                                            disabled={isUpdating[user.id]}
+                                                        >
+                                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                                            Активировать аккаунт
+                                                        </DropdownMenuItem>
                                                     )}
-
+                                                    {currentUser?.role?.permissions_codes.includes('deactivate_user') && user.isActive && (
+                                                        <DropdownMenuItem
+                                                            onClick={() => deactivateUser(user.id)}
+                                                            disabled={isUpdating[user.id]}
+                                                        >
+                                                            <XCircle className="h-4 w-4 mr-2" />
+                                                            Деактивировать аккаунт
+                                                        </DropdownMenuItem>
+                                                    )}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
