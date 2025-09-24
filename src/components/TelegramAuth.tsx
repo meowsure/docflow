@@ -17,10 +17,21 @@ const TelegramAuth: React.FC = () => {
     );
   }
 
+  useEffect(() => {
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: error
+      });
+    }
+
+  }, []);
+
   if (!user) {
     return (
 
-      <LockBrowser props={error}/>
+      <LockBrowser props={error} />
 
     );
   }
