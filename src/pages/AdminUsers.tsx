@@ -343,7 +343,7 @@ const AdminUsers = () => {
                                                             Сделать {getRoleLabel(role.name)}
                                                         </DropdownMenuItem>
                                                     ))}
-                                                    {currentUser?.role?.permissions_codes.includes('activate_user') && !user.isActive && (
+                                                    {currentUser.id !== user.id && currentUser?.role?.permissions_codes.includes('activate_user') && !user.isActive && (
                                                         <DropdownMenuItem
                                                             onClick={() => activateUser(user.id)}
                                                             disabled={isUpdating[user.id]}
@@ -352,7 +352,7 @@ const AdminUsers = () => {
                                                             Активировать аккаунт
                                                         </DropdownMenuItem>
                                                     )}
-                                                    {currentUser?.role?.permissions_codes.includes('deactivate_user') && user.isActive && (
+                                                    {currentUser.id !== user.id && currentUser?.role?.permissions_codes.includes('deactivate_user') && user.isActive && (
                                                         <DropdownMenuItem
                                                             onClick={() => deactivateUser(user.id)}
                                                             disabled={isUpdating[user.id]}
