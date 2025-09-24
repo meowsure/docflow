@@ -73,7 +73,6 @@ const CreateTask = () => {
         task_type: taskType,
         city,
         assignee_id: assignee,
-        status: 'draft', // Используем статус 'draft' как в TaskController
       });
 
       if (task) {
