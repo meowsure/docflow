@@ -204,6 +204,8 @@ const TaskDetail = () => {
               </CardContent>
             </Card>
 
+          </div>
+
             {/* Боковая панель */}
             <div className="space-y-6">
               {task.assignee_id == currentUser.id && task.status === 'draft' && (
@@ -304,7 +306,6 @@ const TaskDetail = () => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
