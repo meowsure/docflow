@@ -274,10 +274,10 @@ const TaskDetail = () => {
 
           {/* Боковая панель */}
           <div className="space-y-6">
-            {task.assignee?.id === currentUser.id && task.status === 'draft' && (
+            {task.assignee_id == currentUser.id && task.status === 'draft' && (
               <Button
                 variant="outline"
-                className="w-full mb-4"
+                className="w-full mb-2"
                 onClick={() => handleStatusChange('in_progress')}
               >
                 <User className="w-4 h-4 mr-2" />
