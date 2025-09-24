@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useUsers } from '@/hooks/useUsers';
 
 interface UploadedFile {
   id: string;
@@ -25,11 +26,13 @@ const CreateTask = () => {
   const { toast } = useToast();
   const { createTask } = useTasks();
   const { user } = useAuth();
+  const { items: users } = useUsers();
   const navigate = useNavigate();
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [taskType, setTaskType] = useState<'send_docs' | 'make_scan'>('send_docs');
   const [city, setCity] = useState<'Москву' | 'Другой город'>('Москву');
   const [title, setTitle] = useState('');
+  const [assignee, setAssignee] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -63,7 +66,7 @@ const CreateTask = () => {
 
     try {
       setLoading(true);
-      
+
       // Создаем задачу
       const task = await createTask({
         title: title.trim(),
@@ -76,7 +79,7 @@ const CreateTask = () => {
       if (task) {
         // Загружаем файлы и привязываем их к задаче
         let uploadErrors = false;
-        
+
         for (const file of files) {
           try {
             // await addFile(task.id, file.file);
@@ -98,7 +101,7 @@ const CreateTask = () => {
             description: "Заявка отправлена лид-менеджеру"
           });
         }
-        
+
         navigate('/tasks');
       }
     } catch (error) {
@@ -116,14 +119,14 @@ const CreateTask = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <Button variant="ghost" className="mb-4" onClick={() => navigate('/')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Назад
           </Button>
-          
+
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
               <Send className="w-5 h-5 text-primary-foreground" />
@@ -181,6 +184,23 @@ const CreateTask = () => {
                       <SelectItem value="make_scan">🖨 Сделать скан</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="assignee">Исполнитель *</Label>
+                  <Select value={assignee} onValueChange={(value) => setAssignee(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {users.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.full_name} {user.role ? `(${user.role.name})` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
                 </div>
 
                 {taskType === 'send_docs' && (
@@ -251,9 +271,9 @@ const CreateTask = () => {
                     </span>
                   </div>
                 </div>
-                
-                <Button 
-                  onClick={handleSubmit} 
+
+                <Button
+                  onClick={handleSubmit}
                   className="w-full"
                   size="lg"
                   disabled={loading || !title.trim() || !description.trim() || files.length === 0}
