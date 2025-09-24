@@ -27,6 +27,7 @@ const Header = () => {
     {
       label: "Логистика",
       icon: Truck,
+      requiredPermission: 'view_shipments',
       items: [
         { path: "/create-shipment", label: "Создать отгрузку", icon: ArrowsUpFromLine, requiredPermission: 'create_shipments' },
         { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission: 'view_shipments' },
@@ -152,6 +153,12 @@ const Header = () => {
                     <Link to="/profile" className="flex items-center space-x-2">
                       <User className="w-4 h-4" />
                       <span>Профиль</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/tasks" className="flex items-center space-x-2">
+                      <File className="w-4 h-4" />
+                      <span>Мои задачи</span>
                     </Link>
                   </DropdownMenuItem>
                   {(user.role.permissions_codes.includes("admin_access")) && (
