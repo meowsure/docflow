@@ -110,7 +110,7 @@ const CreateTask = () => {
       toast({
         variant: "destructive",
         title: "Ошибка",
-        description: "Не удалось создать задачу"
+        description: "Не удалось создать задачу: " + error.message
       });
     } finally {
       setLoading(false);
