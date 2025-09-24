@@ -194,7 +194,7 @@ const CreateTask = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {users.map((user) => (
-                        user.id === currentUser?.id ? null : (
+                        user.id === currentUser.id ? null : (
                           <SelectItem key={user.id} value={user.id}>
                             {user.full_name} {user.role ? `(${user.role.name})` : ''}
                           </SelectItem>
