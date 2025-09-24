@@ -197,7 +197,6 @@ const CreateTask = () => {
                       {users.map((user) => (
                         user.id === currentUser.id ? null : (
                           <SelectItem key={user.id} value={user.id}>
-                            <img src={user.photo_url} alt={user.full_name} className='w-5 h-5 rounded-full'/>
                             {user.full_name} {user.role ? `(${user.role.name})` : ''}
                           </SelectItem>
                         )
