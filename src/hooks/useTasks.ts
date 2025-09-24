@@ -14,6 +14,7 @@ export interface Task {
   assignee_id?: string;
   created_at: string;
   updated_at: string;
+  meta: string;
   // Relationships
   creator?: User;
   assignee?: User;

@@ -28,7 +28,7 @@ const CreateTask = () => {
   const navigate = useNavigate();
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [taskType, setTaskType] = useState<'send_docs' | 'make_scan'>('send_docs');
-  const [city, setCity] = useState<'Москва' | 'Другой город'>('Москва');
+  const [city, setCity] = useState<'Москву' | 'Другой город'>('Москву');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -67,7 +67,7 @@ const CreateTask = () => {
       // Создаем задачу
       const task = await createTask({
         title: title.trim(),
-        description: description.trim(),
+        meta: description.trim(),
         task_type: taskType,
         city,
         status: 'draft', // Используем статус 'draft' как в TaskController
