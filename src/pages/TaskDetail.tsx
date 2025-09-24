@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Header from "@/components/Header";
-import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash2, ArrowRight, CheckCircle, X, Folder, File, Search, Upload, Download, Eye } from "lucide-react";
+import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash2, Image, Archive, ArrowRight, CheckCircle, X, Folder, File, Search, Upload, Download, Eye } from "lucide-react";
 import { useTasks } from '@/hooks/useTasks';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
@@ -355,6 +355,33 @@ const TaskDetail = () => {
                 ) : (
                   <div className="space-y-3">
                     {task.files.map((file) => {
+                      // Функция для получения иконки файла
+                      const getFileIcon = (fileType: string) => {
+                        const iconClass = "h-8 w-8 text-muted-foreground";
+
+                        switch (fileType.toLowerCase()) {
+                          case 'pdf':
+                            return <FileText className={iconClass} />;
+                          case 'doc':
+                          case 'docx':
+                            return <FileText className={iconClass} />;
+                          case 'xls':
+                          case 'xlsx':
+                            return <FileText className={iconClass} />;
+                          case 'jpg':
+                          case 'jpeg':
+                          case 'png':
+                          case 'gif':
+                          case 'webp':
+                            return <Image className={iconClass} />;
+                          case 'zip':
+                          case 'rar':
+                            return <Archive className={iconClass} />;
+                          default:
+                            return <File className={iconClass} />;
+                        }
+                      };
+
                       // Функция для форматирования размера файла
                       const formatFileSize = (bytes: number | null) => {
                         if (!bytes) return '0 Б';
@@ -373,26 +400,37 @@ const TaskDetail = () => {
                         return new Date(dateString).toLocaleDateString('ru-RU', {
                           day: 'numeric',
                           month: 'short',
-                          year: 'numeric'
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
                         });
+                      };
+
+                      // Извлекаем имя файла из path
+                      const getFileName = (path: string) => {
+                        return path.split('/').pop() || 'Файл';
+                      };
+
+                      // Получаем расширение файла из mime type или path
+                      const getFileExtension = () => {
+                        if (file.mime) {
+                          return file.mime.split('/')[1]?.toUpperCase() || 'FILE';
+                        }
+                        return getFileName(file.path).split('.').pop()?.toUpperCase() || 'FILE';
                       };
 
                       return (
                         <div key={file.id} className="flex items-center justify-between p-3 border rounded-lg hover:shadow-md transition-shadow">
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            {getFileIcon(file.mime?.split('/')[1] || 'file')}
+                            {getFileIcon(getFileExtension().toLowerCase())}
                             <div className="min-w-0 flex-1">
-                              <h3 className="font-medium truncate">{file.name || 'Файл'}</h3>
+                              <h3 className="font-medium truncate">{getFileName(file.path)}</h3>
                               <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
                                 <span>{formatFileSize(file.size)}</span>
                                 <span>•</span>
                                 <span>{formatDate(file.created_at)}</span>
-                                {file.mime && (
-                                  <>
-                                    <span>•</span>
-                                    <span>{file.mime.split('/')[1]?.toUpperCase()}</span>
-                                  </>
-                                )}
+                                <span>•</span>
+                                <span>{getFileExtension()}</span>
                               </div>
                             </div>
                           </div>
@@ -400,7 +438,12 @@ const TaskDetail = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => window.open(file.path || file.path, '_blank')}
+                              onClick={() => {
+                                // Открываем файл в новом окне
+                                // Нужно создать полный URL к файлу
+                                const fileUrl = `${window.location.origin}/storage/${file.path}`;
+                                window.open(fileUrl, '_blank');
+                              }}
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -409,9 +452,10 @@ const TaskDetail = () => {
                               size="sm"
                               onClick={() => {
                                 // Создаем временную ссылку для скачивания
+                                const fileUrl = `${window.location.origin}/storage/${file.path}`;
                                 const link = document.createElement('a');
-                                link.href = file.path || file.file_path || '';
-                                link.download = file.file_name || 'download';
+                                link.href = fileUrl;
+                                link.download = getFileName(file.path);
                                 link.click();
                               }}
                             >
