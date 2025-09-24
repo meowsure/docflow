@@ -238,26 +238,6 @@ const TaskDetail = () => {
                     </div>
                   </div>
 
-                  {task.city && (
-                    <div className="flex items-center space-x-3 text-sm">
-                      <MapPin className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">Город</p>
-                        <p className="text-muted-foreground">{task.city}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {task.contract_number && (
-                    <div className="flex items-center space-x-3 text-sm">
-                      <FileText className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">Номер контракта</p>
-                        <p className="text-muted-foreground">{task.contract_number}</p>
-                      </div>
-                    </div>
-                  )}
-
                   <Separator />
 
                   <div className="text-sm">
@@ -297,7 +277,7 @@ const TaskDetail = () => {
                           </Avatar>
                         )}
                         <div>
-                          <p className="font-medium">{task.assignee && user.id === task.assignee.id ? 'Вы' : (task.assignee?.full_name || 'Не назначен')}</p>
+                          <p className="font-medium">{task.assignee && currentUser.id === task.assignee.id ? 'Вы' : (task.assignee?.full_name || 'Не назначен')}</p>
                           <p className="text-muted-foreground">
                             {task.assignee.username}
                           </p>
