@@ -324,7 +324,8 @@ const TaskDetail = () => {
           </div>
         </div>
       </div>
-      );
+    </div>
+  );
 };
 
-      export default TaskDetail;
+export default TaskDetail;
