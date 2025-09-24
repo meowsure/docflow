@@ -238,14 +238,14 @@ const TaskDetail = () => {
                 <Button
                   variant="outline"
                   className="w-full mb-2"
-                  onClick={() => handleStatusChange('done')}
+                  onClick={() => handleStatusChange('completed')}
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Подтвердить выполнение задачи
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full mb-2"
+                  className="w-full"
                   onClick={() => handleStatusChange('draft')}
                 >
                   <X className="w-4 h-4 mr-2" />
