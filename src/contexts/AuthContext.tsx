@@ -90,6 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // сохраняем токен для api.ts
             localStorage.setItem("auth_token", access_token);
             localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("auth_error_code", null);
 
             setLoading(false);
             setUser(user);
