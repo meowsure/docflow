@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group, File, Atom, Cog, ArrowsUpFromLine } from "lucide-react";
+import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group, File, Atom, Cog, ArrowsUpFromLine, BellRing } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -55,6 +55,7 @@ const Header = () => {
         { path: "/logs", label: "Логи", icon: Database },
         { path: "/admin/users", label: "Пользователи", icon: User },
         { path: "/admin/roles", label: "Роли", icon: Group },
+        { path: "/admin/notifications", label: "Уведомления", icon: BellRing },
       ],
     },
   ];
