@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Header from "@/components/Header";
-import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash2, ArrowRight, CheckCircle, X } from "lucide-react";
+import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash2, ArrowRight, CheckCircle, X, Folder, File, Search, Upload, Download, Eye } from "lucide-react";
 import { useTasks } from '@/hooks/useTasks';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
@@ -130,6 +130,21 @@ const TaskDetail = () => {
         return 'Выполнено';
       default:
         return task.status;
+    }
+  };
+
+  const getFileIcon = (type: string) => {
+    switch (type) {
+      case "pdf":
+        return <File className="h-5 w-5 text-red-500" />;
+      case "xlsx":
+        return <File className="h-5 w-5 text-green-500" />;
+      case "jpg":
+        return <File className="h-5 w-5 text-blue-500" />;
+      case "docx":
+        return <File className="h-5 w-5 text-blue-600" />;
+      default:
+        return <File className="h-5 w-5 text-gray-500" />;
     }
   };
 
@@ -335,6 +350,39 @@ const TaskDetail = () => {
                   <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground">Файлы пока не загружены</p>
                 </div>
+
+                {task.files && task.files.map((file) => (
+                  <Card key={file.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {getFileIcon(file.mime.split('/')[1])}
+                          <div>
+                            <h3 className="font-medium">Файл</h3>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Folder className="h-3 w-3" />
+                              <span>{file.entity_type ? file.folder : 'Не указана'}</span>
+                              <span>•</span>
+                              <span>{file.size}</span>
+                              <span>•</span>
+                              <span>{file.created_at}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+
+                          <Button variant="ghost" size="sm">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            <Download className="h-4 w-4" />
+                          </Button>
+
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </CardContent>
             </Card>
           </div>
