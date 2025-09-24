@@ -322,6 +322,28 @@ const TaskDetail = () => {
                     </p>
                   </div>
                 </div>
+                {task.assignee.username && (
+                  <div>
+                    <CardHeader>
+                      <CardTitle>Ответственный</CardTitle>
+                    </CardHeader>
+
+                    <div className="flex items-center space-x-3 text-sm">
+                      {task.assignee.photo_url && (
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={task.assignee.photo_url} alt={task.assignee.full_name} />
+                          <AvatarFallback>{task.assignee.username}</AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div>
+                        <p className="font-medium">{task.assignee.full_name}</p>
+                        <p className="text-muted-foreground">
+                          {task.assignee.username}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
