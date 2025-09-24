@@ -322,7 +322,7 @@ const TaskDetail = () => {
                     </p>
                   </div>
                 </div>
-                {task.assignee.username && (
+                {task.assignee.id && (
                   <div>
                     <CardHeader>
                       <CardTitle>Ответственный</CardTitle>
