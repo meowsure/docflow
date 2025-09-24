@@ -11,6 +11,7 @@ export interface User {
   photo_url: string;
   email: string;
   role_id: string;
+  isActive: boolean;
   role: {
     id: string;
     name: string;

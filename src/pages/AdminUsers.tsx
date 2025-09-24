@@ -23,7 +23,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Search, Shield, RefreshCw } from "lucide-react";
+import { MoreHorizontal, Search, Shield, RefreshCw, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { useUsers, User } from "@/hooks/useUsers";
@@ -75,6 +75,35 @@ const AdminUsers = () => {
             user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
             user.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const activateUser = async (userId: string) => {
+        if (!confirm("Вы уверены, что хотите активировать этого пользователя?")) {
+            return;
+        }
+        setIsUpdating((prev) => ({ ...prev, [userId]: true }));
+        try {
+            const response = await api.put(`/users/${userId}/activate`);
+
+            if (response.data.message) {
+                toast({
+                    title: "✅ Пользователь активирован",
+                    description: response.data.message,
+                });
+            }
+
+            // Обновляем данные
+            refetch();
+        } catch (error: any) {
+            console.error("Ошибка при активации пользователя:", error);
+            toast({
+                variant: "destructive",
+                title: "❌ Ошибка активации",
+                description: error.response?.data?.message || "Не удалось активировать пользователя",
+            });
+        } finally {
+            setIsUpdating((prev) => ({ ...prev, [userId]: false }));
+        }
+    }
 
     const handleRoleChange = async (userId: string, newRole: string) => {
         setIsUpdating((prev) => ({ ...prev, [userId]: true }));
@@ -224,7 +253,7 @@ const AdminUsers = () => {
                                     <TableRow key={user.id}>
                                         <TableCell>
                                             <div className="flex items-center">
-                                                <img src={user.photo_url} alt="" className="w-14 h-14 rounded me-4"/>
+                                                <img src={user.photo_url} alt="" className="w-14 h-14 rounded me-4" />
                                                 <div>
                                                     <div className="font-medium">{user.full_name}</div>
                                                     <div className="text-sm text-muted-foreground">
@@ -253,6 +282,7 @@ const AdminUsers = () => {
                                         </TableCell>
                                         <TableCell>
                                             <DropdownMenu>
+
                                                 <DropdownMenuTrigger asChild>
                                                     <Button
                                                         variant="ghost"
@@ -282,6 +312,15 @@ const AdminUsers = () => {
                                                             Сделать {getRoleLabel(role.name)}
                                                         </DropdownMenuItem>
                                                     ))}
+                                                    {!user.isActive && (
+                                                        <DropdownMenuItem
+                                                            onClick={() => activateUser(user.id)}
+                                                            disabled={isUpdating[user.id]}
+                                                        >
+                                                            <CheckCircle className="h-4 w-4 mr-2" /> {/* Более подходящая иконка */}
+                                                            Активировать аккаунт
+                                                        </DropdownMenuItem>
+                                                    )}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
