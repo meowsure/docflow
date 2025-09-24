@@ -109,11 +109,24 @@ export const useTasks = () => {
       setTasks((prev) => [newTask, ...prev]);
       return newTask;
     } catch (error) {
-      console.error("Error creating task:", error);
+      console.error('Create task error:', error);
+
+      // Улучшенная обработка ошибок
+      let errorMessage = "Не удалось создать задачу";
+      if (error.response?.data?.errors) {
+        // Обработка ошибок валидации Laravel
+        const validationErrors = Object.values(error.response.data.errors).flat();
+        errorMessage = validationErrors.join(', ');
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         variant: "destructive",
         title: "Ошибка",
-        description: "Не удалось создать задачу: " + error,
+        description: errorMessage
       });
       return null;
     }

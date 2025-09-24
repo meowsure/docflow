@@ -70,7 +70,6 @@ const CreateTask = () => {
       // Создаем задачу
       const task = await createTask({
         title: title.trim(),
-        meta: description.trim(),
         task_type: taskType,
         city,
         assignee_id: assignee,
@@ -107,10 +106,23 @@ const CreateTask = () => {
       }
     } catch (error) {
       console.error('Create task error:', error);
+
+      // Улучшенная обработка ошибок
+      let errorMessage = "Не удалось создать задачу";
+      if (error.response?.data?.errors) {
+        // Обработка ошибок валидации Laravel
+        const validationErrors = Object.values(error.response.data.errors).flat();
+        errorMessage = validationErrors.join(', ');
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         variant: "destructive",
         title: "Ошибка",
-        description: "Не удалось создать задачу: " + (error.message ? error.data.message : error.message)
+        description: errorMessage
       });
     } finally {
       setLoading(false);
