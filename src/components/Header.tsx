@@ -28,8 +28,8 @@ const Header = () => {
       label: "Логистика",
       icon: Truck,
       items: [
-        { path: "/create-shipment", label: "Создать отгрузку", icon: ArrowsUpFromLine, requiredPermission:'create_shipments'},
-        { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission:'view_shipments'},
+        { path: "/create-shipment", label: "Создать отгрузку", icon: ArrowsUpFromLine, requiredPermission: 'create_shipments' },
+        { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission: 'view_shipments' },
       ],
     },
     {
@@ -42,7 +42,10 @@ const Header = () => {
       icon: Cog,
       label: "Управление",
       requiredPermission: "view_finances",
-      items: [{ path: "/invoices", label: "Счета и оплаты", icon: CreditCard }],
+      items: [
+        { path: "/invoices", label: "Счета и оплаты", icon: CreditCard }, 
+        { path: "/admin/users", label: "Пользователи", icon: User, requiredPermission: 'manage_users' },
+        { path: "/admin/roles", label: "Роли", icon: Group, requiredPermission: 'manage_roles' }],
     },
     {
       label: "Админ",
@@ -160,7 +163,7 @@ const Header = () => {
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  
+
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
