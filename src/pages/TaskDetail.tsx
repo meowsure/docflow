@@ -209,7 +209,7 @@ const TaskDetail = () => {
 
             {/* Боковая панель */}
             <div className="space-y-6">
-              {task.assignee_id == currentUser.id && task.status === 'draft' && (
+              {task.assignee_id == currentUser.id && (task.status === 'draft' || task.status === 'new') && (
                 <Button
                   variant="outline"
                   className="w-full mb-2"
