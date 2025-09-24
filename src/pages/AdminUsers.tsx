@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { useUsers, User } from "@/hooks/useUsers";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
 import api from "@/api";
 
 // Интерфейс для роли
@@ -39,6 +40,7 @@ interface Role {
 
 const AdminUsers = () => {
     const { items: users, loading, refetch } = useUsers();
+    const { user: currentUser } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
     const [isUpdating, setIsUpdating] = useState<{ [key: string]: boolean }>({});
     const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
@@ -99,6 +101,35 @@ const AdminUsers = () => {
                 variant: "destructive",
                 title: "❌ Ошибка активации",
                 description: error.response?.data?.message || "Не удалось активировать пользователя",
+            });
+        } finally {
+            setIsUpdating((prev) => ({ ...prev, [userId]: false }));
+        }
+    }
+
+    const deactivateUser = async (userId: string) => {
+        if (!confirm("Вы уверены, что хотите де-активировать этого пользователя?")) {
+            return;
+        }
+        setIsUpdating((prev) => ({ ...prev, [userId]: true }));
+        try {
+            const response = await api.put(`/users/${userId}/deactivate`);
+
+            if (response.data.message) {
+                toast({
+                    title: "✅ Пользователь де-активирован",
+                    description: response.data.message,
+                });
+            }
+
+            // Обновляем данные
+            refetch();
+        } catch (error: any) {
+            console.error("Ошибка при активации пользователя:", error);
+            toast({
+                variant: "destructive",
+                title: "❌ Ошибка де-активации",
+                description: error.response?.data?.message || "Не удалось де-активировать пользователя",
             });
         } finally {
             setIsUpdating((prev) => ({ ...prev, [userId]: false }));
@@ -312,15 +343,26 @@ const AdminUsers = () => {
                                                             Сделать {getRoleLabel(role.name)}
                                                         </DropdownMenuItem>
                                                     ))}
-                                                    {!user.isActive && (
-                                                        <DropdownMenuItem
-                                                            onClick={() => activateUser(user.id)}
-                                                            disabled={isUpdating[user.id]}
-                                                        >
-                                                            <CheckCircle className="h-4 w-4 mr-2" /> {/* Более подходящая иконка */}
-                                                            Активировать аккаунт
-                                                        </DropdownMenuItem>
+                                                    {currentUser?.role?.permissions.includes('activate_user') && (
+                                                        !user.isActive ? (
+                                                            <DropdownMenuItem
+                                                                onClick={() => activateUser(user.id)}
+                                                                disabled={isUpdating[user.id]}
+                                                            >
+                                                                <CheckCircle className="h-4 w-4 mr-2" />
+                                                                Активировать аккаунт
+                                                            </DropdownMenuItem>
+                                                        ) : (
+                                                            <DropdownMenuItem
+                                                                onClick={() => deactivateUser(user.id)}
+                                                                disabled={isUpdating[user.id]}
+                                                            >
+                                                                <CheckCircle className="h-4 w-4 mr-2" />
+                                                                Деактивировать аккаунт
+                                                            </DropdownMenuItem>
+                                                        )
                                                     )}
+
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
