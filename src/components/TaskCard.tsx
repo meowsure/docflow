@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Package, Send, Calendar, MapPin, Eye, Clock } from "lucide-react";
+import { FileText, Package, Send, Calendar, MapPin, Eye, Clock, BadgeInfo } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Task } from "@/hooks/useTasks";
 
@@ -110,6 +110,11 @@ const TaskCard = ({ task, onDelete, isDeleting }: TaskCardProps) => {
           <div className="flex items-center space-x-1">
             <Clock className="w-3 h-3" />
             <span>Создана: {formatDate(task.created_at)}</span>
+          </div>
+
+          <div className="flex items-center space-x-1">
+            <BadgeInfo className="w-3 h-3" />
+            <span>Статус: {getStatusText()}</span>
           </div>
           
           {task.updated_at !== task.created_at && (
