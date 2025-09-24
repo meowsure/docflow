@@ -186,7 +186,7 @@ const CreateTask = () => {
                 {taskType === 'send_docs' && (
                   <div>
                     <Label htmlFor="city">Город назначения *</Label>
-                    <Select value={city} onValueChange={(value: 'Москва' | 'Другой город') => setCity(value)}>
+                    <Select value={city} onValueChange={(value: 'Москву' | 'Другой город') => setCity(value)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
