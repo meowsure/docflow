@@ -1,6 +1,5 @@
 // TelegramAuth.tsx
 import React, { useEffect, useState } from 'react';
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import LockBrowser from "./lockBrowser";
 import Index from "@/pages/Index";
@@ -20,10 +19,9 @@ const TelegramAuth: React.FC = () => {
 
   if (!user) {
     return (
-      <main>
-        <LockBrowser />
-        <Button>Request Login</Button>
-      </main>
+
+      <LockBrowser />
+
     );
   }
 

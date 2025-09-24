@@ -26,6 +26,7 @@ const LockBrowser: React.FC = () => {
             Это приложение доступно исключительно 
             через Telegram Web App
           </p>
+          <Button>Request Login</Button>
         </div>
       </div>
     </div>
