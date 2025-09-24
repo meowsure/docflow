@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash2 } from "lucide-react";
 import { useTasks } from '@/hooks/useTasks';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AuthContext';
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +17,7 @@ const TaskDetail = () => {
   const { tasks, loading, refetch, deleteTask } = useTasks();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const { user } = useAuth();
 
   // Найти задачу по ID
   const task = tasks.find(t => t.id === id);
@@ -322,7 +324,7 @@ const TaskDetail = () => {
                     </p>
                   </div>
                 </div>
-                {task.assignee.id && (
+                {task.assignee && (
                   <div>
                     <CardTitle className='my-3'>Ответственный</CardTitle>
                     <div className="flex items-center space-x-3 text-sm">
@@ -333,7 +335,7 @@ const TaskDetail = () => {
                         </Avatar>
                       )}
                       <div>
-                        <p className="font-medium">{task.assignee.full_name}</p>
+                        <p className="font-medium">{task.assignee && user.id === task.assignee.id ? 'Вы' : (task.assignee?.full_name || 'Не назначен')}</p>
                         <p className="text-muted-foreground">
                           {task.assignee.username}
                         </p>
