@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Header from "@/components/Header";
-import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash2, ArrowRight } from "lucide-react";
 import { useTasks } from '@/hooks/useTasks';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
+import { Arrow } from '@radix-ui/react-tooltip';
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -216,6 +217,17 @@ const TaskDetail = () => {
                 >
                   <User className="w-4 h-4 mr-2" />
                   Приступить к выполнению задачи
+                </Button>
+              )}
+
+              {task.assignee_id == currentUser.id && task.status === 'in_progress' && (
+                <Button
+                  variant="outline"
+                  className="w-full mb-2"
+                  onClick={() => handleStatusChange('submitted')}
+                >
+                  <ArrowRight className="w-4 h-4 mr-2" />
+                  Сдать задачу
                 </Button>
               )}
 
