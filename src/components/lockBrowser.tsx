@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 
-const LockBrowser: React.FC = () => {
+const LockBrowser: React.FC = (props: string) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
@@ -26,6 +26,9 @@ const LockBrowser: React.FC = () => {
             Это приложение доступно исключительно 
             через Telegram Web App
           </p>
+          <code>
+            {props}
+          </code>
           <Button>Request Login</Button>
         </div>
       </div>

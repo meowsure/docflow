@@ -20,7 +20,7 @@ const TelegramAuth: React.FC = () => {
   if (!user) {
     return (
 
-      <LockBrowser />
+      <LockBrowser props={error}/>
 
     );
   }
