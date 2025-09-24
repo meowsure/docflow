@@ -110,7 +110,7 @@ const CreateTask = () => {
       toast({
         variant: "destructive",
         title: "Ошибка",
-        description: "Не удалось создать задачу: " + error.message
+        description: "Не удалось создать задачу: " + (error.message ? error.data.message : error.message)
       });
     } finally {
       setLoading(false);
@@ -279,7 +279,7 @@ const CreateTask = () => {
                   onClick={handleSubmit}
                   className="w-full"
                   size="lg"
-                  disabled={loading || !title.trim() || !description.trim() || files.length === 0}
+                  disabled={loading || !title.trim() || !description.trim()}
                 >
                   {loading ? (
                     <>
