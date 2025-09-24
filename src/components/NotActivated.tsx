@@ -22,10 +22,6 @@ const NotActivated: React.FC = () => {
           <h1 className="text-2xl font-bold text-white mb-2">
             Аккаунт не активирован
           </h1>
-
-          <p className="text-white/80 mb-4">
-            Ваш аккаунт не активирован, вход невозможен.
-          </p>
           
           {error && (
             <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3">
