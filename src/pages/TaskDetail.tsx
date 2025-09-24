@@ -224,7 +224,7 @@ const TaskDetail = () => {
                 <Button
                   variant="outline"
                   className="w-full mb-2"
-                  onClick={() => handleStatusChange('submitted')}
+                  onClick={() => handleStatusChange('completed')}
                 >
                   <ArrowRight className="w-4 h-4 mr-2" />
                   Сдать задачу
