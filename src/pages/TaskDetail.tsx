@@ -274,7 +274,7 @@ const TaskDetail = () => {
 
           {/* Боковая панель */}
           <div className="space-y-6">
-            {task.assignee && task.assignee.id === currentUser.id && task.status === 'draft' && (
+            {task.assignee?.id === currentUser.id && task.status === 'draft' && (
               <Button
                 variant="outline"
                 className="w-full mb-4"

@@ -17,7 +17,7 @@ export interface Task {
   meta: string;
   // Relationships
   creator?: User;
-  assignee?: User;
+  assignee?: User | null;
   files?: TaskFile[];
 }
 
