@@ -59,12 +59,6 @@ const AdminUsers = () => {
                     title: "Ошибка",
                     description: error.response?.data?.message || "Ошибка при загрузке ролей",
                 });
-                // Fallback к базовым ролям
-                setAvailableRoles([
-                    { id: "1", name: "admin" },
-                    { id: "2", name: "moderator" },
-                    { id: "3", name: "user" },
-                ]);
             }
         };
 
