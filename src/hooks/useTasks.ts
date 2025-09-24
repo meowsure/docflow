@@ -24,7 +24,8 @@ export interface Task {
 export interface User {
   id: string;
   full_name: string;
-  // Add other user fields as needed
+  photo_url: string;
+  username: string;
 }
 
 export interface TaskFile {

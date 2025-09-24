@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Header from "@/components/Header";
 import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash2 } from "lucide-react";
 import { useTasks } from '@/hooks/useTasks';
@@ -298,6 +299,28 @@ const TaskDetail = () => {
                 <div className="text-sm">
                   <p className="font-medium mb-1">Статус</p>
                   <Badge variant={getStatusColor()}>{getStatusText()}</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Создатель задачи</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-3 text-sm">
+                  {task.creator.photo_url && (
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={task.creator.photo_url} alt={task.creator.full_name} />
+                      <AvatarFallback>{task.creator.username}</AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div>
+                    <p className="font-medium">{task.creator.full_name}</p>
+                    <p className="text-muted-foreground">
+                      {task.creator.username}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
