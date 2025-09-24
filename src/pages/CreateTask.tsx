@@ -25,7 +25,7 @@ interface UploadedFile {
 const CreateTask = () => {
   const { toast } = useToast();
   const { createTask } = useTasks();
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth();
   const { items: users } = useUsers();
   const navigate = useNavigate();
   const [files, setFiles] = useState<UploadedFile[]>([]);
@@ -194,9 +194,11 @@ const CreateTask = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {users.map((user) => (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.full_name} {user.role ? `(${user.role.name})` : ''}
-                        </SelectItem>
+                        user.id === currentUser?.id ? null : (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.full_name} {user.role ? `(${user.role.name})` : ''}
+                          </SelectItem>
+                        )
                       ))}
                     </SelectContent>
                   </Select>
