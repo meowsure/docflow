@@ -204,195 +204,127 @@ const TaskDetail = () => {
               </CardContent>
             </Card>
 
-            {/* Детали задачи */}
-            {task.task_type === 'shipment' && (
+            {/* Боковая панель */}
+            <div className="space-y-6">
+              {task.assignee_id == currentUser.id && task.status === 'draft' && (
+                <Button
+                  variant="outline"
+                  className="w-full mb-2"
+                  onClick={() => handleStatusChange('in_progress')}
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Приступить к выполнению задачи
+                </Button>
+              )}
+
               <Card>
                 <CardHeader>
-                  <CardTitle>Детали отгрузки</CardTitle>
+                  <CardTitle>Информация о задаче</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {task.goods_name && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Наименование товара</label>
-                      <p className="text-foreground">{task.goods_name}</p>
-                    </div>
-                  )}
-
-                  {(task.goods_weight || task.goods_volume) && (
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {task.goods_weight && (
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Вес</label>
-                          <p className="text-foreground">{task.goods_weight}</p>
-                        </div>
-                      )}
-                      {task.goods_volume && (
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Объем</label>
-                          <p className="text-foreground">{task.goods_volume}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {task.goods_package && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Упаковка</label>
-                      <p className="text-foreground">{task.goods_package}</p>
-                    </div>
-                  )}
-
-                  {task.address && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Адрес</label>
-                      <p className="text-foreground">{task.address}</p>
-                    </div>
-                  )}
-
-                  {task.loading_date && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Дата загрузки</label>
-                      <p className="text-foreground">{task.loading_date}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Дополнительная информация */}
-            {task.additional_info && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Дополнительная информация</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-foreground leading-relaxed">{task.additional_info}</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Боковая панель */}
-          <div className="space-y-6">
-            {task.assignee_id == currentUser.id && task.status === 'draft' && (
-              <Button
-                variant="outline"
-                className="w-full mb-2"
-                onClick={() => handleStatusChange('in_progress')}
-              >
-                <User className="w-4 h-4 mr-2" />
-                Приступить к выполнению задачи
-              </Button>
-            )}
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Информация о задаче</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-3 text-sm">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Создано</p>
-                    <p className="text-muted-foreground">
-                      {new Date(task.created_at).toLocaleDateString('ru-RU', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                  </div>
-                </div>
-
-                {task.city && (
                   <div className="flex items-center space-x-3 text-sm">
-                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
                     <div>
-                      <p className="font-medium">Город</p>
-                      <p className="text-muted-foreground">{task.city}</p>
+                      <p className="font-medium">Создано</p>
+                      <p className="text-muted-foreground">
+                        {new Date(task.created_at).toLocaleDateString('ru-RU', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
                     </div>
                   </div>
-                )}
 
-                {task.contract_number && (
-                  <div className="flex items-center space-x-3 text-sm">
-                    <FileText className="w-4 h-4 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">Номер контракта</p>
-                      <p className="text-muted-foreground">{task.contract_number}</p>
-                    </div>
-                  </div>
-                )}
-
-                <Separator />
-
-                <div className="text-sm">
-                  <p className="font-medium mb-1">Статус</p>
-                  <Badge variant={getStatusColor()}>{getStatusText()}</Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Создатель задачи</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center space-x-3 text-sm">
-                  {task.creator.photo_url && (
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={task.creator.photo_url} alt={task.creator.full_name} />
-                      <AvatarFallback>{task.creator.username}</AvatarFallback>
-                    </Avatar>
-                  )}
-                  <div>
-                    <p className="font-medium">{task.creator.full_name}</p>
-                    <p className="text-muted-foreground">
-                      {task.creator.username}
-                    </p>
-                  </div>
-                </div>
-                {task.assignee && (
-                  <div>
-                    <CardTitle className='my-3'>Исполнитель</CardTitle>
+                  {task.city && (
                     <div className="flex items-center space-x-3 text-sm">
-                      {task.assignee.photo_url && (
-                        <Avatar className="w-8 h-8">
-                          <AvatarImage src={task.assignee.photo_url} alt={task.assignee.full_name} />
-                          <AvatarFallback>{task.assignee.username}</AvatarFallback>
-                        </Avatar>
-                      )}
+                      <MapPin className="w-4 h-4 text-muted-foreground" />
                       <div>
-                        <p className="font-medium">{task.assignee && user.id === task.assignee.id ? 'Вы' : (task.assignee?.full_name || 'Не назначен')}</p>
-                        <p className="text-muted-foreground">
-                          {task.assignee.username}
-                        </p>
+                        <p className="font-medium">Город</p>
+                        <p className="text-muted-foreground">{task.city}</p>
                       </div>
                     </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  )}
 
-            {/* Файлы */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Прикрепленные файлы</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">Файлы пока не загружены</p>
-                </div>
-              </CardContent>
-            </Card>
+                  {task.contract_number && (
+                    <div className="flex items-center space-x-3 text-sm">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">Номер контракта</p>
+                        <p className="text-muted-foreground">{task.contract_number}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <Separator />
+
+                  <div className="text-sm">
+                    <p className="font-medium mb-1">Статус</p>
+                    <Badge variant={getStatusColor()}>{getStatusText()}</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Создатель задачи</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center space-x-3 text-sm">
+                    {task.creator.photo_url && (
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={task.creator.photo_url} alt={task.creator.full_name} />
+                        <AvatarFallback>{task.creator.username}</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div>
+                      <p className="font-medium">{task.creator.full_name}</p>
+                      <p className="text-muted-foreground">
+                        {task.creator.username}
+                      </p>
+                    </div>
+                  </div>
+                  {task.assignee && (
+                    <div>
+                      <CardTitle className='my-3'>Исполнитель</CardTitle>
+                      <div className="flex items-center space-x-3 text-sm">
+                        {task.assignee.photo_url && (
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage src={task.assignee.photo_url} alt={task.assignee.full_name} />
+                            <AvatarFallback>{task.assignee.username}</AvatarFallback>
+                          </Avatar>
+                        )}
+                        <div>
+                          <p className="font-medium">{task.assignee && user.id === task.assignee.id ? 'Вы' : (task.assignee?.full_name || 'Не назначен')}</p>
+                          <p className="text-muted-foreground">
+                            {task.assignee.username}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Файлы */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Прикрепленные файлы</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">Файлы пока не загружены</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+      );
 };
 
-export default TaskDetail;
+      export default TaskDetail;
