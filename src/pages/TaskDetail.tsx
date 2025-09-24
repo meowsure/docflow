@@ -14,7 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { tasks, loading, refetch, deleteTask } = useTasks();
+  const { tasks, loading, refetch, deleteTask, updateTask } = useTasks();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useAuth();
@@ -34,6 +34,25 @@ const TaskDetail = () => {
         </div>
       </div>
     );
+  }
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (!task) return;
+
+    try {
+      await updateTask(task.id, { status: newStatus });
+      toast({
+        title: "Статус обновлен",
+        description: `Статус задачи обновлен на "${newStatus}"`,
+      });
+      refetch();
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.response?.data?.message || "Не удалось обновить статус задачи",
+        variant: "destructive",
+      });
+    }
   }
 
   if (!task) {
@@ -255,6 +274,14 @@ const TaskDetail = () => {
 
           {/* Боковая панель */}
           <div className="space-y-6">
+            <Button
+              variant="outline"
+              className="w-full mb-4"
+              onClick={() => handleStatusChange('in_progress')}
+            >
+              <User className="w-4 h-4 mr-2" />
+              Приступить к выполнению задачи
+            </Button>
             <Card>
               <CardHeader>
                 <CardTitle>Информация о задаче</CardTitle>
