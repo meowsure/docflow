@@ -10,8 +10,6 @@ import { ArrowLeft, FileText, Package, Send, Calendar, MapPin, User, Edit, Trash
 import { useTasks } from '@/hooks/useTasks';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
-import { Arrow } from '@radix-ui/react-tooltip';
-import { TaskFile } from "@/hooks/useFiles";
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();

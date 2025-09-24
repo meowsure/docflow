@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group } from "lucide-react";
+import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group, File, Atom } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,7 +17,7 @@ const Header = () => {
   const groupedNav = [
     {
       label: "Документооборот",
-      icon: Menu,
+      icon: File,
       items: [
         { path: "/tasks", label: "Мои задачи", icon: List },
         { path: "/create-task", label: "Создать задачу", icon: Send, requiredPermission: "create_task" },
@@ -26,14 +26,14 @@ const Header = () => {
     },
     {
       label: "Логистика",
-      icon: Menu,
+      icon: Truck,
       items: [
         { path: "/create-shipment", label: "Создать отгрузку", icon: Truck, requiredPermission:'create_shipments'},
         { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission:'view_shipments'},
       ],
     },
     {
-      icon: Menu,
+      icon: Atom,
       label: "Финансы",
       requiredPermission: "view_finances",
       items: [{ path: "/invoices", label: "Счета и оплаты", icon: CreditCard }],
