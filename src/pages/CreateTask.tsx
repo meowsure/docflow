@@ -13,7 +13,8 @@ import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useUsers } from '@/hooks/useUsers';
-import { useFiles, TaskFile } from '@/hooks/useFiles';
+import { useFiles } from '@/hooks/useFiles';
+import { UploadedFile } from '@/components/FileUploader';
 
 const CreateTask = () => {
   const { toast } = useToast();
@@ -21,8 +22,8 @@ const CreateTask = () => {
   const { user: currentUser } = useAuth();
   const { items: users } = useUsers();
   const navigate = useNavigate();
-  const [files, setFiles] = useState<TaskFile[]>([]);
-  const { uploadFile, attachFilesToTask, uploading: filesUploading } = useFiles();
+  const [files, setFiles] = useState<UploadedFile[]>([]);
+  const { uploadFilesWithProgress, uploading: filesUploading } = useFiles();
   const [taskType, setTaskType] = useState<'send_docs' | 'make_scan'>('send_docs');
   const [city, setCity] = useState<'Москву' | 'Другой город'>('Москву');
   const [title, setTitle] = useState('');
@@ -70,49 +71,40 @@ const CreateTask = () => {
       });
 
       if (task && task.id) {
-        let uploadErrors = false;
-        const uploadedFileIds: string[] = [];
-
-        // Загружаем файлы и привязываем их к задаче
+        // Если есть файлы, загружаем их с прогрессом
         if (files.length > 0) {
-          for (const fileData of files) {
-            try {
-              // Загружаем файл и сразу привязываем к задаче
-              const uploadedFile = await uploadFile(
-                fileData.file,
-                'App\\Models\\Task', // entity_type для Laravel
-                task.id // entity_id - ID созданной задачи
+          const { successes, errors } = await uploadFilesWithProgress(
+            files,
+            'App\\Models\\Task', // entity_type для Laravel
+            task.id, // entity_id - ID созданной задачи
+            // Колбэк для обновления статуса каждого файла
+            (fileId, status, serverId) => {
+              setFiles(prevFiles =>
+                prevFiles.map(file =>
+                  file.id === fileId
+                    ? { ...file, status, ...(serverId && { serverId }) }
+                    : file
+                )
               );
-
-              if (uploadedFile && uploadedFile.id) {
-                uploadedFileIds.push(uploadedFile.id);
-              } else {
-                uploadErrors = true;
-              }
-            } catch (error) {
-              console.error('Error uploading file:', error);
-              uploadErrors = true;
             }
+          );
+
+          if (errors.length > 0) {
+            toast({
+              variant: "destructive",
+              title: "Частичная ошибка",
+              description: `Задача создана, но ${errors.length} из ${files.length} файлов не загружены`
+            });
+          } else {
+            toast({
+              title: "Успех!",
+              description: `Задача и ${successes.length} файлов успешно созданы`
+            });
           }
-
-          // Альтернативный подход: прикрепление уже загруженных файлов по ID
-          // if (uploadedFileIds.length > 0) {
-          //   await attachFilesToTask(task.id, uploadedFileIds);
-          // }
-        }
-
-        if (uploadErrors && files.length > 0) {
-          toast({
-            variant: "destructive",
-            title: "Частичная ошибка",
-            description: "Задача создана, но не все файлы были загружены"
-          });
         } else {
           toast({
             title: "Задача создана",
-            description: files.length > 0
-              ? "Задача и файлы успешно созданы"
-              : "Задача успешно создана"
+            description: "Задача успешно создана"
           });
         }
 

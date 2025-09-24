@@ -35,10 +35,10 @@ export interface TaskFile {
   entity_id: string | null;
   path: string;
   mime: string;
-  folder: string;
   size: number | null;
   created_at: string;
   updated_at: string;
+  file_name?: string;
 }
 
 export interface PaginationMeta {
