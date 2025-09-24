@@ -23,21 +23,24 @@ export interface User {
   updated_at?: string;
 }
 
+interface AuthError {
+  code?: string;
+  message: string;
+}
+
 interface AuthContextProps {
   user: User | null;
   setUser: (u: User | null) => void;
   logout: () => void;
-  error: string | null;
+  error: AuthError | null;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AuthError | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Добавляем метод для обновления пользователя из локального контекста
@@ -53,7 +56,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const tgUser = launchParams.tgWebAppData?.user;
 
         if (!tgUser) {
-          setError("Нет данных пользователя tgWebAppData.user");
+          setError({
+            code: 'tg_not_data',
+            message: "Нет данных пользователя tgWebAppData.user"
+          });
           return;
         }
 
@@ -87,17 +93,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             setLoading(false);
             setUser(user);
-            // setError("Было отправлено initData: " + cleanInitData);
+            setError(null);
           } else {
             throw new Error("Авторизация на сервере не удалась");
           }
 
         } catch (apiError: any) {
-          setError("Ошибка при авторизации на API: " + apiError.response?.data?.message || apiError.message || apiError);
-          // setError("Было отправлено initData: " + jsonData);
+          const errorData = apiError.response?.data;
+
+          // Устанавливаем ошибку как объект
+          setError({
+            code: errorData?.code,
+            message: errorData?.message || apiError.message || "Ошибка авторизации"
+          });
+
+          // Также сохраняем в localStorage для AppContent
+          if (errorData?.code) {
+            localStorage.setItem("auth_error_code", errorData.code);
+          }
         }
       } catch (e: any) {
-        setError("Ошибка при получении launchParams: " + e.message);
+        setError({
+          code: 'tg_not_data',
+          message: "Ошибка при получении launchParams: "
+        });
       } finally {
         setLoading(false);
       }

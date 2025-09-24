@@ -23,12 +23,15 @@ import ShipmentDetail from "./pages/ShipmentDetail";
 import AdminUsers from "./pages/AdminUsers";
 import AdminRoles from "./pages/AdminRoles";
 import InvoiceDetail from "./pages/InvoiceDetail";
+import NotActivated from "./components/NotActivated";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { user, loading } = useAuth();
   const launchParams = retrieveLaunchParams();
+  // Проверяем код ошибки в localStorage
+  const authErrorCode = localStorage.getItem("auth_error_code");
 
   if (loading) {
     return (
@@ -36,6 +39,11 @@ const AppContent = () => {
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
+  }
+
+  // Если есть ошибка "account_not_activated", показываем NotActivated
+  if (authErrorCode === 'account_not_activated') {
+    return <NotActivated />;
   }
 
   if (!user) {
