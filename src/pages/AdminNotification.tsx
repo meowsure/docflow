@@ -230,95 +230,98 @@ const AdminNotifications = () => {
                             Создавайте и отправляйте уведомления пользователям системы
                         </p>
                     </div>
-                    <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button>
-                                <Plus className="h-4 w-4 mr-2" />
-                                Создать уведомление
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                                <DialogTitle>Создать новое уведомление</DialogTitle>
-                                <DialogDescription>
-                                    Заполните форму для отправки уведомления пользователям
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="title">Заголовок *</Label>
-                                    <Input
-                                        id="title"
-                                        placeholder="Введите заголовок уведомления"
-                                        value={newNotification.title}
-                                        onChange={(e) => setNewNotification({ ...newNotification, title: e.target.value })}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="message">Сообщение *</Label>
-                                    <Textarea
-                                        id="message"
-                                        placeholder="Введите текст уведомления"
-                                        rows={4}
-                                        value={newNotification.message}
-                                        onChange={(e) => setNewNotification({ ...newNotification, message: e.target.value })}
-                                    />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="type">Тип уведомления</Label>
-                                        <Select value={newNotification.type} onValueChange={(value: any) => setNewNotification({ ...newNotification, type: value })}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Выберите тип" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="announcement">Объявление</SelectItem>
-                                                <SelectItem value="maintenance">Техобслуживание</SelectItem>
-                                                <SelectItem value="warning">Предупреждение</SelectItem>
-                                                <SelectItem value="update">Обновление</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="priority">Приоритет</Label>
-                                        <Select value={newNotification.priority} onValueChange={(value: any) => setNewNotification({ ...newNotification, priority: value })}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Выберите приоритет" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="low">Низкий</SelectItem>
-                                                <SelectItem value="medium">Средний</SelectItem>
-                                                <SelectItem value="high">Высокий</SelectItem>
-                                                <SelectItem value="urgent">Срочно</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="recipients">Получатели</Label>
-                                        <Select value={newNotification.recipients} onValueChange={(value: any) => setNewNotification({ ...newNotification, recipients: value })}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Выберите получателей" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="all">Все пользователи</SelectItem>
-                                                <SelectItem value="admins">Администраторы</SelectItem>
-                                                <SelectItem value="users">Обычные пользователи</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                                    Отмена
+                    {currentUser.role.permissions_codes.includes('notify_all') && (
+                        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button>
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Создать уведомление
                                 </Button>
-                                <Button onClick={handleCreateNotification}>
-                                    <Send className="h-4 w-4 mr-2" />
-                                    Отправить уведомление
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle>Создать новое уведомление</DialogTitle>
+                                    <DialogDescription>
+                                        Заполните форму для отправки уведомления пользователям
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="title">Заголовок *</Label>
+                                        <Input
+                                            id="title"
+                                            placeholder="Введите заголовок уведомления"
+                                            value={newNotification.title}
+                                            onChange={(e) => setNewNotification({ ...newNotification, title: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="message">Сообщение *</Label>
+                                        <Textarea
+                                            id="message"
+                                            placeholder="Введите текст уведомления"
+                                            rows={4}
+                                            value={newNotification.message}
+                                            onChange={(e) => setNewNotification({ ...newNotification, message: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="type">Тип уведомления</Label>
+                                            <Select value={newNotification.type} onValueChange={(value: any) => setNewNotification({ ...newNotification, type: value })}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Выберите тип" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="announcement">Объявление</SelectItem>
+                                                    <SelectItem value="maintenance">Техобслуживание</SelectItem>
+                                                    <SelectItem value="warning">Предупреждение</SelectItem>
+                                                    <SelectItem value="update">Обновление</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="priority">Приоритет</Label>
+                                            <Select value={newNotification.priority} onValueChange={(value: any) => setNewNotification({ ...newNotification, priority: value })}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Выберите приоритет" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="low">Низкий</SelectItem>
+                                                    <SelectItem value="medium">Средний</SelectItem>
+                                                    <SelectItem value="high">Высокий</SelectItem>
+                                                    <SelectItem value="urgent">Срочно</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="recipients">Получатели</Label>
+                                            <Select value={newNotification.recipients} onValueChange={(value: any) => setNewNotification({ ...newNotification, recipients: value })}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Выберите получателей" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">Все пользователи</SelectItem>
+                                                    <SelectItem value="admins">Администраторы</SelectItem>
+                                                    <SelectItem value="users">Обычные пользователи</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                                        Отмена
+                                    </Button>
+                                    <Button onClick={handleCreateNotification}>
+                                        <Send className="h-4 w-4 mr-2" />
+                                        Отправить уведомление
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    )}
+
                 </div>
 
                 {/* Статистика */}
