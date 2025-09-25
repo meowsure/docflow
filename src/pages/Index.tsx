@@ -28,7 +28,7 @@ const Index = () => {
   // Последние задачи
   const recentNotify = notifications.filter(n => !n.is_read).slice(0, 3);
   const recentMyTasks = user.tasks.slice(0, 3);
-  const recentTasks = tasks.filter(t => t.status === 'new' || t.assignee_id === null).slice(0, 5);
+  const recentTasks = tasks.filter(t => t.status === 'new' && t.assignee_id === null && t.creator_id != user.id).slice(0, 5);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
