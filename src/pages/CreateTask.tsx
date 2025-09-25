@@ -62,12 +62,15 @@ const CreateTask = () => {
     try {
       setLoading(true);
 
+      const meta = [];
+      meta.push({ description: description.trim() })
+
       // Создаем задачу
       const task = await createTask({
         title: title.trim(),
         task_type: taskType,
         city,
-        meta: description.trim(),
+        meta: meta,
         assignee_id: assignee,
       });
 
