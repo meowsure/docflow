@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
@@ -14,7 +15,9 @@ const Index = () => {
     tasks,
     loading: tasksLoading,
   } = useTasks();
-  const { markAsRead } = useNotifications();
+
+  const { items: notifications, loading, markAsRead } = useNotifications();
+  const [isMarkingAll, setIsMarkingAll] = useState(false);
 
   const { user } = useAuth();
 
@@ -24,10 +27,8 @@ const Index = () => {
   const completedTasks = user.tasks.filter(t => t.status === 'completed').length;
   const inProgressTasks = user.tasks.filter(t => t.status === 'in_progress').length;
 
-  const notificationMy = user.notifications;
-
   // Последние задачи
-  const recentNotify = notificationMy.filter(n => n.is_read == false).slice(0, 3);
+  const recentNotify = notifications.filter(n => !n.is_read).slice(0, 3);
   const recentMyTasks = user.tasks.slice(0, 3);
   const recentTasks = tasks.slice(0, 5);
 
@@ -44,6 +45,8 @@ const Index = () => {
   const handleMarkAsRead = async (notificationId: string) => {
     await markAsRead(notificationId);
   };
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
   const stats = [
     { label: 'Всего задач', value: totalTasks.toString(), icon: FileText, color: 'text-primary' },
@@ -89,54 +92,57 @@ const Index = () => {
         </div>
 
         {/* Notifications */}
-        <Card className="mb-8 border-0 bg-gradient-to-br from-background via-muted/30 to-background">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-xl">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Bell className="w-5 h-5 text-primary" />
-              </div>
-              <span>Последние уведомления</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentNotify.map((notification) => {
-                return (
-                  <Card
-                    key={notification.id}
-                    className={`hover:shadow-md transition-shadow cursor-pointer ${!notification.is_read ? 'border-l-4 border-l-blue-500 bg-blue-50/50' : ''
-                      }`}
-                    onClick={() => !notification.is_read && handleMarkAsRead(notification.id)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3 overflow-hidden">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <h3 className={`font-medium ${!notification.is_read ? 'font-semibold' : ''}`}>
-                                {notification.title}
-                              </h3>
-                              {!notification.is_read && (
-                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+        {!loading && notifications.length >= 0 && (
+          <Card className="mb-8 border-0 bg-gradient-to-br from-background via-muted/30 to-background">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-xl">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Bell className="w-5 h-5 text-primary" />
+                </div>
+                <span>Последние уведомления ({unreadCount})</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recentNotify.map((notification) => {
+                  return (
+                    <Card
+                      key={notification.id}
+                      className={`hover:shadow-md transition-shadow cursor-pointer ${!notification.is_read ? 'border-l-4 border-l-blue-500 bg-blue-50/50' : ''
+                        }`}
+                      onClick={() => !notification.is_read && handleMarkAsRead(notification.id)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3 overflow-hidden">
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <h3 className={`font-medium ${!notification.is_read ? 'font-semibold' : ''}`}>
+                                  {notification.title}
+                                </h3>
+                                {!notification.is_read && (
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                )}
+                              </div>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{notification.body}</p>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <span>{formatDate(notification.created_at)}</span>
+                              {notification.user && (
+                                <span>От: {notification.user.full_name}</span>
                               )}
                             </div>
                           </div>
-                          <p className="text-sm text-muted-foreground">{notification.body}</p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span>{formatDate(notification.created_at)}</span>
-                            {notification.user && (
-                              <span>От: {notification.user.full_name}</span>
-                            )}
-                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
 
         {/* Quick Actions */}
         <Card className="mb-8 border-0 bg-gradient-to-br from-background via-muted/30 to-background">
