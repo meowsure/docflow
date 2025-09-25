@@ -6,9 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Database, AlertCircle, Info, CheckCircle, XCircle, Search, User, Calendar, Activity } from "lucide-react";
 import Header from "@/components/Header";
-import { useLogs } from "@/hooks/useLogs";
 import { Skeleton } from "@/components/ui/skeleton";
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { useLogsPagination } from "@/hooks/useLogsPagination";
 
 const Logs = () => {

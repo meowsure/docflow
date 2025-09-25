@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Bell, Plus, Send, Calendar, User, AlertTriangle, Info, CheckCircle, AlertCircle } from "lucide-react";
 import Header from "@/components/Header";
+import api from "@/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Notification {
     id: number;
@@ -64,13 +66,14 @@ const mockNotifications: Notification[] = [
 ];
 
 const AdminNotifications = () => {
+    const { user: currentUser } = useAuth();
     const [notifications] = useState<Notification[]>(mockNotifications);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [newNotification, setNewNotification] = useState({
         title: "",
         message: "",
-        type: "announcement" as const,
-        priority: "medium" as const,
+        type: "system" as const,
+        priority: "high" as const,
         recipients: "all" as const
     });
     const { toast } = useToast();
@@ -165,7 +168,15 @@ const AdminNotifications = () => {
         }
     };
 
-    const handleCreateNotification = () => {
+    const handleCreateNotification = async () => {
+        if (!currentUser.role.permissions_codes.includes('notify_all')) {
+            toast({
+                title: "Ошибка!",
+                description: "Недостаточно прав!",
+            });
+            return;
+        }
+
         if (!newNotification.title || !newNotification.message) {
             toast({
                 title: "Ошибка",
@@ -175,20 +186,37 @@ const AdminNotifications = () => {
             return;
         }
 
-        // Здесь будет логика отправки уведомления
-        toast({
-            title: "Уведомление отправлено",
-            description: `Уведомление "${newNotification.title}" успешно отправлено всем пользователям`,
+        const notify = await api.post('/admin/notifications', {
+            'type': newNotification.type,
+            'title': newNotification.title,
+            'body': newNotification.message,
+            'role_group': newNotification.recipients
         });
 
-        setNewNotification({
-            title: "",
-            message: "",
-            type: "announcement",
-            priority: "medium",
-            recipients: "all"
-        });
-        setIsCreateDialogOpen(false);
+        if (notify) {
+            // Здесь будет логика отправки уведомления
+            toast({
+                title: "Уведомление отправлено",
+                description: `Уведомление "${newNotification.title}" успешно отправлено всем пользователям`,
+            });
+
+            setNewNotification({
+                title: "",
+                message: "",
+                type: "system",
+                priority: "high",
+                recipients: "all"
+            });
+            setIsCreateDialogOpen(false);
+            return true;
+        } else {
+            toast({
+                title: "Уведомление не отправлено",
+                description: `Уведомление "${newNotification.title}" не может быть отправлено всем пользователям`,
+            });
+        }
+
+
     };
 
     return (

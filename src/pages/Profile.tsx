@@ -218,13 +218,6 @@ const Profile: React.FC = () => {
                   <Separator />
 
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">User</label>
-                    <p className="text-foreground font-mono text-sm">{localStorage.getItem("user")}</p>
-                  </div>
-
-                  <Separator />
-
-                  <div>
                     <label className="text-sm font-medium text-muted-foreground">Username</label>
                     <p className="text-foreground">{user.username || 'Не указан'}</p>
                   </div>

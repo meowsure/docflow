@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Skeleton } from "@/components/ui/skeleton";
 
+
 const Notifications = () => {
   const { items: notifications, loading, loadingMore, hasMore, loadMore, markAsRead, markAllAsRead } = useNotifications();
   const [isMarkingAll, setIsMarkingAll] = useState(false);
@@ -215,7 +216,7 @@ const Notifications = () => {
         <div className="space-y-3">
           {notifications.map((notification) => {
             const priority = getPriority(notification.type);
-            
+
             return (
               <Card
                 key={notification.id}
