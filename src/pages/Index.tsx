@@ -92,7 +92,7 @@ const Index = () => {
         </div>
 
         {/* Notifications */}
-        {!loading && notifications.length >= 0 && (
+        {notifications.length > 0 && (
           <Card className="mb-8 border-0 bg-gradient-to-br from-background via-muted/30 to-background">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-xl">
