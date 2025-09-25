@@ -214,7 +214,7 @@ const AdminNotifications = () => {
             toast({
                 variant: "destructive",
                 title: "Ошибка",
-                description: error.message || error,
+                description: error.message || error.data.message,
             });
             // toast({
             //     title: "Уведомление не отправлено",
