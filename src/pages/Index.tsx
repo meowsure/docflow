@@ -10,6 +10,7 @@ import { useShipments } from "@/hooks/useShipments";
 
 const Index = () => {
   const {
+    tasks,
     loading: tasksLoading,
   } = useTasks();
 
@@ -22,7 +23,8 @@ const Index = () => {
   const inProgressTasks = user.tasks.filter(t => t.status === 'in_progress').length;
 
   // Последние задачи
-  const recentTasks = user.tasks.slice(0, 3);
+  const recentMyTasks = user.tasks.slice(0, 3);
+  const recentTasks = tasks.slice(0, 5);
 
   const stats = [
     { label: 'Всего задач', value: totalTasks.toString(), icon: FileText, color: 'text-primary' },
@@ -122,13 +124,50 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Recent Tasks */}
+        {/* My Tasks */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Недавние задачи</span>
+              <span>Мои задачи</span>
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/tasks">Показать все</Link>
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {tasksLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p className="text-muted-foreground mt-2">Загрузка задач...</p>
+              </div>
+            ) : recentMyTasks.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recentMyTasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">У вас пока нет задач</p>
+                <Button className="mt-4" asChild>
+                  <Link to="/create-task">Создать первую задачу</Link>
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* My Tasks */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Задачи</span>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/tasks/all">Показать все</Link>
               </Button>
             </CardTitle>
           </CardHeader>
