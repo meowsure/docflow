@@ -25,7 +25,7 @@ const Index = () => {
   const notificationMy = user.notifications;
 
   // Последние задачи
-  const recentNotify = notificationMy.filter(n => n.is_read === false).slice(0, 3);
+  const recentNotify = notificationMy.filter(n => n.is_read == false).slice(0, 3);
   const recentMyTasks = user.tasks.slice(0, 3);
   const recentTasks = tasks.slice(0, 5);
 
