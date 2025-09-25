@@ -17,7 +17,6 @@ const Index = () => {
   } = useTasks();
 
   const { items: notifications, loading, markAsRead } = useNotifications();
-  const [isMarkingAll, setIsMarkingAll] = useState(false);
 
   const { user } = useAuth();
 
@@ -30,7 +29,7 @@ const Index = () => {
   // Последние задачи
   const recentNotify = notifications.filter(n => !n.is_read).slice(0, 3);
   const recentMyTasks = user.tasks.slice(0, 3);
-  const recentTasks = tasks.slice(0, 5);
+  const recentTasks = tasks.filter(t => t.status === 'new' || t.assignee_id === null).slice(0, 5);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
