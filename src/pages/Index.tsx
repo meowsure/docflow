@@ -5,6 +5,7 @@ import TaskCard from "@/components/TaskCard";
 import { Send, Package, FileText, Plus, TrendingUp, Bell } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useTasks } from '@/hooks/useTasks';
+import { useNotifications } from "@/hooks/useNotifications";
 import { useAuth } from '@/contexts/AuthContext';
 import { useShipments } from "@/hooks/useShipments";
 
@@ -13,6 +14,7 @@ const Index = () => {
     tasks,
     loading: tasksLoading,
   } = useTasks();
+  const { markAsRead } = useNotifications();
 
   const { user } = useAuth();
 
@@ -37,6 +39,10 @@ const Index = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleMarkAsRead = async (notificationId: string) => {
+    await markAsRead(notificationId);
   };
 
   const stats = [
@@ -100,7 +106,7 @@ const Index = () => {
                     key={notification.id}
                     className={`hover:shadow-md transition-shadow cursor-pointer ${!notification.is_read ? 'border-l-4 border-l-blue-500 bg-blue-50/50' : ''
                       }`}
-                    onClick={() => {}}
+                    onClick={() => !notification.is_read && handleMarkAsRead(notification.id)}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3 overflow-hidden">
