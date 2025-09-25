@@ -11,11 +11,10 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
   const {
-    tasks,
     loading: tasksLoading,
   } = useTasks();
 
-  const { items: notifications, loading, markAsRead } = useNotifications();
+  const { items: notifications, markAsRead } = useNotifications();
 
   const { user } = useAuth();
 
@@ -28,10 +27,7 @@ const Index = () => {
   // Последние задачи
   const recentNotify = notifications.filter(n => !n.is_read).slice(0, 3);
   const recentMyTasks = user.tasks.slice(0, 3);
-  const recentTasks = tasks.filter(t =>
-    t.status === 'new' &&
-    t.assignee_id === null
-  ).slice(0, 5);
+  const recentTasks = user.getAvailableTasksAttribute.slice(0, 5);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {

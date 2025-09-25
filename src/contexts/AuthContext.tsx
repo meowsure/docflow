@@ -23,6 +23,7 @@ export interface User {
   } | null;
   isActive?: boolean;
   tasks?: Task[];
+  getAvailableTasksAttribute?: Task[];
   mytasks?: Task[];
   notifications?: Notification[];
   created_at?: string;
