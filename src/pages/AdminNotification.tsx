@@ -188,15 +188,14 @@ const AdminNotifications = () => {
             return;
         }
 
-        const notify = await api.post('/admin/notifications', {
-            'type': newNotification.type,
-            'title': newNotification.title,
-            'body': newNotification.message,
-            'role_group': newNotification.recipients
-        });
+        try {
+            const notify = await api.post('/admin/notifications', {
+                'type': newNotification.type,
+                'title': newNotification.title,
+                'body': newNotification.message,
+                'role_group': newNotification.recipients
+            });
 
-        if (notify) {
-            // Здесь будет логика отправки уведомления
             toast({
                 title: "Уведомление отправлено",
                 description: `Уведомление "${newNotification.title}" успешно отправлено всем пользователям`,
@@ -210,12 +209,17 @@ const AdminNotifications = () => {
                 recipients: "all"
             });
             setIsCreateDialogOpen(false);
-            return true;
-        } else {
+
+        } catch (error) {
             toast({
-                title: "Уведомление не отправлено",
-                description: `Уведомление "${newNotification.title}" не может быть отправлено всем пользователям`,
+                variant: "destructive",
+                title: "Ошибка",
+                description: error.message || error,
             });
+            // toast({
+            //     title: "Уведомление не отправлено",
+            //     description: `Уведомление "${newNotification.title}" не может быть отправлено всем пользователям`,
+            // });
         }
 
 
