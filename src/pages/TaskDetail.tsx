@@ -36,6 +36,25 @@ const TaskDetail = () => {
     );
   }
 
+  const handleSetAssignee = async () => {
+    if (!task) return;
+
+    try {
+      await updateTask(task.id, { assignee_id: currentUser.id });
+      toast({
+        title: "Исполнитель присвоен",
+        description: `Вы взялись за эту задачу: "${task.title}"`,
+      });
+      refetch();
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.response?.data?.message || "Не удалось присвоить задачу",
+        variant: "destructive",
+      });
+    }
+  }
+
   const handleStatusChange = async (newStatus: string) => {
     if (!task) return;
 
@@ -227,6 +246,16 @@ const TaskDetail = () => {
 
           {/* Боковая панель */}
           <div className="space-y-6">
+            {task.assignee_id === null && task.creator_id !== currentUser.id && (task.status === 'draft' || task.status === 'new') && (
+              <Button
+                variant="outline"
+                className="w-full mb-2"
+                onClick={() => handleSetAssignee()}
+              >
+                <User className="w-4 h-4 mr-2" />
+                Взять эту задачу себе
+              </Button>
+            )}
             {task.assignee_id == currentUser.id && (task.status === 'draft' || task.status === 'new') && (
               <Button
                 variant="outline"
