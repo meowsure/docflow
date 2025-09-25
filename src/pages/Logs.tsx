@@ -263,7 +263,7 @@ const Logs = () => {
           {filteredLogs.map((log) => {
             const level = getLogLevel(log.action);
             return (
-              <Card key={log.id} className="hover:shadow-md transition-shadow">
+              <Card key={log.id} className="hover:shadow-md transition-shadow overflow-hidden">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     {getLevelIcon(level)}
