@@ -322,21 +322,20 @@ const AdminUsers = () => {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    {availableRoles.map((role) => (
-                                                        <DropdownMenuItem
-                                                            key={role.id}
-                                                            onClick={() =>
-                                                                handleRoleChange(user.id, role.name)
-                                                            }
-                                                            disabled={
-                                                                user.role?.name === role.name ||
-                                                                isUpdating[user.id]
-                                                            }
-                                                        >
-                                                            <Shield className="h-4 w-4 mr-2" />
-                                                            Сделать {getRoleLabel(role.name)}
-                                                        </DropdownMenuItem>
-                                                    ))}
+                                                    {/* Добавьте проверку длины массива */}
+                                                    {availableRoles?.length > 0 ? (
+                                                        availableRoles.map((role) => (
+                                                            <DropdownMenuItem
+                                                                key={role.id}
+                                                                onClick={() => handleRoleChange(user.id, role.name)}
+                                                                disabled={user.role?.name === role.name || isUpdating[user.id]}
+                                                            >
+                                                                <Shield className="h-4 w-4 mr-2" />
+                                                                Сделать {getRoleLabel(role.name)}
+                                                            </DropdownMenuItem>
+                                                        ))
+                                                    ) : null} {/* Явно возвращаем null если массив пуст */}
+                                                    {/* Активация / деактивация пользователя */}
                                                     {currentUser.id !== user.id && currentUser?.role?.permissions_codes.includes('activate_user') && !user.isActive && (
                                                         <DropdownMenuItem
                                                             onClick={() => activateUser(user.id)}
