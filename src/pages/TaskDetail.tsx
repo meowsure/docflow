@@ -40,7 +40,7 @@ const TaskDetail = () => {
     if (!task) return;
 
     try {
-      await updateTask(task.id, { assignee_id: currentUser.id });
+      await updateTask(task.id, { assignee_id: currentUser.id, status: 'in_progress' });
       toast({
         title: "Исполнитель присвоен",
         description: `Вы взялись за эту задачу: "${task.title}"`,
