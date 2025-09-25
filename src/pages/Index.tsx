@@ -125,7 +125,7 @@ const Index = () => {
         </Card>
 
         {/* My Tasks */}
-        <Card>
+        <Card className="mb-4">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Мои задачи</span>
