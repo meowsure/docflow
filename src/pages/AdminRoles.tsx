@@ -77,22 +77,29 @@ export default function AdminRoles() {
     const { toast } = useToast();
 
     const handlePermissionToggle = async (roleId: string, permissionId: string) => {
-        const role = roles.find(r => r.id === roleId);
-        if (!role || role.isSystem) return;
+        try {
+            const role = roles.find(r => r.id === roleId);
+            if (!role || role.isSystem) return;
 
-        const newPermissions = role.permissions.includes(permissionId)
-            ? role.permissions.filter(p => p !== permissionId)
-            : [...role.permissions, permissionId];
+            const newPermissions = role.permissions.includes(permissionId)
+                ? role.permissions.filter(p => p !== permissionId)
+                : [...role.permissions, permissionId];
 
-        const res = await api.put(`roles/${roleId}/permissions`, { permissions: newPermissions });
-        toast({
-            variant: "default",
-            title: "Изменения сохранены",
-            description: res.data,
-        });
+            await api.put(`roles/${roleId}/permissions`, { permissions: newPermissions });
 
-        refetch();
-        // await updateItem(roleId, { permissions: newPermissions });
+            toast({
+                title: "Успех!",
+                description: "Права обновлены",
+            });
+
+            refetch(); // Перезапрос данных
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Ошибка",
+                description: "Не удалось обновить права",
+            });
+        }
     };
 
     const handleCreateRole = async () => {
