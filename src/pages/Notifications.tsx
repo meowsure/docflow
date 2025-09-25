@@ -36,6 +36,8 @@ const Notifications = () => {
     switch (type) {
       case "system":
       case "TaskCreated":
+      case "RoleUpdated":
+      case "AccountActivated":
         return "high";
       case "shipment":
       case "ShipmentCreated":
@@ -222,7 +224,7 @@ const Notifications = () => {
                 onClick={() => !notification.is_read && handleMarkAsRead(notification.id)}
               >
                 <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-3 overflow-hidden">
                     {getTypeIcon(notification.type)}
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center justify-between">
