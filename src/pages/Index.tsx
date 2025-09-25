@@ -30,8 +30,7 @@ const Index = () => {
   const recentMyTasks = user.tasks.slice(0, 3);
   const recentTasks = tasks.filter(t =>
     t.status === 'new' &&
-    t.assignee_id === null &&
-    t.creator_id != user.id
+    t.assignee_id === null
   ).slice(0, 5);
 
   const formatDate = (dateString: string) => {
