@@ -12,6 +12,7 @@ import { Bell, Plus, Send, Calendar, User, AlertTriangle, Info, CheckCircle, Ale
 import Header from "@/components/Header";
 import api from "@/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRoles } from "@/hooks/useRoles";
 
 interface Notification {
     id: number;
@@ -67,6 +68,7 @@ const mockNotifications: Notification[] = [
 
 const AdminNotifications = () => {
     const { user: currentUser } = useAuth();
+    const { items: roles } = useRoles();
     const [notifications] = useState<Notification[]>(mockNotifications);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [newNotification, setNewNotification] = useState({
@@ -273,7 +275,7 @@ const AdminNotifications = () => {
                                                     <SelectValue placeholder="Выберите тип" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="announcement">Объявление</SelectItem>
+                                                    <SelectItem value="system">Системное</SelectItem>
                                                     <SelectItem value="maintenance">Техобслуживание</SelectItem>
                                                     <SelectItem value="warning">Предупреждение</SelectItem>
                                                     <SelectItem value="update">Обновление</SelectItem>
@@ -302,8 +304,10 @@ const AdminNotifications = () => {
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="all">Все пользователи</SelectItem>
-                                                    <SelectItem value="admins">Администраторы</SelectItem>
-                                                    <SelectItem value="users">Обычные пользователи</SelectItem>
+                                                    {roles && roles.map((role) => (
+                                                        <SelectItem value={role.name}>{role.name}</SelectItem>
+                                                    ))}
+
                                                 </SelectContent>
                                             </Select>
                                         </div>
