@@ -24,6 +24,7 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminRoles from "./pages/AdminRoles";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import NotActivated from "./components/NotActivated";
+import AdminNotifications from "./pages/AdminNotification";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const AppContent = () => {
       <Route path="/logs" element={<Logs />} />
       <Route path="/admin/users" element={<AdminUsers />} />
       <Route path="/admin/roles" element={<AdminRoles />} />
+      <Route path="/admin/notifications" element={<AdminNotifications />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
