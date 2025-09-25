@@ -67,6 +67,7 @@ const CreateTask = () => {
         title: title.trim(),
         task_type: taskType,
         city,
+        meta: description.trim(),
         assignee_id: assignee,
       });
 
