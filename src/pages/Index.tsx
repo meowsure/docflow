@@ -91,7 +91,7 @@ const Index = () => {
                 </Link>
               </Button>
 
-              <Button className="h-24 p-6 flex-col space-y-3 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-success/5 to-success/10 hover:from-success/10 hover:to-success/20 border-success/20" variant="outline" asChild>
+              <Button disabled className="h-24 p-6 flex-col space-y-3 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-success/5 to-success/10 hover:from-success/10 hover:to-success/20 border-success/20" variant="outline" asChild>
                 <Link to="/create-shipment">
                   <Package className="w-8 h-8 text-success" />
                   <div className="text-center">
@@ -101,7 +101,7 @@ const Index = () => {
                 </Link>
               </Button>
 
-              <Button className="h-24 p-6 flex-col space-y-3 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-warning/5 to-warning/10 hover:from-warning/10 hover:to-warning/20 border-warning/20" variant="outline" asChild>
+              <Button disabled className="h-24 p-6 flex-col space-y-3 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-warning/5 to-warning/10 hover:from-warning/10 hover:to-warning/20 border-warning/20" variant="outline" asChild>
                 <Link to="/create-task">
                   <FileText className="w-8 h-8 text-warning" />
                   <div className="text-center">
@@ -111,7 +111,7 @@ const Index = () => {
                 </Link>
               </Button>
 
-              <Button className="h-24 p-6 flex-col space-y-3 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 border-primary/20" variant="outline" asChild>
+              <Button disabled className="h-24 p-6 flex-col space-y-3 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 border-primary/20" variant="outline" asChild>
                 <Link to="/create-task">
                   <Send className="w-8 h-8 text-primary" />
                   <div className="text-center">
