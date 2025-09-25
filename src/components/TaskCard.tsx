@@ -82,7 +82,9 @@ const TaskCard = ({ task, onDelete, isDeleting }: TaskCardProps) => {
             </div>
             <div>
               <h3 className="font-semibold text-sm">{getTaskTitle()}</h3>
-              <p className="text-xs text-muted-foreground">ID: {task.id}</p>
+              <Link to={`/task/${task.id}`}>
+                <p className="text-xs text-muted-foreground">ID: {task.id}</p>
+              </Link>
             </div>
           </div>
           <Badge variant={getStatusColor()}>
@@ -98,7 +100,7 @@ const TaskCard = ({ task, onDelete, isDeleting }: TaskCardProps) => {
         <p className="text-sm text-foreground mb-3 line-clamp-2">
           {task.description || task.title || 'Без описания'}
         </p>
-        
+
         <div className="space-y-2 text-xs text-muted-foreground">
           {task.city && (
             <div className="flex items-center space-x-1">
@@ -106,7 +108,7 @@ const TaskCard = ({ task, onDelete, isDeleting }: TaskCardProps) => {
               <span>{task.city}</span>
             </div>
           )}
-          
+
           <div className="flex items-center space-x-1">
             <Clock className="w-3 h-3" />
             <span>Создана: {formatDate(task.created_at)}</span>
@@ -116,7 +118,7 @@ const TaskCard = ({ task, onDelete, isDeleting }: TaskCardProps) => {
             <BadgeInfo className="w-3 h-3" />
             <span>Статус: {getStatusText()}</span>
           </div>
-          
+
           {task.updated_at !== task.created_at && (
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
@@ -133,11 +135,11 @@ const TaskCard = ({ task, onDelete, isDeleting }: TaskCardProps) => {
             Подробнее
           </Link>
         </Button>
-        
+
         {onDelete && (
-          <Button 
-            variant="destructive" 
-            size="sm" 
+          <Button
+            variant="destructive"
+            size="sm"
             onClick={onDelete}
             disabled={isDeleting}
             className="w-20"
