@@ -10,20 +10,19 @@ import { useShipments } from "@/hooks/useShipments";
 
 const Index = () => {
   const {
-    tasks,
     loading: tasksLoading,
   } = useTasks();
 
   const { user } = useAuth();
 
   // Статистика
-  const totalTasks = tasks.length;
-  const submittedTasks = tasks.filter(t => t.status === 'submitted').length;
-  const completedTasks = tasks.filter(t => t.status === 'completed').length;
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
+  const totalTasks = user.tasks.length;
+  const submittedTasks = user.tasks.filter(t => t.status === 'submitted').length;
+  const completedTasks = user.tasks.filter(t => t.status === 'completed').length;
+  const inProgressTasks = user.tasks.filter(t => t.status === 'in_progress').length;
 
   // Последние задачи
-  const recentTasks = tasks.slice(0, 3);
+  const recentTasks = user.tasks.slice(0, 3);
 
   const stats = [
     { label: 'Всего задач', value: totalTasks.toString(), icon: FileText, color: 'text-primary' },

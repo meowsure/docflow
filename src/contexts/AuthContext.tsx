@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { retrieveLaunchParams } from "@tma.js/bridge";
 import api from "@/api";
+import { Task } from "@/hooks/useTasks";
 
 export interface User {
   id: string | number;
@@ -19,6 +20,9 @@ export interface User {
     permissions: string[];
     permissions_codes: string[];
   } | null;
+  isActive?: boolean;
+  tasks?: Task[];
+  mytasks?: Task[];
   created_at?: string;
   updated_at?: string;
 }

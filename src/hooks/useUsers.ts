@@ -1,5 +1,6 @@
 // useUsers.ts
 import { useCrud } from "./useCrud";
+import { Task } from "./useTasks";
 
 export interface User {
   id: string;
@@ -17,6 +18,8 @@ export interface User {
     name: string;
     permissions: string[];
   } | null;
+  tasks: Task[];
+  mytasks: Task[];
   created_at: string;
   updated_at: string;
 }
