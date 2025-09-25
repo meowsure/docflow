@@ -3,12 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import TaskCard from "@/components/TaskCard";
-import { Send, Package, FileText, Plus, TrendingUp, Bell } from "lucide-react";
+import { Send, Package, FileText, Plus, TrendingUp, Bell, CheckCircle2 } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useTasks } from '@/hooks/useTasks';
 import { useNotifications } from "@/hooks/useNotifications";
 import { useAuth } from '@/contexts/AuthContext';
-import { useShipments } from "@/hooks/useShipments";
 
 const Index = () => {
   const {
@@ -262,11 +261,8 @@ const Index = () => {
               </div>
             ) : (
               <div className="text-center py-8">
-                <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">У вас пока нет задач</p>
-                <Button className="mt-4" asChild>
-                  <Link to="/create-task">Создать первую задачу</Link>
-                </Button>
+                <CheckCircle2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Пока нет задач</p>
               </div>
             )}
           </CardContent>
