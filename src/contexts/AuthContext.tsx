@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { retrieveLaunchParams } from "@tma.js/bridge";
 import api from "@/api";
 import { Task } from "@/hooks/useTasks";
+import { Notification } from "@/hooks/useNotifications";
 
 export interface User {
   id: string | number;
@@ -23,6 +24,7 @@ export interface User {
   isActive?: boolean;
   tasks?: Task[];
   mytasks?: Task[];
+  notifications?: Notification[];
   created_at?: string;
   updated_at?: string;
 }
