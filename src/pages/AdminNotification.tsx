@@ -216,10 +216,6 @@ const AdminNotifications = () => {
                 title: "Ошибка",
                 description: error.message || error.data.message,
             });
-            // toast({
-            //     title: "Уведомление не отправлено",
-            //     description: `Уведомление "${newNotification.title}" не может быть отправлено всем пользователям`,
-            // });
         }
 
 
