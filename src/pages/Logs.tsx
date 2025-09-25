@@ -281,7 +281,7 @@ const Logs = () => {
                       </div>
 
                       {log.meta && Object.keys(log.meta).length > 0 && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground w-100">
                           {JSON.stringify(log.meta)}
                         </p>
                       )}
