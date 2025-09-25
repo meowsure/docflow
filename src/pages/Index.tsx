@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
   const {
+    tasks,
     loading: tasksLoading,
   } = useTasks();
 
@@ -27,7 +28,7 @@ const Index = () => {
   // Последние задачи
   const recentNotify = notifications.filter(n => !n.is_read).slice(0, 3);
   const recentMyTasks = user.tasks.slice(0, 3);
-  const recentTasks = user.available_tasks.slice(0, 5);
+  const recentTasks = tasks.filter(t => t.status === 'new' && t.creator_id !== user.id).slice(0, 5);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
