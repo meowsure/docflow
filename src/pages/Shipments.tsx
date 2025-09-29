@@ -10,57 +10,6 @@ import { useShipments, Shipment } from '@/hooks/useShipments';
 const Shipments = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const mockShipments = [
-    {
-      id: 1,
-      number: "ОТГ-2024-001",
-      client: "ООО Торговый дом",
-      destination: "Москва, ул. Тверская 15",
-      status: "В пути",
-      items: 15,
-      weight: "2.5 т",
-      date: "2024-01-15",
-      driver: "Иванов И.И.",
-      vehicle: "А123БВ199"
-    },
-    {
-      id: 2,
-      number: "ОТГ-2024-002",
-      client: "ИП Петров",
-      destination: "СПб, Невский пр. 45",
-      status: "Доставлено",
-      items: 8,
-      weight: "1.2 т",
-      date: "2024-01-14",
-      driver: "Сидоров П.П.",
-      vehicle: "В456ГД178"
-    },
-    {
-      id: 3,
-      number: "ОТГ-2024-003",
-      client: "ЗАО Строй Инвест",
-      destination: "Екатеринбург, ул. Ленина 30",
-      status: "Подготовка",
-      items: 25,
-      weight: "4.8 т",
-      date: "2024-01-16",
-      driver: "Козлов А.В.",
-      vehicle: "С789ЕЖ196"
-    },
-    {
-      id: 4,
-      number: "ОТГ-2024-004",
-      client: "ООО Металл Сервис",
-      destination: "Новосибирск, пр. Красный 12",
-      status: "Отменено",
-      items: 10,
-      weight: "3.1 т",
-      date: "2024-01-13",
-      driver: "Морозов Д.С.",
-      vehicle: "З012ИК154"
-    }
-  ];
-
   const {items: Shipments, deleteItem} = useShipments();
 
   const getStatusColor = (status: string) => {

@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import FileUploader from "@/components/FileUploader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import FileUploader from '@/components/FileUploader'; // Исправлен импорт
+import { UploadedFile } from '@/components/FileUploader';
 import Header from "@/components/Header";
 import { ArrowLeft, Package, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -13,23 +15,26 @@ import { useNavigate } from 'react-router-dom';
 import { useShipments } from '@/hooks/useShipments';
 import { useFiles } from "@/hooks/useFiles";
 
-interface UploadedFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  file: File;
-}
-
 const CreateShipment = () => {
   const { toast } = useToast();
   const { createItem } = useShipments();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { uploadFilesWithProgress } = useFiles();
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const { uploadFile } = useFiles();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    // Основные поля
+    externalId: '',
+    status: 'planned',
+    fromLocation: '',
+    toLocation: '',
+    plannedDate: '',
+    actualDate: '',
+    items: [],
+
+    // Новые поля
     address: '',
     workSchedule: '',
     requestCode: '',
@@ -45,25 +50,55 @@ const CreateShipment = () => {
     additionalInfo: ''
   });
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  // Обработчики изменений
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Преобразование в данные для отправки на бэкенд
+  const prepareSubmitData = () => {
+    return {
+      external_id: formData.externalId,
+      status: formData.status,
+      from_location: formData.fromLocation,
+      to_location: formData.toLocation,
+      planned_date: formData.plannedDate || null,
+      actual_date: formData.actualDate || null,
+      items: formData.items,
+      address: formData.address,
+      work_schedule: formData.workSchedule,
+      request_code: formData.requestCode,
+      loading_contacts: formData.loadingContacts,
+      shop_name: formData.shopName,
+      goods_name: formData.goodsName,
+      goods_volume: formData.goodsVolume,
+      goods_weight: formData.goodsWeight,
+      goods_package: formData.goodsPackage,
+      contract_number: formData.contractNumber,
+      loading_date: formData.loadingDate || null,
+      loading_requirements: formData.loadingRequirements,
+      additional_info: formData.additionalInfo,
+      created_by: user?.id || ""
+    };
   };
 
   const handleSubmit = async () => {
-    if (files.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Ошибка",
-        description: "Необходимо загрузить хотя бы один файл"
-      });
-      return;
-    }
-
     if (!formData.address || !formData.goodsName || !formData.contractNumber) {
       toast({
         variant: "destructive",
         title: "Ошибка",
-        description: "Заполните обязательные поля"
+        description: "Заполните обязательные поля: адрес, название товара и номер договора"
       });
       return;
     }
@@ -71,44 +106,77 @@ const CreateShipment = () => {
     try {
       setLoading(true);
 
+      // Загрузка файлов, если они есть
       const uploadedIds: string[] = [];
-      for (const f of files) {
-        const uploaded = await uploadFile(f.file);
-        if (uploaded) uploadedIds.push(uploaded.id);
+      if (files.length > 0) {
+        for (const f of files) {
+          const uploaded = await uploadFile(f.file);
+          if (uploaded) uploadedIds.push(uploaded.id);
+        }
       }
 
+      const submitData = prepareSubmitData();
+
       const shipment = await createItem({
-        address: formData.address,
-        work_schedule: formData.workSchedule,
-        request_code: formData.requestCode,
-        loading_contacts: formData.loadingContacts,
-        shop_name: formData.shopName,
-        goods_name: formData.goodsName,
-        goods_volume: formData.goodsVolume,
-        goods_weight: formData.goodsWeight,
-        goods_package: formData.goodsPackage,
-        contract_number: formData.contractNumber,
-        loading_date: formData.loadingDate || null,
-        loading_requirements: formData.loadingRequirements,
-        additional_info: formData.additionalInfo,
-        status: "submitted",
-        created_by: user.id || "",
-        files: uploadedIds,
+        ...submitData
       });
 
-      if (shipment) {
+      if (shipment && shipment.id) {
+        if (files.length > 0) {
+          const { successes, errors } = await uploadFilesWithProgress(
+            files,
+            'App\\Models\\Task', // entity_type для Laravel
+            task.id, // entity_id - ID созданной задачи
+            // Колбэк для обновления статуса каждого файла
+            (fileId, status, serverId) => {
+              setFiles(prevFiles =>
+                prevFiles.map(file =>
+                  file.id === fileId
+                    ? { ...file, status, ...(serverId && { serverId }) }
+                    : file
+                )
+              );
+            }
+          );
+
+          if (errors.length > 0) {
+            toast({
+              variant: "destructive",
+              title: "Частичная ошибка",
+              description: `Задача создана, но ${errors.length} из ${files.length} файлов не загружены`
+            });
+          } else {
+            toast({
+              title: "Успех!",
+              description: `Отгрузка и ${successes.length} файлов успешно созданы`
+            });
+          }
+        } else {
+          toast({
+          title: "Отгрузка создана",
+          description: "Отгрузка успешно создана"
+        });
+        }
         toast({
           title: "Отгрузка создана",
-          description: "Заявка отправлена менеджеру отгрузок"
+          description: "Отгрузка успешно создана"
         });
-        navigate('/shipments'); // 👈 можно на список отгрузок
+        navigate('/shipments');
       }
     } catch (error) {
       console.error("Create shipment error:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: "Не удалось создать отгрузку"
+      });
     } finally {
       setLoading(false);
     }
   };
+
+  // Проверка заполненности обязательных полей
+  const requiredFieldsFilled = formData.address && formData.goodsName && formData.contractNumber;
 
   return (
     <div className="min-h-screen bg-background">
@@ -116,9 +184,9 @@ const CreateShipment = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <Button variant="ghost" className="mb-4" onClick={() => navigate('/')}>
+          <Button variant="ghost" className="mb-4" onClick={() => navigate('/shipments')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад
+            Назад к отгрузкам
           </Button>
 
           <div className="flex items-center space-x-3">
@@ -134,6 +202,94 @@ const CreateShipment = () => {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
+            {/* Основная информация */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <span>📦</span>
+                  <span>Основная информация</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="externalId">Внешний ID</Label>
+                    <Input
+                      id="externalId"
+                      name="externalId"
+                      value={formData.externalId}
+                      onChange={handleInputChange}
+                      placeholder="Внешний идентификатор"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="status">Статус</Label>
+                    <Select value={formData.status} onValueChange={(value) => handleSelectChange('status', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="planned">Запланирована</SelectItem>
+                        <SelectItem value="in_transit">В пути</SelectItem>
+                        <SelectItem value="delivered">Доставлена</SelectItem>
+                        <SelectItem value="cancelled">Отменена</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="fromLocation">Место отправления</Label>
+                    <Input
+                      id="fromLocation"
+                      name="fromLocation"
+                      value={formData.fromLocation}
+                      onChange={handleInputChange}
+                      placeholder="Откуда"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="toLocation">Место назначения</Label>
+                    <Input
+                      id="toLocation"
+                      name="toLocation"
+                      value={formData.toLocation}
+                      onChange={handleInputChange}
+                      placeholder="Куда"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="plannedDate">Плановая дата</Label>
+                    <Input
+                      id="plannedDate"
+                      name="plannedDate"
+                      type="date"
+                      value={formData.plannedDate}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="actualDate">Фактическая дата</Label>
+                    <Input
+                      id="actualDate"
+                      name="actualDate"
+                      type="date"
+                      value={formData.actualDate}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Документы */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -143,12 +299,13 @@ const CreateShipment = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Загрузите спецификацию и договор
+                  Загрузите спецификацию и договор (необязательно)
                 </p>
                 <FileUploader onFilesChange={setFiles} maxFiles={10} />
               </CardContent>
             </Card>
 
+            {/* Информация о складе */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -161,9 +318,11 @@ const CreateShipment = () => {
                   <Label htmlFor="address">Полный адрес склада *</Label>
                   <Textarea
                     id="address"
+                    name="address"
                     value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Введите полный адрес склада..."
+                    required
                   />
                 </div>
 
@@ -171,8 +330,9 @@ const CreateShipment = () => {
                   <Label htmlFor="workSchedule">Время работы склада</Label>
                   <Input
                     id="workSchedule"
+                    name="workSchedule"
                     value={formData.workSchedule}
-                    onChange={(e) => handleInputChange('workSchedule', e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Пн-Пт 9:00-18:00"
                   />
                 </div>
@@ -181,8 +341,9 @@ const CreateShipment = () => {
                   <Label htmlFor="requestCode">Код заявки для склада</Label>
                   <Input
                     id="requestCode"
+                    name="requestCode"
                     value={formData.requestCode}
-                    onChange={(e) => handleInputChange('requestCode', e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Введите код заявки или 'нет'"
                   />
                 </div>
@@ -191,14 +352,16 @@ const CreateShipment = () => {
                   <Label htmlFor="loadingContacts">Контакты ответственных лиц на загрузке</Label>
                   <Textarea
                     id="loadingContacts"
+                    name="loadingContacts"
                     value={formData.loadingContacts}
-                    onChange={(e) => handleInputChange('loadingContacts', e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="ФИО, должность, телефон..."
                   />
                 </div>
               </CardContent>
             </Card>
 
+            {/* Информация о лавке и товаре */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -211,8 +374,9 @@ const CreateShipment = () => {
                   <Label htmlFor="shopName">Название лавки</Label>
                   <Input
                     id="shopName"
+                    name="shopName"
                     value={formData.shopName}
-                    onChange={(e) => handleInputChange('shopName', e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="От какой лавки подписались?"
                   />
                 </div>
@@ -221,9 +385,11 @@ const CreateShipment = () => {
                   <Label htmlFor="goodsName">Наименование товара *</Label>
                   <Input
                     id="goodsName"
+                    name="goodsName"
                     value={formData.goodsName}
-                    onChange={(e) => handleInputChange('goodsName', e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Укажите наименование товара..."
+                    required
                   />
                 </div>
 
@@ -232,8 +398,9 @@ const CreateShipment = () => {
                     <Label htmlFor="goodsVolume">Объем товара</Label>
                     <Input
                       id="goodsVolume"
+                      name="goodsVolume"
                       value={formData.goodsVolume}
-                      onChange={(e) => handleInputChange('goodsVolume', e.target.value)}
+                      onChange={handleInputChange}
                       placeholder="Кол-во единиц, метры, штуки..."
                     />
                   </div>
@@ -242,8 +409,9 @@ const CreateShipment = () => {
                     <Label htmlFor="goodsWeight">Вес товара</Label>
                     <Input
                       id="goodsWeight"
+                      name="goodsWeight"
                       value={formData.goodsWeight}
-                      onChange={(e) => handleInputChange('goodsWeight', e.target.value)}
+                      onChange={handleInputChange}
                       placeholder="Укажите вес..."
                     />
                   </div>
@@ -253,14 +421,16 @@ const CreateShipment = () => {
                   <Label htmlFor="goodsPackage">Тип упаковки</Label>
                   <Input
                     id="goodsPackage"
+                    name="goodsPackage"
                     value={formData.goodsPackage}
-                    onChange={(e) => handleInputChange('goodsPackage', e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Паллеты, коробки, бухты..."
                   />
                 </div>
               </CardContent>
             </Card>
 
+            {/* Дополнительная информация */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -273,9 +443,11 @@ const CreateShipment = () => {
                   <Label htmlFor="contractNumber">Номер договора *</Label>
                   <Input
                     id="contractNumber"
+                    name="contractNumber"
                     value={formData.contractNumber}
-                    onChange={(e) => handleInputChange('contractNumber', e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Укажите номер договора..."
+                    required
                   />
                 </div>
 
@@ -283,9 +455,10 @@ const CreateShipment = () => {
                   <Label htmlFor="loadingDate">Дата загрузки</Label>
                   <Input
                     id="loadingDate"
+                    name="loadingDate"
                     type="date"
                     value={formData.loadingDate}
-                    onChange={(e) => handleInputChange('loadingDate', e.target.value)}
+                    onChange={handleInputChange}
                   />
                 </div>
 
@@ -293,8 +466,9 @@ const CreateShipment = () => {
                   <Label htmlFor="loadingRequirements">Особые требования к загрузке</Label>
                   <Textarea
                     id="loadingRequirements"
+                    name="loadingRequirements"
                     value={formData.loadingRequirements}
-                    onChange={(e) => handleInputChange('loadingRequirements', e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Укажите особые требования или 'нет'"
                   />
                 </div>
@@ -303,8 +477,9 @@ const CreateShipment = () => {
                   <Label htmlFor="additionalInfo">Дополнительная информация</Label>
                   <Textarea
                     id="additionalInfo"
+                    name="additionalInfo"
                     value={formData.additionalInfo}
-                    onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Любая другая важная информация..."
                   />
                 </div>
@@ -312,6 +487,7 @@ const CreateShipment = () => {
             </Card>
           </div>
 
+          {/* Сводка */}
           <div className="space-y-6">
             <Card className="sticky top-4">
               <CardHeader>
@@ -331,9 +507,18 @@ const CreateShipment = () => {
                     <span className="font-medium">{files.length}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Заполнено полей:</span>
-                    <span className="font-medium">
-                      {Object.values(formData).filter(value => value.trim() !== '').length}/13
+                    <span>Статус:</span>
+                    <span className="font-medium capitalize">
+                      {formData.status === 'planned' && 'Запланирована'}
+                      {formData.status === 'in_transit' && 'В пути'}
+                      {formData.status === 'delivered' && 'Доставлена'}
+                      {formData.status === 'cancelled' && 'Отменена'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Обязательные поля:</span>
+                    <span className={`font-medium ${requiredFieldsFilled ? 'text-success' : 'text-destructive'}`}>
+                      {requiredFieldsFilled ? 'Заполнены' : 'Не заполнены'}
                     </span>
                   </div>
                 </div>
@@ -342,7 +527,7 @@ const CreateShipment = () => {
                   onClick={handleSubmit}
                   className="w-full"
                   size="lg"
-                  disabled={loading}
+                  disabled={loading || !requiredFieldsFilled}
                 >
                   {loading ? (
                     <>
@@ -356,6 +541,12 @@ const CreateShipment = () => {
                     </>
                   )}
                 </Button>
+
+                {!requiredFieldsFilled && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    Заполните все обязательные поля (*)
+                  </p>
+                )}
               </CardContent>
             </Card>
           </div>
