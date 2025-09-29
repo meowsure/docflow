@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Truck, Package, MapPin, Calendar, Search, Plus } from "lucide-react";
 import Header from "@/components/Header";
+import { useShipments, Shipment } from '@/hooks/useShipments';
 
 const Shipments = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,6 +61,8 @@ const Shipments = () => {
     }
   ];
 
+  const {items: Shipments, deleteItem} = useShipments();
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Доставлено":
@@ -75,10 +78,10 @@ const Shipments = () => {
     }
   };
 
-  const filteredShipments = mockShipments.filter(shipment =>
-    shipment.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.destination.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredShipments = Shipments.filter(shipment =>
+    shipment.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    shipment.from_location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    shipment.to_location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -114,8 +117,8 @@ const Shipments = () => {
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-lg">{shipment.number}</CardTitle>
-                    <CardDescription>{shipment.client}</CardDescription>
+                    <CardTitle className="text-lg">{shipment.id}</CardTitle>
+                    <CardDescription>{shipment.address}</CardDescription>
                   </div>
                   <Badge className={getStatusColor(shipment.status)}>
                     {shipment.status}
@@ -125,11 +128,11 @@ const Shipments = () => {
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4" />
-                  <span>{shipment.destination}</span>
+                  <span>{shipment.to_location}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span>{shipment.date}</span>
+                  <span>{shipment.planned_date}</span>
                 </div>
                 <div className="flex gap-6 text-sm">
                   <div className="flex items-center gap-1">
@@ -138,12 +141,12 @@ const Shipments = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="font-medium">Вес:</span>
-                    <span>{shipment.weight}</span>
+                    <span>{shipment.goods_weight}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-sm bg-muted/50 p-2 rounded">
                   <Truck className="h-4 w-4" />
-                  <span>{shipment.driver} • {shipment.vehicle}</span>
+                  <span>{shipment.request_code} • {shipment.shop_name}</span>
                 </div>
               </CardContent>
             </Card>
