@@ -90,7 +90,7 @@ export const useCrud = <T extends { id: string }>(endpoint: string) => {
       toast({
         variant: "destructive",
         title: "Ошибка",
-        description: "Не удалось удалить запись",
+        description: "Не удалось удалить запись" + err.data.message || err.data,
       });
       return false;
     }
