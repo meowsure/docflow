@@ -16,7 +16,6 @@ import {
   MemoryStick,
   Calendar
 } from "lucide-react";
-import Header from "@/components/Header";
 import { useHostings } from '@/hooks/useHostings';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -27,7 +26,14 @@ const Hostings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const { hostings, loading, deleteHosting } = useHostings();
+  const {
+    items: hostings,
+    loading,
+    loadingMore,
+    hasMore,
+    loadMore,
+    deleteItem
+  } = useHostings();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -70,7 +76,7 @@ const Hostings = () => {
 
   const handleDelete = async (hostingId: string) => {
     if (window.confirm('Вы уверены, что хотите удалить этот хостинг?')) {
-      const success = deleteHosting(hostingId);
+      const success = await deleteItem(hostingId);
       if (success) {
         toast({
           title: "Хостинг удален",
@@ -79,6 +85,16 @@ const Hostings = () => {
       }
     }
   };
+
+  const stats = {
+    total: hostings.length,
+    active: hostings.filter(h => h.status === 'active').length,
+    suspended: hostings.filter(h => h.status === 'suspended').length,
+    pending: hostings.filter(h => h.status === 'pending').length,
+    totalServers: hostings.reduce((acc, hosting) => acc + (hosting.stats?.servers_count || hosting.servers?.length || 0), 0),
+    totalDomains: hostings.reduce((acc, hosting) => acc + (hosting.stats?.domains_count || hosting.servers?.reduce((serverAcc, server) => serverAcc + server.domains.length, 0) || 0), 0),
+  };
+
 
   if (loading) {
     return (
@@ -95,7 +111,6 @@ const Hostings = () => {
   }
 
   return (
-
     <div className="container mx-auto p-4 md:p-6 space-y-6">
       {/* Заголовок и кнопка */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -147,7 +162,7 @@ const Hostings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Всего хостингов</p>
-                <p className="text-2xl font-bold">{hostings.length}</p>
+                <p className="text-2xl font-bold">{stats.total}</p>
               </div>
               <Server className="h-8 w-8 text-muted-foreground" />
             </div>
@@ -158,9 +173,7 @@ const Hostings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Активные</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {hostings.filter(h => h.status === 'active').length}
-                </p>
+                <p className="text-2xl font-bold text-green-600">{stats.active}</p>
               </div>
               <div className="h-3 w-3 bg-green-500 rounded-full"></div>
             </div>
@@ -171,11 +184,9 @@ const Hostings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Серверов</p>
-                <p className="text-2xl font-bold">
-                  {hostings.reduce((acc, hosting) => acc + hosting.servers.length, 0)}
-                </p>
+                <p className="text-2xl font-bold">{stats.totalServers}</p>
               </div>
-              <Cpu className="h-8 w-8 text-muted-foreground" />
+              <Server className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
@@ -184,11 +195,7 @@ const Hostings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Домены</p>
-                <p className="text-2xl font-bold">
-                  {hostings.reduce((acc, hosting) =>
-                    acc + hosting.servers.reduce((serverAcc, server) =>
-                      serverAcc + server.domains.length, 0), 0)}
-                </p>
+                <p className="text-2xl font-bold">{stats.totalDomains}</p>
               </div>
               <Globe className="h-8 w-8 text-muted-foreground" />
             </div>
@@ -225,7 +232,7 @@ const Hostings = () => {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span>Действует до: {formatDate(hosting.expiryDate)}</span>
+                  <span>Действует до: {formatDate(hosting.expiry_date)}</span>
                 </div>
               </div>
 
@@ -234,23 +241,23 @@ const Hostings = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">Серверы:</span>
                   <span className="text-muted-foreground">
-                    {hosting.servers.length} шт.
+                    {hosting.stats?.servers_count || hosting.servers?.length || 0} шт.
                   </span>
                 </div>
-                {hosting.servers.slice(0, 2).map(server => (
+                {hosting.servers?.slice(0, 2).map(server => (
                   <div key={server.id} className="flex items-center gap-2 text-sm bg-muted/30 p-2 rounded">
                     <Server className="h-3 w-3 text-muted-foreground" />
                     <span className="truncate flex-1" title={server.name}>
                       {server.name}
                     </span>
                     <div className={`h-2 w-2 rounded-full ${server.status === 'online' ? 'bg-green-500' :
-                        server.status === 'offline' ? 'bg-red-500' : 'bg-yellow-500'
+                      server.status === 'offline' ? 'bg-red-500' : 'bg-yellow-500'
                       }`} />
                   </div>
                 ))}
-                {hosting.servers.length > 2 && (
+                {(hosting.stats?.servers_count || hosting.servers?.length || 0) > 2 && (
                   <div className="text-xs text-muted-foreground text-center">
-                    +{hosting.servers.length - 2} еще
+                    +{(hosting.stats?.servers_count || hosting.servers?.length || 0) - 2} еще
                   </div>
                 )}
               </div>
@@ -259,13 +266,13 @@ const Hostings = () => {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="text-center p-2 bg-muted/20 rounded">
                   <div className="font-semibold">
-                    {hosting.servers.reduce((acc, server) => acc + server.domains.length, 0)}
+                    {hosting.stats?.domains_count || hosting.servers?.reduce((acc, server) => acc + server.domains.length, 0) || 0}
                   </div>
                   <div className="text-xs text-muted-foreground">Доменов</div>
                 </div>
                 <div className="text-center p-2 bg-muted/20 rounded">
                   <div className="font-semibold">
-                    {hosting.servers.reduce((acc, server) => acc + server.emailAccounts.length, 0)}
+                    {hosting.stats?.email_accounts_count || hosting.servers?.reduce((acc, server) => acc + server.email_accounts.length, 0) || 0}
                   </div>
                   <div className="text-xs text-muted-foreground">Почт. ящиков</div>
                 </div>
@@ -294,8 +301,31 @@ const Hostings = () => {
         ))}
       </div>
 
+      {/* Загрузка */}
+      {loading && (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      )}
+
+      {/* Кнопка загрузки еще */}
+      {hasMore && !loading && (
+        <div className="flex justify-center">
+          <Button onClick={loadMore} disabled={loadingMore}>
+            {loadingMore ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Загрузка...
+              </>
+            ) : (
+              'Загрузить еще'
+            )}
+          </Button>
+        </div>
+      )}
+
       {/* Состояние пустого списка */}
-      {filteredHostings.length === 0 && (
+      {!loading && filteredHostings.length === 0 && (
         <Card>
           <CardContent className="p-8 text-center">
             <Server className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
