@@ -27,7 +27,7 @@ import NotActivated from "./components/NotActivated";
 import AdminNotifications from "./pages/AdminNotification";
 import Hostings from "./pages/Hostings";
 import HostingDetail from "./pages/HostingDetail";
-import Header from "./components/Header";
+import Navigation from "./components/Header";
 
 const queryClient = new QueryClient();
 
@@ -56,7 +56,7 @@ const AppContent = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Header />
+      <Navigation />
       <main className="flex-1 flex flex-col lg:ml-0">
         <div className="flex-1 container mx-auto p-4 lg:p-6">
           <Routes>
