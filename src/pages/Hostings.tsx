@@ -14,7 +14,8 @@ import {
   Cpu,
   HardDrive,
   MemoryStick,
-  Calendar
+  Calendar,
+  Loader2
 } from "lucide-react";
 import { useHostings } from '@/hooks/useHostings';
 import { useNavigate } from 'react-router-dom';
