@@ -27,7 +27,7 @@ import NotActivated from "./components/NotActivated";
 import AdminNotifications from "./pages/AdminNotification";
 import Hostings from "./pages/Hostings";
 import HostingDetail from "./pages/HostingDetail";
-import Navigation from "./components/Navigation";
+import Navigation from "./components/Header";
 
 const queryClient = new QueryClient();
 
