@@ -23,9 +23,8 @@ import {
   Network,
   Loader2
 } from "lucide-react";
-import { useHostings } from '@/hooks/useHostings';
+import { useHostings, Hosting, Domain, EmailAccount, Server as ServerType  } from '@/hooks/useHostings';
 import { useToast } from "@/hooks/use-toast";
-import { Hosting, Domain, EmailAccount, Server as ServerType } from '@/types/hosting';
 import api from '@/api';
 
 const HostingDetail = () => {
@@ -201,8 +200,8 @@ const HostingDetail = () => {
           </Badge>
         </div>
         <div className="text-sm text-muted-foreground space-y-1">
-          <div>Создан: {formatDate(domain.createdAt)}</div>
-          <div>Истекает: {formatDate(domain.expiryDate)}</div>
+          <div>Создан: {formatDate(domain.created_at)}</div>
+          <div>Истекает: {formatDate(domain.expiry_date)}</div>
         </div>
       </CardContent>
     </Card>
@@ -237,8 +236,8 @@ const HostingDetail = () => {
               />
             </div>
           </div>
-          {email.lastLogin && (
-            <div>Последний вход: {formatDate(email.lastLogin)}</div>
+          {email.last_login && (
+            <div>Последний вход: {formatDate(email.last_login)}</div>
           )}
         </div>
       </CardContent>
@@ -249,7 +248,7 @@ const HostingDetail = () => {
   const stats = {
     servers: hosting.servers?.length || 0,
     domains: hosting.servers?.reduce((acc, server) => acc + server.domains.length, 0) || 0,
-    emails: hosting.servers?.reduce((acc, server) => acc + server.emailAccounts.length, 0) || 0,
+    emails: hosting.servers?.reduce((acc, server) => acc + server.email_accounts.length, 0) || 0,
     onlineServers: hosting.servers?.filter(s => s.status === 'online').length || 0,
   };
 
@@ -286,7 +285,7 @@ const HostingDetail = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.open(hosting.loginUrl, '_blank')}
+              onClick={() => window.open(hosting.login_url, '_blank')}
               className="flex-1 sm:flex-none"
             >
               <ExternalLink className="w-4 h-4 mr-2" />
@@ -342,8 +341,8 @@ const HostingDetail = () => {
 
                   <Separator />
 
-                  <InfoRow icon={Calendar} label="Дата создания" value={formatDate(hosting.createdAt)} />
-                  <InfoRow icon={Calendar} label="Действует до" value={formatDate(hosting.expiryDate)} />
+                  <InfoRow icon={Calendar} label="Дата создания" value={formatDate(hosting.created_at)} />
+                  <InfoRow icon={Calendar} label="Действует до" value={formatDate(hosting.expiry_date)} />
                 </CardContent>
               </Card>
 
@@ -359,7 +358,7 @@ const HostingDetail = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <InfoRow icon={ExternalLink} label="URL для входа" value={hosting.loginUrl} copyable />
+                  <InfoRow icon={ExternalLink} label="URL для входа" value={hosting.login_url} copyable />
                   <InfoRow icon={Server} label="Имя пользователя" value={hosting.username} copyable />
                   <InfoRow icon={Shield} label="Пароль" value={hosting.password} copyable />
                 </CardContent>
@@ -415,7 +414,7 @@ const HostingDetail = () => {
                       </div>
 
                       <InfoRow icon={Server} label="Операционная система" value={server.os} />
-                      <InfoRow icon={Calendar} label="Создан" value={formatDate(server.createdAt)} />
+                      <InfoRow icon={Calendar} label="Создан" value={formatDate(server.created_at)} />
                     </CardContent>
                   </Card>
                 ))
@@ -474,7 +473,7 @@ const HostingDetail = () => {
                 <CardContent>
                   <div className="grid gap-4">
                     {hosting.servers?.map(server =>
-                      server.emailAccounts.map(email => (
+                      server.email_accounts.map(email => (
                         <EmailCard key={email.id} email={email} />
                       ))
                     )}
