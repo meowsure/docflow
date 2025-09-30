@@ -12,7 +12,6 @@ import { useTasks, Task } from "@/hooks/useTasks";
 import { useShipments, Shipment } from "@/hooks/useShipments";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { userInfo } from "os";
 import { useAuth } from "@/contexts/AuthContext";
 
 const TasksList = () => {
@@ -22,11 +21,10 @@ const TasksList = () => {
 
   
   const { user } = useAuth();
-  const tasks = user.tasks;
+  const tasks = user.mytasks;
 
   const {
     items: shipments,
-    loading: shipmentsLoading,
     loadingMore: shipmentsLoadingMore,
     hasMore: shipmentsHasMore,
     loadMore: shipmentsLoadMore,

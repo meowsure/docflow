@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Truck, 
   Package, 
@@ -11,17 +12,20 @@ import {
   Search, 
   Plus, 
   FileText,
-  User,
   Building,
-  Clock
+  Clock,
+  Filter
 } from "lucide-react";
 import Header from "@/components/Header";
 import { useShipments, Shipment } from '@/hooks/useShipments';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
 
 const Shipments = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const { items: shipments, deleteItem } = useShipments();
 
@@ -64,16 +68,35 @@ const Shipments = () => {
     return "1 позиция";
   };
 
-  const filteredShipments = shipments.filter(shipment =>
-    shipment.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.from_location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.to_location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.goods_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.contract_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.shop_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.request_code?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Фильтрация отгрузок
+  const filteredShipments = shipments.filter(shipment => {
+    const matchesSearch =
+      searchTerm.trim() === "" ||
+      shipment.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.from_location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.to_location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.goods_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.contract_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.shop_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.request_code?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus = statusFilter === "all" || shipment.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const handleDelete = async (shipmentId: string) => {
+    if (window.confirm('Вы уверены, что хотите удалить эту отгрузку?')) {
+      const success = await deleteItem(shipmentId);
+      if (success) {
+        toast({
+          title: "Отгрузка удалена",
+          description: "Отгрузка успешно удалена",
+        });
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -85,22 +108,74 @@ const Shipments = () => {
             <h1 className="text-2xl md:text-3xl font-bold">Отгрузки</h1>
             <p className="text-muted-foreground mt-1">Управление отгрузками и доставками</p>
           </div>
-          <Button onClick={() => navigate('/create-shipment')} className="w-full sm:w-auto">
+          <Button onClick={() => navigate('/shipments/create')} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Создать отгрузку
           </Button>
         </div>
 
-        {/* Поиск */}
-        <div className="flex gap-4 items-center">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Поиск по статусу, адресу, товару, магазину..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+        {/* Фильтры */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Поиск по статусу, адресу, товару, магазину..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Статус" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Все статусы</SelectItem>
+                  <SelectItem value="planned">Запланированные</SelectItem>
+                  <SelectItem value="submitted">На рассмотрении</SelectItem>
+                  <SelectItem value="in_transit">В пути</SelectItem>
+                  <SelectItem value="delivered">Доставленные</SelectItem>
+                  <SelectItem value="cancelled">Отмененные</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Статистика по статусам */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+          <div className="text-center p-2 bg-muted/30 rounded-lg">
+            <div className="font-semibold">Все</div>
+            <div className="text-muted-foreground">{shipments.length}</div>
+          </div>
+          <div className="text-center p-2 bg-yellow-50 rounded-lg">
+            <div className="font-semibold">Запланированные</div>
+            <div className="text-muted-foreground">
+              {shipments.filter(s => s.status === 'planned').length}
+            </div>
+          </div>
+          <div className="text-center p-2 bg-orange-50 rounded-lg">
+            <div className="font-semibold">На рассмотрении</div>
+            <div className="text-muted-foreground">
+              {shipments.filter(s => s.status === 'submitted').length}
+            </div>
+          </div>
+          <div className="text-center p-2 bg-blue-50 rounded-lg">
+            <div className="font-semibold">В пути</div>
+            <div className="text-muted-foreground">
+              {shipments.filter(s => s.status === 'in_transit').length}
+            </div>
+          </div>
+          <div className="text-center p-2 bg-green-50 rounded-lg">
+            <div className="font-semibold">Доставленные</div>
+            <div className="text-muted-foreground">
+              {shipments.filter(s => s.status === 'delivered').length}
+            </div>
           </div>
         </div>
 
@@ -111,7 +186,7 @@ const Shipments = () => {
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-base md:text-lg truncate" title={shipment.contract_number || `Отгрузка ${shipment.external_id || shipment.id.slice(0, 8)}`}>
+                    <CardTitle className="text-base md:text-lg truncate" title={shipment.contract_number || `Отгрузка ${shipment.external_id ? shipment.external_id.slice(0, 8) : shipment.id.slice(0, 8)}`}>
                       {shipment.contract_number || `Отгрузка ${shipment.external_id ? shipment.external_id.slice(0, 8) : shipment.id.slice(0, 8)}`}
                     </CardTitle>
                     <CardDescription className="truncate" title={shipment.address}>
@@ -236,11 +311,7 @@ const Shipments = () => {
                   <Button 
                     variant="destructive" 
                     size="sm"
-                    onClick={() => {
-                      if (window.confirm('Вы уверены, что хотите удалить эту отгрузку?')) {
-                        deleteItem(shipment.id);
-                      }
-                    }}
+                    onClick={() => handleDelete(shipment.id)}
                   >
                     Удалить
                   </Button>
@@ -261,11 +332,11 @@ const Shipments = () => {
               <p className="text-muted-foreground mb-4">
                 {shipments.length === 0 
                   ? "Создайте первую отгрузку" 
-                  : "Попробуйте изменить поисковый запрос"
+                  : "Попробуйте изменить параметры фильтрации"
                 }
               </p>
               {shipments.length === 0 && (
-                <Button onClick={() => navigate('/create-shipment')}>
+                <Button onClick={() => navigate('/shipments/create')}>
                   <Plus className="h-4 w-4 mr-2" />
                   Создать отгрузку
                 </Button>
