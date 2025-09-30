@@ -1,7 +1,8 @@
+// components/Navigation.tsx
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group, File, Atom, Cog, ArrowsUpFromLine, BellRing, Server } from "lucide-react";
+import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group, File, Cog, ArrowsUpFromLine, BellRing, Server } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,12 +35,6 @@ const Header = () => {
         { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission: 'view_shipments' },
       ],
     },
-    // {
-    //   icon: CreditCard,
-    //   label: "Финансы",
-    //   requiredPermission: "view_finances",
-    //   items: [{ path: "/invoices", label: "Счета и оплаты", icon: CreditCard }],
-    // },
     {
       icon: Server,
       label: "Хостинги",
@@ -232,7 +227,6 @@ const Header = () => {
   );
 };
 
-// Новый компонент Sidebar для десктопа
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -290,7 +284,7 @@ const Sidebar = () => {
 
   return (
     <div className={cn(
-      "hidden lg:flex flex-col bg-card border-r transition-all duration-300",
+      "hidden lg:flex flex-col bg-card border-r transition-all duration-300 sticky top-0 h-screen",
       isCollapsed ? "w-16" : "w-64"
     )}>
       {/* Заголовок сайдбара */}
@@ -458,5 +452,4 @@ const Navigation = () => {
   );
 };
 
-export { Navigation, Sidebar, Header };
 export default Navigation;
