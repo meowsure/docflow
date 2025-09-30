@@ -64,8 +64,7 @@ const HostingDetail = () => {
 
   if (!hosting) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+
         <div className="container mx-auto px-4 py-8 text-center">
           <Server className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h1 className="text-2xl font-bold mb-2">Хостинг не найден</h1>
@@ -75,7 +74,7 @@ const HostingDetail = () => {
             Вернуться к хостингам
           </Button>
         </div>
-      </div>
+      
     );
   }
 
