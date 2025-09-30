@@ -3,8 +3,8 @@ export interface Domain {
   id: string;
   name: string;
   status: 'active' | 'pending' | 'expired';
-  expiryDate: string;
-  createdAt: string;
+  expiry_date: string;
+  created_at: string;
 }
 
 export interface EmailAccount {
@@ -13,7 +13,7 @@ export interface EmailAccount {
   quota: string;
   used: string;
   status: 'active' | 'suspended';
-  lastLogin?: string;
+  last_login?: string;
 }
 
 export interface Server {
@@ -25,9 +25,9 @@ export interface Server {
   ram: string;
   storage: string;
   os: string;
+  created_at: string;
   domains: Domain[];
-  emailAccounts: EmailAccount[];
-  createdAt: string;
+  email_accounts: EmailAccount[];
 }
 
 export interface Hosting {
@@ -37,10 +37,22 @@ export interface Hosting {
   plan: string;
   status: 'active' | 'suspended' | 'pending';
   ip: string;
-  loginUrl: string;
+  login_url: string;
   username: string;
   password: string;
+  expiry_date: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
   servers: Server[];
-  createdAt: string;
-  expiryDate: string;
+  creator?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  stats?: {
+    servers_count: number;
+    domains_count: number;
+    email_accounts_count: number;
+  };
 }
