@@ -79,8 +79,7 @@ const Invoices = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -269,7 +268,7 @@ const Invoices = () => {
           </Card>
         )}
       </div>
-    </div>
+
 
   );
 };

@@ -50,8 +50,7 @@ export default function InvoiceDetail() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+
       <main className="flex-1 p-6">
         <Button
           variant="ghost"
@@ -124,6 +123,6 @@ export default function InvoiceDetail() {
           </CardContent>
         </Card>
       </main>
-    </div>
+
   );
 }
