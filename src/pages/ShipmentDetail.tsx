@@ -24,7 +24,7 @@ import {
   Weight,
   Box,
   Hash
-} from "lucicon-react";
+} from "lucide-react";
 import { useShipments } from '@/hooks/useShipments';
 import { useToast } from "@/hooks/use-toast";
 
