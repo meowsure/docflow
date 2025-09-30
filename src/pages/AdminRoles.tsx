@@ -136,8 +136,7 @@ export default function AdminRoles() {
     }, {} as Record<string, Permission[]>);
 
     return (
-        <div className="min-h-screen bg-background">
-            <Header />
+
             <div className="container mx-auto p-6">
                 <div className="flex items-center justify-between mb-6">
                     <div>
@@ -353,7 +352,7 @@ export default function AdminRoles() {
                     </Card>
                 </div>
             </div>
-        </div>
+    
 
     );
 }
