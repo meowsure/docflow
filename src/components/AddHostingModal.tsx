@@ -393,6 +393,32 @@ export const AddHostingModal = ({ open, onOpenChange }: AddHostingModalProps) =>
 
                                         <div className="grid md:grid-cols-2 gap-4">
                                             <div className="space-y-2">
+                                                <Label htmlFor={`server-username-${index}`}>
+                                                    Логин
+                                                </Label>
+                                                <Input
+                                                    id={`server-username-${index}`}
+                                                    value={server.login}
+                                                    onChange={(e) => updateServer(index, 'login', e.target.value)}
+                                                    placeholder="root"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`server-password-${index}`}>
+                                                    Пароль
+                                                </Label>
+                                                <Input
+                                                    id={`server-password-${index}`}
+                                                    value={server.password}
+                                                    onChange={(e) => updateServer(index, 'password', e.target.value)}
+                                                    placeholder="***************"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
                                                 <Label htmlFor={`server-status-${index}`}>Статус</Label>
                                                 <Select
                                                     value={server.status}
