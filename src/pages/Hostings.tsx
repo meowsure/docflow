@@ -10,10 +10,7 @@ import {
   Search,
   Plus,
   Filter,
-  Globe,
-  Cpu,
-  HardDrive,
-  MemoryStick,
+  Globe
   Calendar,
   Loader2
 } from "lucide-react";
