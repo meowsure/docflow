@@ -3,7 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Truck, Package, MapPin, Calendar, Search, Plus, FileText } from "lucide-react";
+import { 
+  Truck, 
+  Package, 
+  MapPin, 
+  Calendar, 
+  Search, 
+  Plus, 
+  FileText,
+  User,
+  Building,
+  Clock
+} from "lucide-react";
 import Header from "@/components/Header";
 import { useShipments, Shipment } from '@/hooks/useShipments';
 import { useNavigate } from 'react-router-dom';
@@ -17,17 +28,14 @@ const Shipments = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "delivered":
-      case "Доставлено":
         return "bg-green-100 text-green-800 border-green-200";
       case "in_transit":
-      case "В пути":
         return "bg-blue-100 text-blue-800 border-blue-200";
       case "planned":
-      case "Подготовка":
-      case "submitted":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "submitted":
+        return "bg-orange-100 text-orange-800 border-orange-200";
       case "cancelled":
-      case "Отменено":
         return "bg-red-100 text-red-800 border-red-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
@@ -50,13 +58,21 @@ const Shipments = () => {
     return new Date(dateString).toLocaleDateString('ru-RU');
   };
 
+  const formatItemsCount = (items: any) => {
+    if (!items) return "0 позиций";
+    if (Array.isArray(items)) return `${items.length} позиций`;
+    return "1 позиция";
+  };
+
   const filteredShipments = shipments.filter(shipment =>
     shipment.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     shipment.from_location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     shipment.to_location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     shipment.goods_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     shipment.contract_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.address?.toLowerCase().includes(searchTerm.toLowerCase())
+    shipment.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    shipment.shop_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    shipment.request_code?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -80,7 +96,7 @@ const Shipments = () => {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Поиск по статусу, адресу, товару..."
+              placeholder="Поиск по статусу, адресу, товару, магазину..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -95,11 +111,11 @@ const Shipments = () => {
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-base md:text-lg truncate" title={shipment.contract_number || shipment.id}>
-                      {shipment.contract_number || `ID: ${shipment.id.slice(0, 8)}...`}
+                    <CardTitle className="text-base md:text-lg truncate" title={shipment.contract_number || `Отгрузка ${shipment.external_id || shipment.id.slice(0, 8)}`}>
+                      {shipment.contract_number || `Отгрузка ${shipment.external_id ? shipment.external_id.slice(0, 8) : shipment.id.slice(0, 8)}`}
                     </CardTitle>
                     <CardDescription className="truncate" title={shipment.address}>
-                      {shipment.address}
+                      {shipment.address || "Адрес не указан"}
                     </CardDescription>
                   </div>
                   <Badge variant="outline" className={`${getStatusColor(shipment.status)} whitespace-nowrap`}>
@@ -131,20 +147,26 @@ const Shipments = () => {
                 </div>
 
                 {/* Даты */}
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="flex flex-wrap gap-3 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground" title="Плановая дата">
                     <Calendar className="h-4 w-4" />
-                    <span>{formatDate(shipment.planned_date)}</span>
+                    <span className="text-xs">{formatDate(shipment.planned_date)}</span>
                   </div>
                   {shipment.loading_date && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="flex items-center gap-2 text-muted-foreground" title="Дата погрузки">
+                      <Clock className="h-4 w-4" />
+                      <span className="text-xs">{formatDate(shipment.loading_date)}</span>
+                    </div>
+                  )}
+                  {shipment.actual_date && (
+                    <div className="flex items-center gap-2 text-muted-foreground" title="Фактическая дата">
                       <FileText className="h-4 w-4" />
-                      <span>{formatDate(shipment.loading_date)}</span>
+                      <span className="text-xs">{formatDate(shipment.actual_date)}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Товар */}
+                {/* Товар и магазин */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
                     <Package className="h-4 w-4 text-muted-foreground" />
@@ -153,36 +175,52 @@ const Shipments = () => {
                     </span>
                   </div>
                   
+                  {shipment.shop_name && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Building className="h-4 w-4 text-muted-foreground" />
+                      <span className="truncate" title={shipment.shop_name}>
+                        {shipment.shop_name}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                     {shipment.goods_volume && (
-                      <span>Объем: {shipment.goods_volume}</span>
+                      <span title="Объем товара">📦 {shipment.goods_volume}</span>
                     )}
                     {shipment.goods_weight && (
-                      <span>Вес: {shipment.goods_weight}</span>
+                      <span title="Вес товара">⚖️ {shipment.goods_weight}</span>
                     )}
                     {shipment.goods_package && (
-                      <span>Упаковка: {shipment.goods_package}</span>
+                      <span title="Тип упаковки">📋 {shipment.goods_package}</span>
                     )}
                   </div>
                 </div>
 
                 {/* Дополнительная информация */}
-                <div className="flex items-center gap-2 text-sm bg-muted/30 p-2 rounded-md">
-                  <Truck className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap gap-x-3 gap-y-1">
-                      {shipment.request_code && (
-                        <span className="truncate" title={shipment.request_code}>
-                          Код: {shipment.request_code}
-                        </span>
-                      )}
-                      {shipment.shop_name && (
-                        <span className="truncate" title={shipment.shop_name}>
-                          {shipment.shop_name}
-                        </span>
-                      )}
+                <div className="space-y-2">
+                  {shipment.request_code && (
+                    <div className="flex items-center gap-2 text-sm bg-muted/30 p-2 rounded-md">
+                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="truncate" title={shipment.request_code}>
+                        Код заявки: {shipment.request_code}
+                      </span>
                     </div>
-                  </div>
+                  )}
+
+                  {shipment.work_schedule && (
+                    <div className="flex items-center gap-2 text-sm bg-muted/30 p-2 rounded-md">
+                      <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="truncate" title={shipment.work_schedule}>
+                        График: {shipment.work_schedule}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Позиции товаров */}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>🔄 {formatItemsCount(shipment.items)}</span>
                 </div>
 
                 {/* Кнопки действий */}
@@ -198,7 +236,11 @@ const Shipments = () => {
                   <Button 
                     variant="destructive" 
                     size="sm"
-                    onClick={() => deleteItem(shipment.id)}
+                    onClick={() => {
+                      if (window.confirm('Вы уверены, что хотите удалить эту отгрузку?')) {
+                        deleteItem(shipment.id);
+                      }
+                    }}
                   >
                     Удалить
                   </Button>
