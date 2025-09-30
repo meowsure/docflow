@@ -266,11 +266,6 @@ const TasksList = () => {
           </TabsContent>
 
           <TabsContent value="shipments" className="space-y-6">
-            <Card>
-              <CardContent className="p-4 text-xs text-muted-foreground overflow-x-auto max-h-64">
-                <pre>{JSON.stringify(shipments, null, 2)}</pre>
-              </CardContent>
-            </Card>
             {filteredShipments.length > 0 ? (
               <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">

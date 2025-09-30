@@ -279,7 +279,7 @@ const AdminUsers = () => {
                                     <TableRow key={user.id}>
                                         <TableCell>
                                             <div className="flex items-center">
-                                                <Avatar className="w-8 h-8">
+                                                <Avatar className="w-8 h-8 me-3">
                                                     <AvatarImage src={user.photo_url} alt={user.first_name} />
                                                     <AvatarFallback>{user.first_name[0]}</AvatarFallback>
                                                 </Avatar>
