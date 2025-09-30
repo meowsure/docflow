@@ -92,7 +92,7 @@ const Hostings = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handleDelete = async (hostingId: number) => { // Изменили на number
+  const handleDelete = async (hostingId: string) => { // Изменили на number
     if (window.confirm('Вы уверены, что хотите удалить этот хостинг? Все связанные серверы также будут удалены.')) {
       try {
         await deleteHosting(hostingId);
