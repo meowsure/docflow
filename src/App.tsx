@@ -25,6 +25,8 @@ import AdminRoles from "./pages/AdminRoles";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import NotActivated from "./components/NotActivated";
 import AdminNotifications from "./pages/AdminNotification";
+import Hostings from "./pages/Hostings";
+import HostingDetail from "./pages/HostingDetail";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +68,8 @@ const AppContent = () => {
       <Route path="/shipments" element={<Shipments />} />
       <Route path="/shipments/:id" element={<ShipmentDetail />} />
       <Route path="/logs" element={<Logs />} />
+      <Route path="/hostings" element={<Hostings />} />
+      <Route path="/hostings/:id" element={<HostingDetail />} />
       <Route path="/admin/users" element={<AdminUsers />} />
       <Route path="/admin/roles" element={<AdminRoles />} />
       <Route path="/admin/notifications" element={<AdminNotifications />} />

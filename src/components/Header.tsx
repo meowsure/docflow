@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group, File, Atom, Cog, ArrowsUpFromLine, BellRing } from "lucide-react";
+import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group, File, Atom, Cog, ArrowsUpFromLine, BellRing, Server } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,11 +33,17 @@ const Header = () => {
         { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission: 'view_shipments' },
       ],
     },
+    // {
+    //   icon: CreditCard,
+    //   label: "Финансы",
+    //   requiredPermission: "view_finances",
+    //   items: [{ path: "/invoices", label: "Счета и оплаты", icon: CreditCard }],
+    // },
     {
-      icon: CreditCard,
-      label: "Финансы",
-      requiredPermission: "view_finances",
-      items: [{ path: "/invoices", label: "Счета и оплаты", icon: CreditCard }],
+      icon: Server,
+      label: "Хостинги",
+      requiredPermission: "hosting",
+      items: [{ path: "/hostings", label: "Хостинги", icon: Server }],
     },
     {
       icon: Cog,
