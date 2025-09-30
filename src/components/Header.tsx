@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
+import { cn } from "@/lib/utils";
 
 const Header = () => {
   const { items: notifications } = useNotifications();
@@ -67,7 +68,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="border-b bg-card shadow-sm">
+    <header className="border-b bg-card shadow-sm lg:hidden">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Лого */}
@@ -79,7 +80,7 @@ const Header = () => {
               <h1 className="text-xl font-semibold text-foreground">DocFlow CRM</h1>
             </Link>
 
-            {/* Навигация для десктопа */}
+            {/* Навигация для middle экранов */}
             <nav className="hidden md:flex items-center space-x-4">
               <Button
                 variant={location.pathname === "/" ? "default" : "ghost"}
@@ -107,9 +108,7 @@ const Header = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-
                       {group.items.map((item) => {
-                        // Проверяем наличие прав для этого пункта меню
                         if (item.requiredPermission && !user.role.permissions_codes.includes(item.requiredPermission)) {
                           return null;
                         }
@@ -176,7 +175,6 @@ const Header = () => {
                       </Link>
                     </DropdownMenuItem>
                   )}
-
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
@@ -184,7 +182,6 @@ const Header = () => {
             )}
 
             {/* Кнопка мобильного меню */}
-
             <Button
               variant="ghost"
               className="md:hidden"
@@ -200,8 +197,10 @@ const Header = () => {
           <nav className="flex flex-col md:hidden mt-4 space-y-2">
             <Link
               to="/"
-              className={`flex items-center space-x-2 px-2 py-2 rounded hover:bg-muted ${location.pathname === "/" ? "bg-muted" : ""
-                }`}
+              className={cn(
+                "flex items-center space-x-2 px-2 py-2 rounded hover:bg-muted",
+                location.pathname === "/" && "bg-muted"
+              )}
               onClick={() => setMobileMenuOpen(false)}
             >
               <Home className="w-4 h-4" />
@@ -233,4 +232,231 @@ const Header = () => {
   );
 };
 
-export default Header;
+// Новый компонент Sidebar для десктопа
+const Sidebar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { items: notifications } = useNotifications();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const groupedNav = [
+    {
+      label: "Документооборот",
+      icon: File,
+      items: [
+        { path: "/tasks", label: "Мои задачи", icon: List },
+        { path: "/create-task", label: "Создать задачу", icon: Send, requiredPermission: "create_task" },
+        { path: "/files", label: "Файлы", icon: Folder, requiredPermission: "view_files" },
+      ],
+    },
+    {
+      label: "Логистика",
+      icon: Truck,
+      requiredPermission: 'view_shipments',
+      items: [
+        { path: "/create-shipment", label: "Создать отгрузку", icon: ArrowsUpFromLine, requiredPermission: 'create_shipments' },
+        { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission: 'view_shipments' },
+      ],
+    },
+    {
+      icon: Server,
+      label: "Хостинги",
+      requiredPermission: "hosting",
+      items: [{ path: "/hostings", label: "Хостинги", icon: Server }],
+    },
+    {
+      icon: Cog,
+      label: "Управление",
+      requiredPermission: "settings",
+      items: [
+        { path: "/admin/users", label: "Пользователи", icon: User, requiredPermission: 'manage_users' },
+        { path: "/admin/roles", label: "Роли", icon: Group, requiredPermission: 'manage_roles' }],
+    },
+    {
+      label: "Админ",
+      icon: Settings,
+      requiredPermission: "admin_access",
+      items: [
+        { path: "/logs", label: "Логи", icon: Database },
+        { path: "/admin/users", label: "Пользователи", icon: User },
+        { path: "/admin/roles", label: "Роли", icon: Group },
+        { path: "/admin/notifications", label: "Уведомления", icon: BellRing },
+      ],
+    },
+  ];
+
+  const isActive = (path: string) => location.pathname === path;
+
+  return (
+    <div className={cn(
+      "hidden lg:flex flex-col bg-card border-r transition-all duration-300",
+      isCollapsed ? "w-16" : "w-64"
+    )}>
+      {/* Заголовок сайдбара */}
+      <div className="flex items-center justify-between p-4 border-b">
+        {!isCollapsed && (
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <h1 className="text-xl font-semibold text-foreground">DocFlow CRM</h1>
+          </Link>
+        )}
+        {isCollapsed && (
+          <Link to="/" className="flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 text-primary-foreground" />
+            </div>
+          </Link>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="h-8 w-8 p-0"
+        >
+          <ChevronDown className={cn(
+            "w-4 h-4 transition-transform",
+            isCollapsed ? "-rotate-90" : "rotate-0"
+          )} />
+        </Button>
+      </div>
+
+      {/* Навигация */}
+      <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+        {/* Главная */}
+        <Link
+          to="/"
+          className={cn(
+            "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+            isActive("/") 
+              ? "bg-primary text-primary-foreground" 
+              : "hover:bg-muted"
+          )}
+        >
+          <Home className="w-5 h-5 flex-shrink-0" />
+          {!isCollapsed && <span>Главная</span>}
+        </Link>
+
+        {/* Группы меню */}
+        {groupedNav.map((group) => {
+          if (group.requiredPermission && !user.role.permissions_codes.includes(group.requiredPermission)) {
+            return null;
+          }
+
+          return (
+            <div key={group.label} className="space-y-1">
+              {!isCollapsed && (
+                <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  {group.label}
+                </div>
+              )}
+              {group.items.map((item) => {
+                if (item.requiredPermission && !user.role.permissions_codes.includes(item.requiredPermission)) {
+                  return null;
+                }
+
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={cn(
+                      "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors group",
+                      isActive(item.path)
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted"
+                    )}
+                  >
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    {!isCollapsed && <span className="flex-1">{item.label}</span>}
+                    {!isCollapsed && isActive(item.path) && (
+                      <div className="w-1 h-4 bg-primary-foreground rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* Нижняя часть - уведомления и пользователь */}
+      <div className="border-t p-4 space-y-4">
+        {/* Уведомления */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/notifications')}
+          className={cn(
+            "w-full justify-start relative",
+            isCollapsed && "justify-center"
+          )}
+        >
+          <Bell className="w-5 h-5" />
+          {!isCollapsed && <span className="ml-3">Уведомления</span>}
+          {notifications.some(n => !n.is_read) && (
+            <span className="absolute top-1.5 right-3 block w-2 h-2 bg-red-500 rounded-full ring-1 ring-white" />
+          )}
+        </Button>
+
+        {/* Профиль пользователя */}
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={cn(
+                "flex items-center w-full p-2 rounded-lg hover:bg-muted transition-colors",
+                isCollapsed ? "justify-center" : "space-x-3"
+              )}>
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user.photo_url} alt={user.first_name} />
+                  <AvatarFallback>{user.first_name[0]}</AvatarFallback>
+                </Avatar>
+                {!isCollapsed && (
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-medium">{user.first_name}</p>
+                    <p className="text-xs text-muted-foreground">{user.role.name}</p>
+                  </div>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="flex items-center space-x-2">
+                  <User className="w-4 h-4" />
+                  <span>Профиль</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/tasks" className="flex items-center space-x-2">
+                  <File className="w-4 h-4" />
+                  <span>Мои задачи</span>
+                </Link>
+              </DropdownMenuItem>
+              {user.role.permissions_codes.includes("admin_access") && (
+                <DropdownMenuItem asChild>
+                  <Link to="/settings" className="flex items-center space-x-2">
+                    <Settings className="w-4 h-4" />
+                    <span>Настройки</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Главный компонент для экспорта
+const Navigation = () => {
+  return (
+    <>
+      <Sidebar />
+      <Header />
+    </>
+  );
+};
+
+export { Navigation, Sidebar, Header };
+export default Navigation;
