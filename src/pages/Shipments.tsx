@@ -265,7 +265,7 @@ const Shipments = () => {
                 }
               </p>
               {shipments.length === 0 && (
-                <Button onClick={() => navigate('/shipments/create')}>
+                <Button onClick={() => navigate('/create-shipment')}>
                   <Plus className="h-4 w-4 mr-2" />
                   Создать отгрузку
                 </Button>
