@@ -96,8 +96,7 @@ const Hostings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+
       <div className="container mx-auto p-4 md:p-6 space-y-6">
         {/* Заголовок и кнопка */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -321,7 +320,6 @@ const Hostings = () => {
           </Card>
         )}
       </div>
-    </div>
   );
 };
 

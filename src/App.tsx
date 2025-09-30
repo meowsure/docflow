@@ -27,6 +27,7 @@ import NotActivated from "./components/NotActivated";
 import AdminNotifications from "./pages/AdminNotification";
 import Hostings from "./pages/Hostings";
 import HostingDetail from "./pages/HostingDetail";
+import { Header } from "./components/Header";
 
 const queryClient = new QueryClient();
 
@@ -54,27 +55,34 @@ const AppContent = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/task/:id" element={<TaskDetail />} />
-      <Route path="/create-task" element={<CreateTask />} />
-      <Route path="/create-shipment" element={<CreateShipment />} />
-      <Route path="/tasks" element={<TasksList />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/files" element={<Files />} />
-      <Route path="/invoices" element={<Invoices />} />
-      <Route path="/invoices/:id" element={<InvoiceDetail />} />
-      <Route path="/notifications" element={<Notifications />} />
-      <Route path="/shipments" element={<Shipments />} />
-      <Route path="/shipments/:id" element={<ShipmentDetail />} />
-      <Route path="/logs" element={<Logs />} />
-      <Route path="/hostings" element={<Hostings />} />
-      <Route path="/hostings/:id" element={<HostingDetail />} />
-      <Route path="/admin/users" element={<AdminUsers />} />
-      <Route path="/admin/roles" element={<AdminRoles />} />
-      <Route path="/admin/notifications" element={<AdminNotifications />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <div className="flex min-h-screen bg-background">
+      <Header />
+      <main className="flex-1 flex flex-col lg:ml-0">
+        <div className="flex-1 container mx-auto p-4 lg:p-6">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/task/:id" element={<TaskDetail />} />
+            <Route path="/create-task" element={<CreateTask />} />
+            <Route path="/create-shipment" element={<CreateShipment />} />
+            <Route path="/tasks" element={<TasksList />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/files" element={<Files />} />
+            <Route path="/invoices" element={<Invoices />} />
+            <Route path="/invoices/:id" element={<InvoiceDetail />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/shipments" element={<Shipments />} />
+            <Route path="/shipments/:id" element={<ShipmentDetail />} />
+            <Route path="/logs" element={<Logs />} />
+            <Route path="/hostings" element={<Hostings />} />
+            <Route path="/hostings/:id" element={<HostingDetail />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/roles" element={<AdminRoles />} />
+            <Route path="/admin/notifications" element={<AdminNotifications />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+      </main>
+    </div>
   );
 };
 
