@@ -19,10 +19,12 @@ import {
 import { useHostings } from '@/hooks/useHostings';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
+import { AddHostingModal } from "@/components/AddHostingModal";
 
 const Hostings = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -300,6 +302,11 @@ const Hostings = () => {
           </Card>
         ))}
       </div>
+
+      <AddHostingModal
+        open={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
+      />
 
       {/* Загрузка */}
       {loading && (
