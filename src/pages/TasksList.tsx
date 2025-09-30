@@ -12,16 +12,17 @@ import { useTasks, Task } from "@/hooks/useTasks";
 import { useShipments, Shipment } from "@/hooks/useShipments";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { userInfo } from "os";
+import { useAuth } from "@/contexts/AuthContext";
 
 const TasksList = () => {
   const {
-    tasks,
-    loading: tasksLoading,
-    loadingMore: tasksLoadingMore,
-    hasMore: tasksHasMore,
-    loadMore: tasksLoadMore,
     deleteTask,
   } = useTasks();
+
+  
+  const { user } = useAuth();
+  const tasks = user.tasks;
 
   const {
     items: shipments,
@@ -39,22 +40,6 @@ const TasksList = () => {
   const [activeTab, setActiveTab] = useState("sendings");
   const [deletingTaskIds, setDeletingTaskIds] = useState<Set<string>>(new Set());
   const [deletingShipmentIds, setDeletingShipmentIds] = useState<Set<string>>(new Set());
-
-  // Обработчики для бесконечной прокрутки
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-        if (activeTab === 'sendings' && tasksHasMore && !tasksLoadingMore) {
-          tasksLoadMore();
-        } else if (activeTab === 'shipments' && shipmentsHasMore && !shipmentsLoadingMore) {
-          shipmentsLoadMore();
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [activeTab, tasksHasMore, tasksLoadingMore, tasksLoadMore, shipmentsHasMore, shipmentsLoadingMore, shipmentsLoadMore]);
 
   // Обработчики удаления
   const handleDeleteTask = async (taskId: string) => {
@@ -145,35 +130,6 @@ const TasksList = () => {
     return matchesSearch && matchesStatus;
   });
 
-  // Определяем общее состояние загрузки
-  const isLoading = (activeTab === "sendings" ? tasksLoading : shipmentsLoading) &&
-    (activeTab === "sendings" ? tasks.length === 0 : shipments.length === 0);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="mb-6">
-            <Skeleton className="h-8 w-1/3 mb-2" />
-            <Skeleton className="h-4 w-2/3" />
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="h-40">
-                <CardContent className="p-4">
-                  <Skeleton className="h-4 w-3/4 mb-2" />
-                  <Skeleton className="h-4 w-1/2 mb-4" />
-                  <Skeleton className="h-4 w-1/4" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -242,16 +198,6 @@ const TasksList = () => {
                     />
                   ))}
                 </div>
-                {tasksLoadingMore && (
-                  <div className="flex justify-center mt-4">
-                    <div className="text-muted-foreground">Загрузка задач...</div>
-                  </div>
-                )}
-                {tasksHasMore && !tasksLoadingMore && (
-                  <div className="flex justify-center mt-4">
-                    <Button onClick={tasksLoadMore}>Загрузить еще задачи</Button>
-                  </div>
-                )}
               </>
             ) : (
               <Card>
