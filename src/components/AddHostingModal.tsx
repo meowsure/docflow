@@ -43,7 +43,7 @@ interface ServerFormData {
 
 export const AddHostingModal = ({ open, onOpenChange }: AddHostingModalProps) => {
     const { toast } = useToast();
-    const { createItem } = useHostings();
+    const { createHosting } = useHostings();
     const [loading, setLoading] = useState(false);
     const [servers, setServers] = useState<ServerFormData[]>([]);
 
@@ -133,7 +133,7 @@ export const AddHostingModal = ({ open, onOpenChange }: AddHostingModalProps) =>
                 servers: servers.filter(server => server.name && server.ip),
             };
 
-            await createItem(hostingData);
+            await createHosting(hostingData);
 
             toast({
                 title: "Хостинг создан",
