@@ -126,7 +126,7 @@ const CreateShipment = () => {
           const { successes, errors } = await uploadFilesWithProgress(
             files,
             'App\\Models\\Task', // entity_type для Laravel
-            task.id, // entity_id - ID созданной задачи
+            shipment.id, // entity_id - ID созданной задачи
             // Колбэк для обновления статуса каждого файла
             (fileId, status, serverId) => {
               setFiles(prevFiles =>
