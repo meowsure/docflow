@@ -20,25 +20,13 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useHostings } from "@/hooks/useHostings";
+import { useHostings, ServerFormData } from "@/hooks/useHostings";
 import { Server, X, Plus, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface AddHostingModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-}
-
-interface ServerFormData {
-    name: string;
-    ip: string;
-    status: 'online' | 'offline' | 'maintenance';
-    cpu: string;
-    ram: string;
-    storage: string;
-    os: string;
-    login?: string; // добавьте это поле, т.к. оно используется в addServer
-    password?: string; // добавьте это поле
 }
 
 export const AddHostingModal = ({ open, onOpenChange }: AddHostingModalProps) => {
@@ -96,8 +84,6 @@ export const AddHostingModal = ({ open, onOpenChange }: AddHostingModalProps) =>
             status: "online",
             cpu: "",
             ram: "",
-            login: "root",
-            password: "",
             storage: "",
             os: "",
         }]);
@@ -115,7 +101,7 @@ export const AddHostingModal = ({ open, onOpenChange }: AddHostingModalProps) =>
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        
         if (!isFormValid) {
             toast({
                 title: "Заполните обязательные поля",
@@ -124,40 +110,21 @@ export const AddHostingModal = ({ open, onOpenChange }: AddHostingModalProps) =>
             });
             return;
         }
-
+        
         setLoading(true);
 
         try {
             const hostingData = {
                 ...formData,
-                servers: servers.filter(server => server.name && server.ip),
+                servers: servers.filter(server => server.name && server.ip), // Только серверы с заполненными обязательными полями
             };
 
             await createHosting(hostingData);
-
-            toast({
-                title: "Хостинг создан",
-                description: "Хостинг успешно добавлен в систему",
-            });
             resetForm();
             onOpenChange(false);
-        } catch (error: any) {
+        } catch (error) {
             console.error("Error creating hosting:", error);
-
-            let errorMessage = "Неизвестная ошибка";
-            if (error?.message) {
-                errorMessage = error.message;
-            } else if (error?.data?.message) {
-                errorMessage = error.data.message;
-            } else if (typeof error === 'string') {
-                errorMessage = error;
-            }
-
-            toast({
-                title: "Хостинг не удалось создать",
-                description: `При создании хостинга произошла ошибка: ${errorMessage}`,
-                variant: "destructive",
-            });
+            // Ошибка уже обработана в хуке
         } finally {
             setLoading(false);
         }
@@ -368,51 +335,27 @@ export const AddHostingModal = ({ open, onOpenChange }: AddHostingModalProps) =>
                                         <div className="grid md:grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <Label htmlFor={`server-name-${index}`}>
-                                                    Название сервера
+                                                    Название сервера <span className="text-red-500">*</span>
                                                 </Label>
                                                 <Input
                                                     id={`server-name-${index}`}
                                                     value={server.name}
                                                     onChange={(e) => updateServer(index, 'name', e.target.value)}
                                                     placeholder="Web Server 01"
+                                                    required
                                                 />
                                             </div>
 
                                             <div className="space-y-2">
                                                 <Label htmlFor={`server-ip-${index}`}>
-                                                    IP адрес
+                                                    IP адрес <span className="text-red-500">*</span>
                                                 </Label>
                                                 <Input
                                                     id={`server-ip-${index}`}
                                                     value={server.ip}
                                                     onChange={(e) => updateServer(index, 'ip', e.target.value)}
                                                     placeholder="192.168.1.101"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid md:grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor={`server-username-${index}`}>
-                                                    Логин
-                                                </Label>
-                                                <Input
-                                                    id={`server-username-${index}`}
-                                                    value={server.login}
-                                                    onChange={(e) => updateServer(index, 'login', e.target.value)}
-                                                    placeholder="root"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor={`server-password-${index}`}>
-                                                    Пароль
-                                                </Label>
-                                                <Input
-                                                    id={`server-password-${index}`}
-                                                    value={server.password}
-                                                    onChange={(e) => updateServer(index, 'password', e.target.value)}
-                                                    placeholder="***************"
+                                                    required
                                                 />
                                             </div>
                                         </div>
