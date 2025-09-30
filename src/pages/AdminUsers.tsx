@@ -14,6 +14,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -278,7 +279,10 @@ const AdminUsers = () => {
                                     <TableRow key={user.id}>
                                         <TableCell>
                                             <div className="flex items-center">
-                                                <img src={user.photo_url} alt="" className="w-14 h-14 rounded me-4" />
+                                                <Avatar className="w-8 h-8">
+                                                    <AvatarImage src={user.photo_url} alt={user.first_name} />
+                                                    <AvatarFallback>{user.first_name[0]}</AvatarFallback>
+                                                </Avatar>
                                                 <div>
                                                     <div className="font-medium">{user.full_name}</div>
                                                     <div className="text-sm text-muted-foreground">

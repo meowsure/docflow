@@ -85,7 +85,7 @@ const Shipments = () => {
             <h1 className="text-2xl md:text-3xl font-bold">Отгрузки</h1>
             <p className="text-muted-foreground mt-1">Управление отгрузками и доставками</p>
           </div>
-          <Button onClick={() => navigate('/shipments/create')} className="w-full sm:w-auto">
+          <Button onClick={() => navigate('/create-shipment')} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Создать отгрузку
           </Button>
