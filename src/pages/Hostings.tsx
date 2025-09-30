@@ -10,7 +10,7 @@ import {
   Search,
   Plus,
   Filter,
-  Globe
+  Globe,
   Calendar,
   Loader2
 } from "lucide-react";
