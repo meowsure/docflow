@@ -284,7 +284,7 @@ const Sidebar = () => {
 
   return (
     <div className={cn(
-      "hidden lg:flex flex-col bg-card border-r transition-all duration-300 sticky top-0 h-screen",
+      "hidden lg:flex flex-col bg-card border-r transition-all duration-300 fixed top-0 left-0 h-screen z-40",
       isCollapsed ? "w-16" : "w-64"
     )}>
       {/* Заголовок сайдбара */}
