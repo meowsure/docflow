@@ -17,7 +17,7 @@ import {
   Filter
 } from "lucide-react";
 import Header from "@/components/Header";
-import { useShipments, Shipment } from '@/hooks/useShipments';
+import { useShipments } from '@/hooks/useShipments';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 
