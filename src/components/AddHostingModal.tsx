@@ -37,6 +37,8 @@ interface ServerFormData {
     ram: string;
     storage: string;
     os: string;
+    login?: string; // добавьте это поле, т.к. оно используется в addServer
+    password?: string; // добавьте это поле
 }
 
 export const AddHostingModal = ({ open, onOpenChange }: AddHostingModalProps) => {
@@ -113,27 +115,48 @@ export const AddHostingModal = ({ open, onOpenChange }: AddHostingModalProps) =>
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!isFormValid) {
+            toast({
+                title: "Заполните обязательные поля",
+                description: "Пожалуйста, заполните все обязательные поля, отмеченные *",
+                variant: "destructive",
+            });
+            return;
+        }
+
         setLoading(true);
 
         try {
             const hostingData = {
                 ...formData,
-                servers: servers.filter(server => server.name && server.ip), // Только серверы с заполненными обязательными полями
+                servers: servers.filter(server => server.name && server.ip),
             };
 
-            const result = await createItem(hostingData);
+            await createItem(hostingData);
 
             toast({
                 title: "Хостинг создан",
-                description: "Хостинг успешно добавлен в систему " + result.data?.data,
+                description: "Хостинг успешно добавлен в систему",
             });
             resetForm();
             onOpenChange(false);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error creating hosting:", error);
+
+            let errorMessage = "Неизвестная ошибка";
+            if (error?.message) {
+                errorMessage = error.message;
+            } else if (error?.data?.message) {
+                errorMessage = error.data.message;
+            } else if (typeof error === 'string') {
+                errorMessage = error;
+            }
+
             toast({
                 title: "Хостинг не удалось создать",
-                description: "При создании хостинга произошла ошибка, " + error || error.data || error.data.message,
+                description: `При создании хостинга произошла ошибка: ${errorMessage}`,
+                variant: "destructive",
             });
         } finally {
             setLoading(false);
