@@ -1,283 +1,455 @@
-import { useState, useEffect } from "react";
+// components/Navigation.tsx
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Bell, Check, AlertCircle, MessageSquare, Settings, Package, FileText, CreditCard } from "lucide-react";
-import Header from "@/components/Header";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FileText, Package, Send, Truck, User, Home, List, Bell, CreditCard, Database, Folder, ChevronDown, Menu, X, Settings, Group, File, Cog, ArrowsUpFromLine, BellRing, Server } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
-import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
+const Header = () => {
+  const { items: notifications } = useNotifications();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-const Notifications = () => {
-  const { items: notifications, loading, loadingMore, hasMore, loadMore, markAsRead, markAllAsRead } = useNotifications();
-  const [isMarkingAll, setIsMarkingAll] = useState(false);
-
-  // Определяем иконку по типу уведомления
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "task":
-      case "TaskCreated":
-        return <MessageSquare className="h-4 w-4 text-blue-500" />;
-      case "shipment":
-      case "ShipmentCreated":
-        return <Package className="h-4 w-4 text-green-500" />;
-      case "payment":
-        return <CreditCard className="h-4 w-4 text-yellow-500" />;
-      case "file":
-        return <FileText className="h-4 w-4 text-purple-500" />;
-      case "system":
-        return <Settings className="h-4 w-4 text-gray-500" />;
-      default:
-        return <Bell className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  // Определяем приоритет по типу уведомления
-  const getPriority = (type: string) => {
-    switch (type) {
-      case "system":
-      case "TaskCreated":
-      case "RoleUpdated":
-      case "AccountActivated":
-        return "high";
-      case "shipment":
-      case "ShipmentCreated":
-        return "medium";
-      case "payment":
-      case "file":
-      default:
-        return "low";
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "bg-red-100 text-red-800";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800";
-      case "low":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getPriorityText = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "Высокий";
-      case "medium":
-        return "Средний";
-      case "low":
-        return "Низкий";
-      default:
-        return "Обычный";
-    }
-  };
-
-  const handleMarkAsRead = async (notificationId: string) => {
-    await markAsRead(notificationId);
-  };
-
-  const handleMarkAllAsRead = async () => {
-    setIsMarkingAll(true);
-    await markAllAsRead();
-    setIsMarkingAll(false);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ru-RU', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  // Бесконечная прокрутка
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-        if (hasMore && !loadingMore) loadMore();
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [hasMore, loadingMore, loadMore]);
-
-  const unreadCount = notifications.filter(n => !n.is_read).length;
-
-  if (loading && notifications.length === 0) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto p-6 space-y-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <Skeleton className="h-8 w-48 mb-2" />
-              <Skeleton className="h-4 w-64" />
-            </div>
-            <Skeleton className="h-10 w-48" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-4">
-                  <Skeleton className="h-5 w-5 mb-2" />
-                  <Skeleton className="h-4 w-24 mb-1" />
-                  <Skeleton className="h-6 w-12" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Card key={i} className="p-4">
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-3/4 mb-3" />
-                <Skeleton className="h-3 w-1/2" />
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const groupedNav = [
+    {
+      label: "Документооборот",
+      icon: File,
+      items: [
+        { path: "/tasks", label: "Мои задачи", icon: List },
+        { path: "/create-task", label: "Создать задачу", icon: Send, requiredPermission: "create_task" },
+        { path: "/files", label: "Файлы", icon: Folder, requiredPermission: "view_files" },
+      ],
+    },
+    {
+      label: "Логистика",
+      icon: Truck,
+      requiredPermission: 'view_shipments',
+      items: [
+        { path: "/create-shipment", label: "Создать отгрузку", icon: ArrowsUpFromLine, requiredPermission: 'create_shipments' },
+        { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission: 'view_shipments' },
+      ],
+    },
+    {
+      icon: Server,
+      label: "Хостинги",
+      requiredPermission: "hosting",
+      items: [{ path: "/hostings", label: "Хостинги", icon: Server }],
+    },
+    {
+      icon: Cog,
+      label: "Управление",
+      requiredPermission: "settings",
+      items: [
+        { path: "/admin/users", label: "Пользователи", icon: User, requiredPermission: 'manage_users' },
+        { path: "/admin/roles", label: "Роли", icon: Group, requiredPermission: 'manage_roles' }],
+    },
+    {
+      label: "Админ",
+      icon: Settings,
+      requiredPermission: "admin_access",
+      items: [
+        { path: "/logs", label: "Логи", icon: Database },
+        { path: "/admin/users", label: "Пользователи", icon: User },
+        { path: "/admin/roles", label: "Роли", icon: Group },
+        { path: "/admin/notifications", label: "Уведомления", icon: BellRing },
+      ],
+    },
+  ];
 
   return (
+    <header className="border-b bg-card shadow-sm lg:hidden">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          {/* Лого */}
+          <div className="flex items-center space-x-8">
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
+                <FileText className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <h1 className="text-xl font-semibold text-foreground">DocFlow CRM</h1>
+            </Link>
 
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Уведомления</h1>
-            <p className="text-muted-foreground">
-              {unreadCount > 0 ? `${unreadCount} непрочитанных уведомлений` : "Все уведомления прочитаны"}
-            </p>
+            {/* Навигация для middle экранов */}
+            <nav className="hidden md:flex items-center space-x-4">
+              <Button
+                variant={location.pathname === "/" ? "default" : "ghost"}
+                size="sm"
+                asChild
+              >
+                <Link to="/" className="flex items-center space-x-2">
+                  <Home className="w-4 h-4" />
+                  <span>Главная</span>
+                </Link>
+              </Button>
+
+              {groupedNav.map((group) => {
+                if (group.requiredPermission && !user.role.permissions_codes.includes(group.requiredPermission)) {
+                  return null;
+                }
+
+                return (
+                  <DropdownMenu key={group.label}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="flex items-center space-x-1">
+                        <group.icon className="w-4 h-4" />
+                        <span>{group.label}</span>
+                        <ChevronDown className="w-3 h-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {group.items.map((item) => {
+                        if (item.requiredPermission && !user.role.permissions_codes.includes(item.requiredPermission)) {
+                          return null;
+                        }
+
+                        return (
+                          <DropdownMenuItem key={item.path} asChild>
+                            <Link to={item.path} className="flex items-center space-x-2">
+                              <item.icon className="w-4 h-4" />
+                              <span>{item.label}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              })}
+            </nav>
           </div>
-          {unreadCount > 0 && (
-            <Button onClick={handleMarkAllAsRead} variant="outline" disabled={isMarkingAll}>
-              {isMarkingAll ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-                  Обработка...
-                </>
-              ) : (
-                <>
-                  <Check className="h-4 w-4 mr-2" />
-                  Отметить всё как прочитанное
-                </>
+
+          {/* Пользователь + мобильное меню */}
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/notifications')}
+              size="sm"
+              className="relative"
+            >
+              <Bell className="w-5 h-5" />
+              {notifications.some(n => !n.is_read) && (
+                <span className="absolute top-0 right-0 block w-2 h-2 bg-red-500 rounded-full ring-1 ring-white" />
               )}
             </Button>
-          )}
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="text-sm font-medium">Всего</p>
-                  <p className="text-2xl font-bold">{notifications.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-red-600" />
-                <div>
-                  <p className="text-sm font-medium">Непрочитанные</p>
-                  <p className="text-2xl font-bold text-red-600">{unreadCount}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Check className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="text-sm font-medium">Прочитанные</p>
-                  <p className="text-2xl font-bold text-green-600">{notifications.length - unreadCount}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center space-x-2">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={user.photo_url} alt={user.first_name} />
+                      <AvatarFallback>{user.first_name[0]}</AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium hidden md:block">{user.first_name}</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="flex items-center space-x-2">
+                      <User className="w-4 h-4" />
+                      <span>Профиль</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/tasks" className="flex items-center space-x-2">
+                      <File className="w-4 h-4" />
+                      <span>Мои задачи</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  {(user.role.permissions_codes.includes("admin_access")) && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/settings" className="flex items-center space-x-2">
+                        <Settings className="w-4 h-4" />
+                        <span>Настройки</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <span className="text-muted-foreground hidden md:block">Демо Пользователь</span>
+            )}
 
-        <div className="space-y-3">
-          {notifications.map((notification) => {
-            const priority = getPriority(notification.type);
-
-            return (
-              <Card
-                key={notification.id}
-                className={`hover:shadow-md transition-shadow cursor-pointer ${!notification.is_read ? 'border-l-4 border-l-blue-500 bg-blue-50/50' : ''
-                  }`}
-                onClick={() => !notification.is_read && handleMarkAsRead(notification.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3 overflow-hidden">
-                    {getTypeIcon(notification.type)}
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <h3 className={`font-medium ${!notification.is_read ? 'font-semibold' : ''}`}>
-                            {notification.title}
-                          </h3>
-                          {!notification.is_read && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          )}
-                        </div>
-                        <Badge className={getPriorityColor(priority)}>
-                          {getPriorityText(priority)}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{notification.body}</p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>{formatDate(notification.created_at)}</span>
-                        {notification.user && (
-                          <span>От: {notification.user.full_name}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {loadingMore && (
-          <div className="flex justify-center">
-            <div className="text-muted-foreground">Загрузка дополнительных уведомлений...</div>
+            {/* Кнопка мобильного меню */}
+            <Button
+              variant="ghost"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
           </div>
-        )}
+        </div>
 
-        {hasMore && !loadingMore && (
-          <div className="flex justify-center">
-            <Button onClick={loadMore}>Загрузить еще</Button>
-          </div>
-        )}
+        {/* Мобильное меню */}
+        {mobileMenuOpen && (
+          <nav className="flex flex-col md:hidden mt-4 space-y-2">
+            <Link
+              to="/"
+              className={cn(
+                "flex items-center space-x-2 px-2 py-2 rounded hover:bg-muted",
+                location.pathname === "/" && "bg-muted"
+              )}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Home className="w-4 h-4" />
+              <span>Главная</span>
+            </Link>
 
-        {notifications.length === 0 && (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">Нет уведомлений</h3>
-              <p className="text-muted-foreground">Новые уведомления появятся здесь</p>
-            </CardContent>
-          </Card>
+            {groupedNav.map((group) => (
+              <div key={group.label} className="border-t pt-2">
+                <span className="text-sm font-semibold px-2">{group.label}</span>
+                <div className="flex flex-col mt-1 space-y-1">
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className="flex items-center space-x-2 px-4 py-2 rounded hover:bg-muted"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </nav>
         )}
       </div>
+    </header>
   );
 };
 
-export default Notifications;
+const Sidebar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { items: notifications } = useNotifications();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const groupedNav = [
+    {
+      label: "Документооборот",
+      icon: File,
+      items: [
+        { path: "/tasks", label: "Мои задачи", icon: List },
+        { path: "/create-task", label: "Создать задачу", icon: Send, requiredPermission: "create_task" },
+        { path: "/files", label: "Файлы", icon: Folder, requiredPermission: "view_files" },
+      ],
+    },
+    {
+      label: "Логистика",
+      icon: Truck,
+      requiredPermission: 'view_shipments',
+      items: [
+        { path: "/create-shipment", label: "Создать отгрузку", icon: ArrowsUpFromLine, requiredPermission: 'create_shipments' },
+        { path: "/shipments", label: "Отгрузки", icon: Package, requiredPermission: 'view_shipments' },
+      ],
+    },
+    {
+      icon: Server,
+      label: "Хостинги",
+      requiredPermission: "hosting",
+      items: [{ path: "/hostings", label: "Хостинги", icon: Server }],
+    },
+    {
+      icon: Cog,
+      label: "Управление",
+      requiredPermission: "settings",
+      items: [
+        { path: "/admin/users", label: "Пользователи", icon: User, requiredPermission: 'manage_users' },
+        { path: "/admin/roles", label: "Роли", icon: Group, requiredPermission: 'manage_roles' }],
+    },
+    {
+      label: "Админ",
+      icon: Settings,
+      requiredPermission: "admin_access",
+      items: [
+        { path: "/logs", label: "Логи", icon: Database },
+        { path: "/admin/users", label: "Пользователи", icon: User },
+        { path: "/admin/roles", label: "Роли", icon: Group },
+        { path: "/admin/notifications", label: "Уведомления", icon: BellRing },
+      ],
+    },
+  ];
+
+  const isActive = (path: string) => location.pathname === path;
+
+  return (
+    <div className={cn(
+      "hidden lg:flex flex-col bg-card border-r transition-all duration-300 sticky top-0 h-screen",
+      isCollapsed ? "w-16" : "w-64"
+    )}>
+      {/* Заголовок сайдбара */}
+      <div className="flex items-center justify-between p-4 border-b">
+        {!isCollapsed && (
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <h1 className="text-xl font-semibold text-foreground">DocFlow CRM</h1>
+          </Link>
+        )}
+        {isCollapsed && (
+          <Link to="/" className="flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 text-primary-foreground" />
+            </div>
+          </Link>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="h-8 w-8 p-0"
+        >
+          <ChevronDown className={cn(
+            "w-4 h-4 transition-transform",
+            isCollapsed ? "-rotate-90" : "rotate-0"
+          )} />
+        </Button>
+      </div>
+
+      {/* Навигация */}
+      <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+        {/* Главная */}
+        <Link
+          to="/"
+          className={cn(
+            "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+            isActive("/") 
+              ? "bg-primary text-primary-foreground" 
+              : "hover:bg-muted"
+          )}
+        >
+          <Home className="w-5 h-5 flex-shrink-0" />
+          {!isCollapsed && <span>Главная</span>}
+        </Link>
+
+        {/* Группы меню */}
+        {groupedNav.map((group) => {
+          if (group.requiredPermission && !user.role.permissions_codes.includes(group.requiredPermission)) {
+            return null;
+          }
+
+          return (
+            <div key={group.label} className="space-y-1">
+              {!isCollapsed && (
+                <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  {group.label}
+                </div>
+              )}
+              {group.items.map((item) => {
+                if (item.requiredPermission && !user.role.permissions_codes.includes(item.requiredPermission)) {
+                  return null;
+                }
+
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={cn(
+                      "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors group",
+                      isActive(item.path)
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted"
+                    )}
+                  >
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    {!isCollapsed && <span className="flex-1">{item.label}</span>}
+                    {!isCollapsed && isActive(item.path) && (
+                      <div className="w-1 h-4 bg-primary-foreground rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* Нижняя часть - уведомления и пользователь */}
+      <div className="border-t p-4 space-y-4">
+        {/* Уведомления */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/notifications')}
+          className={cn(
+            "w-full justify-start relative",
+            isCollapsed && "justify-center"
+          )}
+        >
+          <Bell className="w-5 h-5" />
+          {!isCollapsed && <span className="ml-3">Уведомления</span>}
+          {notifications.some(n => !n.is_read) && (
+            <span className="absolute top-1.5 right-3 block w-2 h-2 bg-red-500 rounded-full ring-1 ring-white" />
+          )}
+        </Button>
+
+        {/* Профиль пользователя */}
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={cn(
+                "flex items-center w-full p-2 rounded-lg hover:bg-muted transition-colors",
+                isCollapsed ? "justify-center" : "space-x-3"
+              )}>
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user.photo_url} alt={user.first_name} />
+                  <AvatarFallback>{user.first_name[0]}</AvatarFallback>
+                </Avatar>
+                {!isCollapsed && (
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-medium">{user.first_name}</p>
+                    <p className="text-xs text-muted-foreground">{user.role.name}</p>
+                  </div>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="flex items-center space-x-2">
+                  <User className="w-4 h-4" />
+                  <span>Профиль</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/tasks" className="flex items-center space-x-2">
+                  <File className="w-4 h-4" />
+                  <span>Мои задачи</span>
+                </Link>
+              </DropdownMenuItem>
+              {user.role.permissions_codes.includes("admin_access") && (
+                <DropdownMenuItem asChild>
+                  <Link to="/settings" className="flex items-center space-x-2">
+                    <Settings className="w-4 h-4" />
+                    <span>Настройки</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Главный компонент для экспорта
+const Navigation = () => {
+  return (
+    <>
+      <Sidebar />
+      <Header />
+    </>
+  );
+};
+
+export default Navigation;
