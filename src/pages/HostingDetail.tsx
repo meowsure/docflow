@@ -23,7 +23,7 @@ import {
   Network,
   Loader2
 } from "lucide-react";
-import { useHostings, Hosting, Domain, EmailAccount, Server as ServerType  } from '@/hooks/useHostings';
+import { useHostings, Hosting, Server as ServerType, Domain, EmailAccount } from '@/hooks/useHostings';
 import { useToast } from "@/hooks/use-toast";
 import api from '@/api';
 
@@ -247,13 +247,12 @@ const HostingDetail = () => {
   // Статистика на основе реальных данных
   const stats = {
     servers: hosting.servers?.length || 0,
-    domains: hosting.servers?.reduce((acc, server) => acc + server.domains.length, 0) || 0,
-    emails: hosting.servers?.reduce((acc, server) => acc + server.email_accounts.length, 0) || 0,
+    domains: hosting.servers?.reduce((acc, server) => acc + server.domains?.length, 0) || 0,
+    emails: hosting.servers?.reduce((acc, server) => acc + server.email_accounts?.length, 0) || 0,
     onlineServers: hosting.servers?.filter(s => s.status === 'online').length || 0,
   };
 
   return (
-
 
     <div className="container mx-auto px-4 py-6">
       {/* Хлебные крошки и заголовок */}

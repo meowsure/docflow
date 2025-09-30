@@ -3,7 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import api from '@/api';
 
 export interface Server {
-  id?: number;
+  id?: string;
   name: string;
   ip: string;
   status: 'online' | 'offline' | 'maintenance';
@@ -19,7 +19,7 @@ export interface Server {
 }
 
 export interface Hosting {
-  id?: number;
+  id?: string;
   name: string;
   provider: string;
   plan: string;
@@ -40,6 +40,23 @@ export interface HostingStats {
   suspended: number;
   pending: number;
   expiring_soon: number;
+}
+
+export interface Domain {
+  id: string;
+  name: string;
+  status: 'active' | 'pending' | 'expired';
+  expiry_date: string;
+  created_at: string;
+}
+
+export interface EmailAccount {
+  id: string;
+  email: string;
+  quota: string;
+  used: string;
+  status: 'active' | 'suspended';
+  last_login?: string;
 }
 
 export const useHostings = () => {
@@ -126,7 +143,7 @@ export const useHostings = () => {
   }, [toast]);
 
   // Обновить хостинг
-  const updateHosting = useCallback(async (id: number, hostingData: Partial<Hosting>): Promise<Hosting> => {
+  const updateHosting = useCallback(async (id: string, hostingData: Partial<Hosting>): Promise<Hosting> => {
     setLoading(true);
     setError(null);
     
@@ -156,7 +173,7 @@ export const useHostings = () => {
   }, [toast]);
 
   // Удалить хостинг
-  const deleteHosting = useCallback(async (id: number): Promise<void> => {
+  const deleteHosting = useCallback(async (id: string): Promise<void> => {
     setLoading(true);
     setError(null);
     
@@ -183,7 +200,7 @@ export const useHostings = () => {
   }, [toast]);
 
   // Получить серверы хостинга
-  const fetchServers = useCallback(async (hostingId: number): Promise<Server[]> => {
+  const fetchServers = useCallback(async (hostingId: string): Promise<Server[]> => {
     setLoading(true);
     setError(null);
     
@@ -200,7 +217,7 @@ export const useHostings = () => {
   }, []);
 
   // Добавить сервер к хостингу
-  const addServer = useCallback(async (hostingId: number, serverData: Omit<Server, 'id' | 'hosting_id'>): Promise<Server> => {
+  const addServer = useCallback(async (hostingId: string, serverData: Omit<Server, 'id' | 'hosting_id'>): Promise<Server> => {
     setLoading(true);
     setError(null);
     
@@ -230,7 +247,7 @@ export const useHostings = () => {
   }, [toast]);
 
   // Обновить сервер
-  const updateServer = useCallback(async (serverId: number, serverData: Partial<Server>): Promise<Server> => {
+  const updateServer = useCallback(async (serverId: string, serverData: Partial<Server>): Promise<Server> => {
     setLoading(true);
     setError(null);
     
@@ -260,7 +277,7 @@ export const useHostings = () => {
   }, [toast]);
 
   // Удалить сервер
-  const deleteServer = useCallback(async (serverId: number): Promise<void> => {
+  const deleteServer = useCallback(async (serverId: string): Promise<void> => {
     setLoading(true);
     setError(null);
     

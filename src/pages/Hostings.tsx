@@ -1,5 +1,5 @@
 // pages/Hostings.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import {
   Calendar,
   Loader2
 } from "lucide-react";
-import { useHostings } from '@/hooks/useHostings';
+import { useHostings, Hosting, Server } from '@/hooks/useHostings';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { AddHostingModal } from "@/components/AddHostingModal";
@@ -26,14 +26,27 @@ const Hostings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const {
-    items: hostings,
-    loading,
-    loadingMore,
-    hasMore,
-    loadMore,
-    deleteItem
-  } = useHostings();
+  const [hostings, setHostings] = useState<Hosting[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const { fetchHostings, fetchStats, loading: apiLoading, error, deleteHosting } = useHostings();
+
+  // Загрузка хостингов при монтировании компонента
+  useEffect(() => {
+    loadHostings();
+  }, []);
+
+  const loadHostings = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchHostings();
+      setHostings(data);
+    } catch (err) {
+      console.error('Ошибка загрузки хостингов:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -75,16 +88,17 @@ const Hostings = () => {
   });
 
   const handleDelete = async (hostingId: string) => {
-    if (window.confirm('Вы уверены, что хотите удалить этот хостинг?')) {
-      const success = await deleteItem(hostingId);
-      if (success) {
-        toast({
-          title: "Хостинг удален",
-          description: "Хостинг успешно удален",
-        });
+    if (window.confirm('Вы уверены, что хотите удалить этот хостинг? Все связанные серверы также будут удалены.')) {
+      try {
+        await deleteHosting(hostingId);
+        // Toast показывается внутри deleteHosting
+        loadHostings(); // Перезагружаем список
+      } catch (error) {
+        // Ошибка уже обработана в хуке
+        console.error('Ошибка при удалении хостинга:', error);
       }
     }
-  };
+  }
 
   const stats = {
     total: hostings.length,
@@ -93,6 +107,19 @@ const Hostings = () => {
     pending: hostings.filter(h => h.status === 'pending').length,
     totalServers: hostings.reduce((acc, hosting) => acc + (hosting.stats?.servers_count || hosting.servers?.length || 0), 0),
     totalDomains: hostings.reduce((acc, hosting) => acc + (hosting.stats?.domains_count || hosting.servers?.reduce((serverAcc, server) => serverAcc + server.domains.length, 0) || 0), 0),
+  };
+
+  const isExpiringSoon = (expiryDate: string) => {
+    const expiry = new Date(expiryDate);
+    const today = new Date();
+    const daysDiff = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return daysDiff <= 30 && daysDiff > 0;
+  };
+
+  const isExpired = (expiryDate: string) => {
+    const expiry = new Date(expiryDate);
+    const today = new Date();
+    return expiry < today;
   };
 
 
@@ -291,7 +318,7 @@ const Hostings = () => {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => handleDelete(hosting.id)}
+                  onClick={() => hosting.id && handleDelete(hosting.id)}
                 >
                   Удалить
                 </Button>
