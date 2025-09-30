@@ -120,7 +120,7 @@ const Hostings = () => {
           <h1 className="text-2xl md:text-3xl font-bold">Хостинги</h1>
           <p className="text-muted-foreground mt-1">Управление хостингами и серверами</p>
         </div>
-        <Button onClick={() => navigate('/hostings/create')} className="w-full sm:w-auto">
+        <Button onClick={() => setIsAddModalOpen(true)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Добавить хостинг
         </Button>
@@ -346,7 +346,7 @@ const Hostings = () => {
               }
             </p>
             {hostings.length === 0 && (
-              <Button onClick={() => navigate('/hostings/create')}>
+              <Button onClick={() => setIsAddModalOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Добавить хостинг
               </Button>
