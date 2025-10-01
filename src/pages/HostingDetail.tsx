@@ -37,7 +37,7 @@ const HostingDetail = () => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const {
-    deleteItem
+    deleteHosting
   } = useHostings();
 
   useEffect(() => {
@@ -80,14 +80,14 @@ const HostingDetail = () => {
   };
 
   const handleDelete = async () => {
+    if (!hosting?.id) return;
+
     if (window.confirm('Вы уверены, что хотите удалить этот хостинг?')) {
-      const success = deleteItem(hosting!.id);
-      if (success) {
-        toast({
-          title: "Хостинг удален",
-          description: "Хостинг успешно удален",
-        });
+      try {
+        await deleteHosting(hosting.id); // hosting.id теперь string
         navigate("/hostings");
+      } catch (error) {
+        console.error('Ошибка при удалении хостинга:', error);
       }
     }
   };

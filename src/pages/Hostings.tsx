@@ -92,14 +92,12 @@ const Hostings = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handleDelete = async (hostingId: string) => { // Изменили на number
+  const handleDelete = async (hostingId: string) => { // Оставляем string для UUID
     if (window.confirm('Вы уверены, что хотите удалить этот хостинг? Все связанные серверы также будут удалены.')) {
       try {
         await deleteHosting(hostingId);
-        // Toast показывается внутри deleteHosting
-        loadHostings(); // Перезагружаем список
+        loadHostings();
       } catch (error) {
-        // Ошибка уже обработана в хуке
         console.error('Ошибка при удалении хостинга:', error);
       }
     }
@@ -281,10 +279,9 @@ const Hostings = () => {
                     <span className="truncate flex-1" title={server.name}>
                       {server.name}
                     </span>
-                    <div className={`h-2 w-2 rounded-full ${
-                      server.status === 'online' ? 'bg-green-500' :
-                      server.status === 'offline' ? 'bg-red-500' : 'bg-yellow-500'
-                    }`} />
+                    <div className={`h-2 w-2 rounded-full ${server.status === 'online' ? 'bg-green-500' :
+                        server.status === 'offline' ? 'bg-red-500' : 'bg-yellow-500'
+                      }`} />
                   </div>
                 ))}
                 {(hosting.servers?.length || 0) > 2 && (
