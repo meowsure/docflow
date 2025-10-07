@@ -17,7 +17,6 @@ import Logs from "./pages/Logs";
 import Shipments from "./pages/Shipments";
 import Notifications from "./pages/Notifications";
 import Invoices from "./pages/Invoices";
-import { retrieveLaunchParams } from "@tma.js/bridge";
 import Files from "./pages/Files";
 import ShipmentDetail from "./pages/ShipmentDetail";
 import AdminUsers from "./pages/AdminUsers";
@@ -28,12 +27,12 @@ import AdminNotifications from "./pages/AdminNotification";
 import Hostings from "./pages/Hostings";
 import HostingDetail from "./pages/HostingDetail";
 import Navigation from "./components/Header";
+import { isTMA } from "@tma.js/bridge";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { user, loading } = useAuth();
-  const launchParams = retrieveLaunchParams();
   const authErrorCode = localStorage.getItem("auth_error_code");
 
   if (loading) {
@@ -44,19 +43,11 @@ const AppContent = () => {
     );
   }
 
-  if (authErrorCode === 'account_not_activated') {
-    return <NotActivated />;
-  }
-
-  if (launchParams) {
-    if (!user) {
-      return <TelegramAuth />;
+  if (isTMA()) {
+    if (authErrorCode === 'account_not_activated') {
+      return <NotActivated />;
     }
-  }else{
-    return <TelegramAuth />;
   }
-
-
 
   return (
     <div className="flex min-h-screen bg-background">
