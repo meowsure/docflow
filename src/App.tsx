@@ -54,7 +54,7 @@ const AppContent = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background flex-wrap">
       <Navigation />
       <main className="flex-1 flex flex-col lg:ml-0">
         <Routes>
