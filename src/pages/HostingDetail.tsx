@@ -379,10 +379,9 @@ const HostingDetail = () => {
                   <Card key={server.id}>
                     <CardHeader>
                       <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2">
+                        <CardTitle className="flex items-center gap-2" onClick={()=> navigate('/servers/'+ server.id)}>
                           <Server className="w-5 h-5" />
                           {server.name}
-                          ID: {server.id}
                         </CardTitle>
                         <div className="flex items-center gap-2">
                           <div className={`h-3 w-3 rounded-full ${server.status === 'online' ? 'bg-green-500' :
