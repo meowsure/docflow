@@ -41,20 +41,69 @@ interface AuthContextProps {
   logout: () => void;
   error: AuthError | null;
   loading: boolean;
+  isDemoMode: boolean;
+  demoLogin: (demoUser?: User) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+
+// Демо-пользователь по умолчанию
+const DEFAULT_DEMO_USER: User = {
+  id: 1,
+  telegram_id: 123456789,
+  username: "demo_user",
+  first_name: "Демо",
+  last_name: "Пользователь",
+  full_name: "Демо Пользователь",
+  photo_url: "https://via.placeholder.com/150",
+  role: {
+    id: "1",
+    name: "user",
+    permissions: ["read", "write"],
+    permissions_codes: ["user.read", "user.write"]
+  }
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<AuthError | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
-  // Добавляем метод для обновления пользователя из локального контекста
-
+  // Демо-вход для разработки в браузере
+  const demoLogin = (demoUser?: User) => {
+    const userToLogin = demoUser || DEFAULT_DEMO_USER;
+    setUser(userToLogin);
+    setIsDemoMode(true);
+    setError(null);
+    setLoading(false);
+    
+    // Сохраняем в localStorage для сохранения состояния при перезагрузке
+    localStorage.setItem("demo_user", JSON.stringify(userToLogin));
+    localStorage.setItem("is_demo_mode", "true");
+    localStorage.removeItem("auth_error_code");
+  };
 
   useEffect(() => {
+    // Проверяем, есть ли сохраненная демо-сессия
+    const savedDemoMode = localStorage.getItem("is_demo_mode");
+    const savedDemoUser = localStorage.getItem("demo_user");
+    
+    if (savedDemoMode === "true" && savedDemoUser) {
+      try {
+        const demoUser = JSON.parse(savedDemoUser);
+        setUser(demoUser);
+        setIsDemoMode(true);
+        setLoading(false);
+        return; // Прерываем выполнение, т.к. используем демо-режим
+      } catch (e) {
+        console.error("Ошибка при восстановлении демо-сессии:", e);
+        localStorage.removeItem("is_demo_mode");
+        localStorage.removeItem("demo_user");
+      }
+    }
 
+    // Основная логика входа через Telegram (не изменена)
     const initAuth = async () => {
       setLoading(true);
       try {
@@ -80,26 +129,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           photo_url: tgUser.photo_url
         };
 
-        // Преобразуем в массив (если требуется именно массив объектов)
-        const userArray = [mappedUser]; // Теперь это массив с одним элементом
-
-        // Для отправки на бекенд используйте JSON-сериализацию
-        const jsonData = JSON.stringify(userArray);
-
         // Отправляем на сервер
         try {
-          const response = await api.post("/auth/telegram", { user: mappedUser, auth_date: Math.floor(new Date().getTime() / 1000) });
+          const response = await api.post("/auth/telegram", { 
+            user: mappedUser, 
+            auth_date: Math.floor(new Date().getTime() / 1000) 
+          });
 
           if (response.status === 200 && response.data) {
-            // const { token, user } = response.data;
             const { access_token, user } = response.data;
 
             // сохраняем токен для api.ts
             localStorage.setItem("auth_token", access_token);
             localStorage.setItem("user", JSON.stringify(user));
-            localStorage.setItem("auth_error_code", null);
+            localStorage.setItem("auth_error_code", "");
 
-            setLoading(false);
             setUser(user);
             setError(null);
           } else {
@@ -109,13 +153,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (apiError: any) {
           const errorData = apiError.response?.data;
 
-          // Устанавливаем ошибку как объект
           setError({
             code: errorData?.code,
             message: errorData?.message || apiError.message || "Ошибка авторизации"
           });
 
-          // Также сохраняем в localStorage для AppContent
           if (errorData?.code) {
             localStorage.setItem("auth_error_code", errorData.code);
           }
@@ -123,7 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (e: any) {
         setError({
           code: 'tg_not_data',
-          message: "Ошибка при получении launchParams: "
+          message: "Ошибка при получении launchParams: " + e.message
         });
       } finally {
         setLoading(false);
@@ -135,10 +177,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
+    setIsDemoMode(false);
+    
+    // Очищаем все данные аутентификации
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("auth_error_code");
+    localStorage.removeItem("demo_user");
+    localStorage.removeItem("is_demo_mode");
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, error, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      setUser, 
+      logout, 
+      error, 
+      loading,
+      isDemoMode,
+      demoLogin 
+    }}>
       {children}
     </AuthContext.Provider>
   );
