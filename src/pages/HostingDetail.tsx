@@ -37,34 +37,34 @@ const HostingDetail = () => {
   const [loading, setLoading] = useState(true);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isAddServerModalOpen, setIsAddServerModalOpen] = useState(false);
-  const { addServer } = useHostings();
+  const { deleteServer } = useHostings();
 
   const {
     deleteHosting
   } = useHostings();
 
   const fetchHosting = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get(`/hostings/${id}`);
+    try {
+      setLoading(true);
+      const response = await api.get(`/hostings/${id}`);
 
-        if (!response.data) {
-          throw new Error('Hosting not found');
-        }
-
-        const result = response.data.data;
-        setHosting(result);
-      } catch (error) {
-        console.error('Error fetching hosting:', error);
-        toast({
-          variant: "destructive",
-          title: "Ошибка",
-          description: "Не удалось загрузить данные хостинга",
-        });
-      } finally {
-        setLoading(false);
+      if (!response.data) {
+        throw new Error('Hosting not found');
       }
-    };
+
+      const result = response.data.data;
+      setHosting(result);
+    } catch (error) {
+      console.error('Error fetching hosting:', error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: "Не удалось загрузить данные хостинга",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -391,6 +391,10 @@ const HostingDetail = () => {
                             {server.status === 'online' ? 'Online' :
                               server.status === 'offline' ? 'Offline' : 'Maintenance'}
                           </Badge>
+                          <Button variant="outline" className="ms-2" onClick={() => deleteServer(server.id)}>
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Удалить
+                          </Button>
                         </div>
                       </div>
                       <CardDescription>IP: {server.ip}</CardDescription>
