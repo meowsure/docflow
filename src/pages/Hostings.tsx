@@ -12,7 +12,8 @@ import {
   Filter,
   Globe,
   Calendar,
-  Loader2
+  Loader2,
+  Info
 } from "lucide-react";
 import { useHostings, Hosting, Server as ServerType } from '@/hooks/useHostings'; // Переименовали тип
 import { useNavigate } from 'react-router-dom';
@@ -262,6 +263,10 @@ const Hostings = () => {
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
                   <span>Действует до: {formatDate(hosting.expiry_date)}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Info className="h-4 w-4" />
+                  <span>ID: {hosting.id}</span>
                 </div>
               </div>
 
