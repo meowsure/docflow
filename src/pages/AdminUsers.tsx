@@ -194,191 +194,190 @@ const AdminUsers = () => {
 
     if (loading && users.length === 0) {
         return (
-            <div className="min-h-screen bg-background">
-                <Header />
-                <div className="container mx-auto p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <Skeleton className="h-8 w-48 mb-2" />
-                            <Skeleton className="h-4 w-64" />
-                        </div>
-                        <Skeleton className="h-10 w-32" />
-                    </div>
 
-                    <div className="mb-6">
-                        <Skeleton className="h-10 w-full" />
+            <div className="container mx-auto p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <Skeleton className="h-8 w-48 mb-2" />
+                        <Skeleton className="h-4 w-64" />
                     </div>
-
-                    <Card>
-                        <CardHeader>
-                            <Skeleton className="h-6 w-48 mb-2" />
-                            <Skeleton className="h-4 w-64" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <Skeleton key={i} className="h-12 w-full" />
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <Skeleton className="h-10 w-32" />
                 </div>
+
+                <div className="mb-6">
+                    <Skeleton className="h-10 w-full" />
+                </div>
+
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-6 w-48 mb-2" />
+                        <Skeleton className="h-4 w-64" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <Skeleton key={i} className="h-12 w-full" />
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
+
         );
     }
 
     return (
 
-            <div className="container mx-auto p-6">
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="text-3xl font-bold">Управление пользователями</h1>
-                        <p className="text-muted-foreground">
-                            Управляйте пользователями и их ролями в системе
-                        </p>
-                    </div>
-                    <Button onClick={() => refetch()} variant="outline">
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Обновить
-                    </Button>
+        <div className="container mx-auto p-6">
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h1 className="text-3xl font-bold">Управление пользователями</h1>
+                    <p className="text-muted-foreground">
+                        Управляйте пользователями и их ролями в системе
+                    </p>
                 </div>
+                <Button onClick={() => refetch()} variant="outline">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Обновить
+                </Button>
+            </div>
 
-                <div className="mb-6">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Поиск пользователей по имени, email или username..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10"
-                        />
-                    </div>
+            <div className="mb-6">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Поиск пользователей по имени, email или username..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10"
+                    />
                 </div>
+            </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Пользователи системы</CardTitle>
-                        <CardDescription>
-                            Всего пользователей: {users.length}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Пользователь</TableHead>
-                                    <TableHead>Telegram</TableHead>
-                                    <TableHead>Роль</TableHead>
-                                    <TableHead>Дата регистрации</TableHead>
-                                    <TableHead className="w-[100px]">Действия</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredUsers.map((user) => (
-                                    <TableRow key={user.id}>
-                                        <TableCell>
-                                            <div className="flex items-center">
-                                                <Avatar className="w-8 h-8 me-3">
-                                                    <AvatarImage src={user.photo_url} alt={user.first_name} />
-                                                    <AvatarFallback>{user.first_name[0]}</AvatarFallback>
-                                                </Avatar>
-                                                <div>
-                                                    <div className="font-medium">{user.full_name}</div>
-                                                    <div className="text-sm text-muted-foreground">
-                                                        {user.email || "Email не указан"}
-                                                    </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Пользователи системы</CardTitle>
+                    <CardDescription>
+                        Всего пользователей: {users.length}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Пользователь</TableHead>
+                                <TableHead>Telegram</TableHead>
+                                <TableHead>Роль</TableHead>
+                                <TableHead>Дата регистрации</TableHead>
+                                <TableHead className="w-[100px]">Действия</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {filteredUsers.map((user) => (
+                                <TableRow key={user.id}>
+                                    <TableCell>
+                                        <div className="flex items-center">
+                                            <Avatar className="w-8 h-8 me-3">
+                                                <AvatarImage src={user.photo_url} alt={user.first_name} />
+                                                <AvatarFallback>{user.first_name[0]}</AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <div className="font-medium">{user.full_name}</div>
+                                                <div className="text-sm text-muted-foreground">
+                                                    {user.email || "Email не указан"}
                                                 </div>
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="text-sm">
-                                                <div>@{user.username || "не указан"}</div>
-                                                <div className="text-muted-foreground">
-                                                    ID: {user.telegram_id}
-                                                </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="text-sm">
+                                            <div>@{user.username || "не указан"}</div>
+                                            <div className="text-muted-foreground">
+                                                ID: {user.telegram_id}
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant={getRoleBadgeVariant(user.role?.name || "user")}
-                                            >
-                                                {getRoleLabel(user.role?.name || "user")}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            {user.created_at ? formatDate(user.created_at) : "Н/Д"}
-                                        </TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            variant={getRoleBadgeVariant(user.role?.name || "user")}
+                                        >
+                                            {getRoleLabel(user.role?.name || "user")}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        {user.created_at ? formatDate(user.created_at) : "Н/Д"}
+                                    </TableCell>
+                                    <TableCell>
+                                        <DropdownMenu>
 
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        className="h-8 w-8 p-0"
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    className="h-8 w-8 p-0"
+                                                    disabled={isUpdating[user.id]}
+                                                >
+                                                    {isUpdating[user.id] ? (
+                                                        <RefreshCw className="h-4 w-4 animate-spin" />
+                                                    ) : (
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    )}
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                {/* Добавьте проверку длины массива */}
+                                                {availableRoles?.length > 0 ? (
+                                                    availableRoles.map((role) => (
+                                                        <DropdownMenuItem
+                                                            key={role.id}
+                                                            onClick={() => handleRoleChange(user.id, role.name)}
+                                                            disabled={user.role?.name === role.name || isUpdating[user.id]}
+                                                        >
+                                                            <Shield className="h-4 w-4 mr-2" />
+                                                            Сделать {getRoleLabel(role.name)}
+                                                        </DropdownMenuItem>
+                                                    ))
+                                                ) : null} {/* Явно возвращаем null если массив пуст */}
+                                                {/* Активация / деактивация пользователя */}
+                                                {currentUser.id !== user.id && currentUser?.role?.permissions_codes.includes('activate_user') && !user.isActive && (
+                                                    <DropdownMenuItem
+                                                        onClick={() => activateUser(user.id)}
                                                         disabled={isUpdating[user.id]}
                                                     >
-                                                        {isUpdating[user.id] ? (
-                                                            <RefreshCw className="h-4 w-4 animate-spin" />
-                                                        ) : (
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        )}
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    {/* Добавьте проверку длины массива */}
-                                                    {availableRoles?.length > 0 ? (
-                                                        availableRoles.map((role) => (
-                                                            <DropdownMenuItem
-                                                                key={role.id}
-                                                                onClick={() => handleRoleChange(user.id, role.name)}
-                                                                disabled={user.role?.name === role.name || isUpdating[user.id]}
-                                                            >
-                                                                <Shield className="h-4 w-4 mr-2" />
-                                                                Сделать {getRoleLabel(role.name)}
-                                                            </DropdownMenuItem>
-                                                        ))
-                                                    ) : null} {/* Явно возвращаем null если массив пуст */}
-                                                    {/* Активация / деактивация пользователя */}
-                                                    {currentUser.id !== user.id && currentUser?.role?.permissions_codes.includes('activate_user') && !user.isActive && (
-                                                        <DropdownMenuItem
-                                                            onClick={() => activateUser(user.id)}
-                                                            disabled={isUpdating[user.id]}
-                                                        >
-                                                            <CheckCircle className="h-4 w-4 mr-2" />
-                                                            Активировать аккаунт
-                                                        </DropdownMenuItem>
-                                                    )}
-                                                    {currentUser.id !== user.id && currentUser?.role?.permissions_codes.includes('deactivate_user') && user.isActive && (
-                                                        <DropdownMenuItem
-                                                            onClick={() => deactivateUser(user.id)}
-                                                            disabled={isUpdating[user.id]}
-                                                        >
-                                                            <XCircle className="h-4 w-4 mr-2" />
-                                                            Деактивировать аккаунт
-                                                        </DropdownMenuItem>
-                                                    )}
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                                        Активировать аккаунт
+                                                    </DropdownMenuItem>
+                                                )}
+                                                {currentUser.id !== user.id && currentUser?.role?.permissions_codes.includes('deactivate_user') && user.isActive && (
+                                                    <DropdownMenuItem
+                                                        onClick={() => deactivateUser(user.id)}
+                                                        disabled={isUpdating[user.id]}
+                                                    >
+                                                        <XCircle className="h-4 w-4 mr-2" />
+                                                        Деактивировать аккаунт
+                                                    </DropdownMenuItem>
+                                                )}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
+            {filteredUsers.length === 0 && (
+                <Card>
+                    <CardContent className="p-8 text-center">
+                        <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium mb-2">Пользователи не найдены</h3>
+                        <p className="text-muted-foreground">
+                            Попробуйте изменить поисковый запрос
+                        </p>
                     </CardContent>
                 </Card>
-
-                {filteredUsers.length === 0 && (
-                    <Card>
-                        <CardContent className="p-8 text-center">
-                            <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                            <h3 className="text-lg font-medium mb-2">Пользователи не найдены</h3>
-                            <p className="text-muted-foreground">
-                                Попробуйте изменить поисковый запрос
-                            </p>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
+            )}
+        </div>
     );
 };
 
