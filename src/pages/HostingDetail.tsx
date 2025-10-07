@@ -546,7 +546,7 @@ const HostingDetail = () => {
                 <Shield className="w-4 h-4 mr-2" />
                 Сменить пароль
               </Button>
-              <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => setIsAddDomainModalOpen(true)}>
+              <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => setisAddDomainModalOpen(true)}>
                 <Globe className="w-4 h-4 mr-2" />
                 Добавить домен
               </Button>
