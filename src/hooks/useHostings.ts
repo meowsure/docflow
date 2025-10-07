@@ -135,7 +135,7 @@ export const useHostings = () => {
       const result = response.data.data || response.data;
 
       toast({
-        title: "Открыт хостинг "+ id,
+        title: "Открыт хостинг " + id,
         description: "Данные хостинга успешно получены",
       });
 
@@ -293,6 +293,29 @@ export const useHostings = () => {
       setLoading(false);
     }
   }, []);
+
+  const fetchServer = useCallback(async (serverId: string): Promise<Server> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await api.get(`/servers/${serverId}`);
+      const result = response.data.data || response.data;
+      return result;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Ошибка при загрузке сервера';
+      setError(errorMessage);
+
+      toast({
+        title: "Ошибка загрузки сервера",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
 
   // Добавить сервер к хостингу
   const addServer = useCallback(async (hostingId: string, serverData: Omit<Server, 'id' | 'hosting_id'>): Promise<Server> => {

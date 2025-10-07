@@ -73,6 +73,7 @@ const AppContent = () => {
           <Route path="/logs" element={<Logs />} />
           <Route path="/hostings" element={<Hostings />} />
           <Route path="/hostings/:id" element={<HostingDetail />} />
+          <Route path="/servers/:id" element={<ServerDetail />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/roles" element={<AdminRoles />} />
           <Route path="/admin/notifications" element={<AdminNotifications />} />
