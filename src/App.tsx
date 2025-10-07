@@ -49,6 +49,10 @@ const AppContent = () => {
     }
   }
 
+  if(!user){
+    return <TelegramAuth/>
+  }
+
   return (
     <div className="flex min-h-screen bg-background">
       <Navigation />
