@@ -50,6 +50,7 @@ export interface Hosting extends HostingFormData {
   updated_at: string;
   servers?: Server[];
   domains?: Domain[];
+  stats?: [];
 }
 
 export interface Server {

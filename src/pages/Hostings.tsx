@@ -276,7 +276,7 @@ const Hostings = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">Серверы:</span>
                   <span className="text-muted-foreground">
-                    {hosting.servers?.length || 0} шт.
+                    {hosting.stats?.servers_count || 0} шт.
                   </span>
                 </div>
                 {hosting.servers?.slice(0, 2).map(server => (
@@ -290,9 +290,9 @@ const Hostings = () => {
                       }`} />
                   </div>
                 ))}
-                {(hosting.servers?.length || 0) > 2 && (
+                {(hosting.stats?.servers_count || 0) > 2 && (
                   <div className="text-xs text-muted-foreground text-center">
-                    +{(hosting.servers?.length || 0) - 2} еще
+                    +{(hosting.stats?.servers_count|| 0) - 2} еще
                   </div>
                 )}
               </div>
@@ -302,7 +302,7 @@ const Hostings = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">Домены:</span>
                   <span className="text-muted-foreground">
-                    {hosting.domains?.length || 0} шт.
+                    {hosting.stats?.domains_count || 0} шт.
                   </span>
                 </div>
                 {hosting.domains?.slice(0, 2).map(domain => (
@@ -313,9 +313,9 @@ const Hostings = () => {
                     </span>
                   </div>
                 ))}
-                {(hosting.domains?.length || 0) > 2 && (
+                {(hosting.stats?.domains_count || 0) > 2 && (
                   <div className="text-xs text-muted-foreground text-center">
-                    +{(hosting.domains?.length || 0) - 2} еще
+                    +{(hosting.stats?.domains_count|| 0) - 2} еще
                   </div>
                 )}
               </div>
