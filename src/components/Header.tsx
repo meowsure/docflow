@@ -63,7 +63,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="border-b bg-card shadow-sm lg:hidden">
+    <header className="border-b bg-card shadow-sm lg:hidden w-full">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Лого */}
