@@ -48,9 +48,15 @@ const AppContent = () => {
     return <NotActivated />;
   }
 
-  if (!user) {
+  if (launchParams) {
+    if (!user) {
+      return <TelegramAuth />;
+    }
+  }else{
     return <TelegramAuth />;
   }
+
+
 
   return (
     <div className="flex min-h-screen bg-background">
