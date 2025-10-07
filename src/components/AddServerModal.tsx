@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Server, X, Save, Server as ServerIcon } from "lucide-react";
+import { useHostings } from "@/hooks/useHostings";
 
 interface AddServerModalProps {
   open: boolean;
@@ -124,6 +125,8 @@ export const AddServerModal = ({
     });
   };
 
+  const { addServer } = useHostings();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -145,7 +148,6 @@ export const AddServerModal = ({
 
     try {
       // Импортируем хук useHostings
-      const { addServer } = await import('@/hooks/useHostings');
       
       // Вызываем метод добавления сервера
       const newServer = await addServer(hostingId, formData);
