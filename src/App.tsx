@@ -26,6 +26,7 @@ import NotActivated from "./components/NotActivated";
 import AdminNotifications from "./pages/AdminNotification";
 import Hostings from "./pages/Hostings";
 import HostingDetail from "./pages/HostingDetail";
+import ServerDetail from "./pages/ServerDetail";
 import Navigation from "./components/Header";
 import { isTMA } from "@tma.js/bridge";
 
