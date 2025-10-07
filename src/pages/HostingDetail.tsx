@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useHostings, Hosting, Server as ServerType, Domain, EmailAccount } from '@/hooks/useHostings';
 import { useToast } from "@/hooks/use-toast";
+import { AddServerModal } from '@/components/AddServerModal';
 import api from '@/api';
 
 const HostingDetail = () => {
@@ -35,13 +36,14 @@ const HostingDetail = () => {
   const [hosting, setHosting] = useState<Hosting | null>(null);
   const [loading, setLoading] = useState(true);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isAddServerModalOpen, setIsAddServerModalOpen] = useState(false);
+  const { addServer } = useHostings();
 
   const {
     deleteHosting
   } = useHostings();
 
-  useEffect(() => {
-    const fetchHosting = async () => {
+  const fetchHosting = async () => {
       try {
         setLoading(true);
         const response = await api.get(`/hostings/${id}`);
@@ -64,6 +66,7 @@ const HostingDetail = () => {
       }
     };
 
+  useEffect(() => {
     if (id) {
       fetchHosting();
     }
@@ -140,6 +143,11 @@ const HostingDetail = () => {
       case 'pending': return 'Ожидание';
       default: return status;
     }
+  };
+
+  const handleServerAdded = (newServer: Server) => {
+    console.log('Новый сервер добавлен:', newServer);
+    fetchHosting();
   };
 
   const formatDate = (dateString: string) => {
@@ -536,6 +544,10 @@ const HostingDetail = () => {
                 <Globe className="w-4 h-4 mr-2" />
                 Добавить домен
               </Button>
+              <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => setIsAddServerModalOpen(true)}>
+                <Server className="w-4 h-4 mr-2" />
+                Добавить сервер
+              </Button>
               <Button variant="outline" className="w-full justify-start" size="sm">
                 <Mail className="w-4 h-4 mr-2" />
                 Создать почту
@@ -575,6 +587,12 @@ const HostingDetail = () => {
           </Card>
         </div>
       </div>
+      <AddServerModal
+        open={isAddServerModalOpen}
+        onOpenChange={setIsAddServerModalOpen}
+        hostingId={hosting.id}
+        onServerAdded={handleServerAdded}
+      />
     </div>
   );
 };
