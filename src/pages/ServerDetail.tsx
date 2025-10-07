@@ -417,6 +417,7 @@ const ServerDetail = () => {
                 hostingId={server.hosting_id}
                 onOpenChange={setisAddDomainModalOpen}
                 onDomainAdded={handleServerAdded}
+                serverId={server.id}
             />
         </div>
     );
