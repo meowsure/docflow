@@ -20,6 +20,7 @@ import {
     Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AddDomainModal } from '@/components/AddDomainModal';
 import { useHostings, Domain, Server as Serv } from '@/hooks/useHostings';
 
 const ServerDetail = () => {
@@ -27,10 +28,13 @@ const ServerDetail = () => {
     const navigate = useNavigate();
     const { toast } = useToast();
     const { fetchServer } = useHostings();
+    const [isAddDomainModalOpen, setisAddDomainModalOpen] = useState(false);
 
     const [server, setServer] = useState<Serv | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+
 
     useEffect(() => {
         const loadServerData = async () => {
@@ -54,6 +58,10 @@ const ServerDetail = () => {
 
         loadServerData();
     }, [id, fetchServer, toast]);
+
+    const handleServerAdded = (newServer: Server) => {
+        console.log('Новый сервер добавлен:', newServer);
+    };
 
     const copyToClipboard = (text: string, fieldName: string) => {
         navigator.clipboard.writeText(text);
@@ -396,7 +404,7 @@ const ServerDetail = () => {
                                 <Network className="w-4 h-4 mr-2" />
                                 Проверить доступность
                             </Button>
-                            <Button variant="outline" className="w-full justify-start" size="sm">
+                            <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => setisAddDomainModalOpen(true)}>
                                 <Globe className="w-4 h-4 mr-2" />
                                 Добавить домен
                             </Button>
@@ -404,6 +412,12 @@ const ServerDetail = () => {
                     </Card>
                 </div>
             </div>
+            <AddDomainModal
+                open={isAddDomainModalOpen}
+                hostingId={server.hosting_id}
+                onOpenChange={setisAddDomainModalOpen}
+                onDomainAdded={handleServerAdded}
+            />
         </div>
     );
 };
