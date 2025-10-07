@@ -25,6 +25,7 @@ import { Server as ServerInter } from "@/hooks/useHostings";
 interface AddDomainModalProps {
   open: boolean;
   hostingId: string;
+  serverId?: string;
   onOpenChange: (open: boolean) => void;
   onDomainAdded: (domain: any) => void;
 }
@@ -33,6 +34,7 @@ export const AddDomainModal = ({
   open,
   onOpenChange,
   hostingId,
+  serverId,
   onDomainAdded
 }: AddDomainModalProps) => {
   const { toast } = useToast();
@@ -43,6 +45,12 @@ export const AddDomainModal = ({
 
   // Загружаем список серверов при открытии модального окна
   useEffect(() => {
+    if (serverId) {
+      setFormData(prev => ({
+        ...prev,
+        server_id: serverId
+      }));
+    }
     const loadServers = async () => {
       if (open) {
         try {
@@ -63,13 +71,13 @@ export const AddDomainModal = ({
     };
 
     loadServers();
-  }, [open, fetchAllServers, toast]);
+  }, [open, fetchAllServers, toast, serverId]);
 
   const [formData, setFormData] = useState<DomainFormData>({
     name: "",
     status: "active",
     expiry_date: "",
-    server_id: "",
+    server_id: serverId || "",
   });
 
   const resetForm = () => {
