@@ -4,14 +4,13 @@ import { useToast } from '@/hooks/use-toast';
 import api from '@/api';
 
 export interface DomainFormData {
-  server_id: string;
   name: string;
   status?: 'active' | 'pending' | 'expired';
   expiry_date: string;
+  server_id: string;
 }
 
 export interface EmailAccountFormData {
-  server_id: string;
   email: string;
   quota: string;
   used?: string;
@@ -277,6 +276,22 @@ export const useHostings = () => {
       setLoading(false);
     }
   }, [toast]);
+
+  const fetchAllServers = useCallback(async (): Promise<Server[]> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await api.get(`/servers`);
+      return response.data.data || response.data;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Ошибка при загрузке серверов';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Получить серверы хостинга
   const fetchServers = useCallback(async (hostingId: string): Promise<Server[]> => {
@@ -630,11 +645,17 @@ export const useHostings = () => {
     deleteHosting,
 
     // Серверы
+    fetchAllServers,
     fetchServers,
     fetchServer,
     addServer,
     updateServer,
     deleteServer,
+
+    // Домены
+    fetchDomains,
+    createDomain,
+    deleteDomain,
 
     // Совместимость со старым кодом
     createItem: createHosting,

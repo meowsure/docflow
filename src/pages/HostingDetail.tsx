@@ -26,6 +26,7 @@ import {
 import { useHostings, Hosting, Server as ServerType, Domain, EmailAccount } from '@/hooks/useHostings';
 import { useToast } from "@/hooks/use-toast";
 import { AddServerModal } from '@/components/AddServerModal';
+import { AddDomainModal } from '@/components/AddDomainModal';
 import api from '@/api';
 
 const HostingDetail = () => {
@@ -37,6 +38,7 @@ const HostingDetail = () => {
   const [loading, setLoading] = useState(true);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isAddServerModalOpen, setIsAddServerModalOpen] = useState(false);
+  const [isAddDomainModalOpen, setisAddDomainModalOpen] = useState(false);
   const { deleteServer } = useHostings();
 
   const {
@@ -544,7 +546,7 @@ const HostingDetail = () => {
                 <Shield className="w-4 h-4 mr-2" />
                 Сменить пароль
               </Button>
-              <Button variant="outline" className="w-full justify-start" size="sm">
+              <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => setIsAddDomainModalOpen(true)}>
                 <Globe className="w-4 h-4 mr-2" />
                 Добавить домен
               </Button>
@@ -596,6 +598,12 @@ const HostingDetail = () => {
         onOpenChange={setIsAddServerModalOpen}
         hostingId={hosting.id}
         onServerAdded={handleServerAdded}
+      />
+      <AddDomainModal
+        open={isAddDomainModalOpen}
+        hostingId={hosting.id}
+        onOpenChange={setisAddDomainModalOpen}
+        onDomainAdded={handleServerAdded}
       />
     </div>
   );

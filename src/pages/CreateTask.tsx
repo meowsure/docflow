@@ -140,8 +140,6 @@ const CreateTask = () => {
   };
 
   return (
-
-
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <Button variant="ghost" className="mb-4" onClick={() => navigate('/')}>
