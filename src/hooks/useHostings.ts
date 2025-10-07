@@ -125,6 +125,35 @@ export const useHostings = () => {
     }
   }, [toast]);
 
+  const fetchHosting = useCallback(async (id: string): Promise<Hosting> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await api.get(`/hostings/${id}`);
+      const result = response.data.data || response.data;
+
+      toast({
+        title: "Открыт хостинг "+ id,
+        description: "Данные хостинга успешно получены",
+      });
+
+      return result;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Ошибка при получении хостинга';
+      setError(errorMessage);
+
+      toast({
+        title: "Ошибка получения",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
   // Получить статистику хостингов
   const fetchStats = useCallback(async (): Promise<HostingStats> => {
     setLoading(true);
@@ -569,6 +598,7 @@ export const useHostings = () => {
 
     // Хостинги
     fetchHostings,
+    fetchHosting,
     fetchStats,
     createHosting,
     updateHosting,

@@ -50,7 +50,7 @@ const HostingDetail = () => {
           throw new Error('Hosting not found');
         }
 
-        const result = response.data;
+        const result = response.data.data;
         setHosting(result);
       } catch (error) {
         console.error('Error fetching hosting:', error);
