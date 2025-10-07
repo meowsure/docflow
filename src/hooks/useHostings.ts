@@ -630,6 +630,7 @@ export const useHostings = () => {
 
     // Серверы
     fetchServers,
+    fetchServer,
     addServer,
     updateServer,
     deleteServer,

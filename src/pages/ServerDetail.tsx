@@ -19,10 +19,9 @@ import {
   Edit,
   Trash2,
   Loader2
-} from "lucicon-react";
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useHostings } from '@/hooks/useHostings';
-import { Domain, Server } from '@/types/hosting';
+import { useHostings, Domain, Server as Serv } from '@/hooks/useHostings';
 
 const ServerDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,7 +29,7 @@ const ServerDetail = () => {
   const { toast } = useToast();
   const { fetchServer } = useHostings();
   
-  const [server, setServer] = useState<Server | null>(null);
+  const [server, setServer] = useState<Serv | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
