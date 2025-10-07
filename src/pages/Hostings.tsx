@@ -13,7 +13,8 @@ import {
   Globe,
   Calendar,
   Loader2,
-  Info
+  Info,
+  Globe2
 } from "lucide-react";
 import { useHostings, Hosting, Server as ServerType } from '@/hooks/useHostings'; // Переименовали тип
 import { useNavigate } from 'react-router-dom';
@@ -292,6 +293,29 @@ const Hostings = () => {
                 {(hosting.servers?.length || 0) > 2 && (
                   <div className="text-xs text-muted-foreground text-center">
                     +{(hosting.servers?.length || 0) - 2} еще
+                  </div>
+                )}
+              </div>
+
+              {/* Домены */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">Домены:</span>
+                  <span className="text-muted-foreground">
+                    {hosting.domains?.length || 0} шт.
+                  </span>
+                </div>
+                {hosting.domains?.slice(0, 2).map(domain => (
+                  <div key={domain.id} className="flex items-center gap-2 text-sm bg-muted/30 p-2 rounded">
+                    <Globe className="h-3 w-3 text-muted-foreground" />
+                    <span className="truncate flex-1" title={domain.name}>
+                      {domain.name}
+                    </span>
+                  </div>
+                ))}
+                {(hosting.domains?.length || 0) > 2 && (
+                  <div className="text-xs text-muted-foreground text-center">
+                    +{(hosting.domains?.length || 0) - 2} еще
                   </div>
                 )}
               </div>
