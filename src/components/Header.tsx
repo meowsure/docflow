@@ -54,10 +54,10 @@ const Header = () => {
       icon: Settings,
       requiredPermission: "admin_access",
       items: [
-        { path: "/logs", label: "Логи", icon: Database },
-        { path: "/admin/users", label: "Пользователи", icon: User },
-        { path: "/admin/roles", label: "Роли", icon: Group },
-        { path: "/admin/notifications", label: "Уведомления", icon: BellRing },
+        { path: "/logs", label: "Логи", icon: Database, requiredPermission: 'view_logs' },
+        { path: "/admin/users", label: "Пользователи", icon: User, requiredPermission: 'manage_users' },
+        { path: "/admin/roles", label: "Роли", icon: Group, requiredPermission: 'manage_roles' },
+        { path: "/admin/notifications", label: "Уведомления", icon: BellRing, requiredPermission: 'notify_all' },
       ],
     },
   ];
@@ -272,10 +272,10 @@ const Sidebar = () => {
       icon: Settings,
       requiredPermission: "admin_access",
       items: [
-        { path: "/logs", label: "Логи", icon: Database },
-        { path: "/admin/users", label: "Пользователи", icon: User },
-        { path: "/admin/roles", label: "Роли", icon: Group },
-        { path: "/admin/notifications", label: "Уведомления", icon: BellRing },
+        { path: "/logs", label: "Логи", icon: Database, requiredPermission: 'view_logs' },
+        { path: "/admin/users", label: "Пользователи", icon: User, requiredPermission: 'manage_users' },
+        { path: "/admin/roles", label: "Роли", icon: Group, requiredPermission: 'manage_roles' },
+        { path: "/admin/notifications", label: "Уведомления", icon: BellRing, requiredPermission: 'notify_all' },
       ],
     },
   ];
