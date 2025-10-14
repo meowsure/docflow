@@ -76,8 +76,7 @@ const TaskDetail = () => {
 
   if (!task) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+
         <div className="container mx-auto px-4 py-8 text-center">
           <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h1 className="text-2xl font-bold mb-2">Задача не найдена</h1>
@@ -87,7 +86,6 @@ const TaskDetail = () => {
             Вернуться к задачам
           </Button>
         </div>
-      </div>
     );
   }
 
