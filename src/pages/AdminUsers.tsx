@@ -338,7 +338,7 @@ const AdminUsers = () => {
                                                 {/* Активация / деактивация пользователя */}
                                                 {currentUser.id !== user.id && currentUser?.role?.permissions_codes.includes('activate_user') && !user.isActive && (
                                                     <DropdownMenuItem
-                                                        onClick={() => activateUser(user.id)}
+                                                        onClick={() => activateUser(String(user.id))}
                                                         disabled={isUpdating[user.id]}
                                                     >
                                                         <CheckCircle className="h-4 w-4 mr-2" />
