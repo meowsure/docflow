@@ -452,7 +452,7 @@ const TaskDetail = () => {
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             {getFileIcon(getFileExtension().toLowerCase())}
                             <div className="min-w-0 flex-1">
-                              <h3 className="font-medium truncate">{getFileName(file.path)}</h3>
+                              <h3 className="font-medium truncate">{file.name ?? 'Файл'}</h3>
                               <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
                                 <span>{formatFileSize(file.size)}</span>
                                 <span>•</span>

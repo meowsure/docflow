@@ -9,6 +9,7 @@ export interface TaskFile {
   entity_id: string | null;
   path: string;
   mime: string;
+  name: string;
   size: number | null;
   created_at: string;
   updated_at: string;

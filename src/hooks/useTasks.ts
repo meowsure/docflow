@@ -38,7 +38,7 @@ export interface TaskFile {
   size: number | null;
   created_at: string;
   updated_at: string;
-  file_name?: string;
+  name?: string;
 }
 
 export interface PaginationMeta {
