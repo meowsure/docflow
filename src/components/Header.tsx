@@ -22,7 +22,7 @@ const Header = () => {
       icon: File,
       items: [
         { path: "/tasks", label: "Мои задачи", icon: List },
-        { path: "/create-task", label: "Создать задачу", icon: Send, requiredPermission: "create_task" },
+        { path: "/create-task", label: "Отправить документы", icon: Send, requiredPermission: "create_task" },
         { path: "/files", label: "Файлы", icon: Folder, requiredPermission: "view_files" },
       ],
     },
@@ -240,7 +240,7 @@ const Sidebar = () => {
       icon: File,
       items: [
         { path: "/tasks", label: "Мои задачи", icon: List },
-        { path: "/create-task", label: "Создать задачу", icon: Send, requiredPermission: "create_task" },
+        { path: "/create-task", label: "Отправить документы", icon: Send, requiredPermission: "create_task" },
         { path: "/files", label: "Файлы", icon: Folder, requiredPermission: "view_files" },
       ],
     },
