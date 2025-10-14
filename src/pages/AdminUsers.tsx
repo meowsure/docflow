@@ -74,9 +74,7 @@ const AdminUsers = () => {
     );
 
     const activateUser = async (userId: string) => {
-        if (!confirm("Вы уверены, что хотите активировать этого пользователя?")) {
-            return;
-        }
+
         setIsUpdating((prev) => ({ ...prev, [userId]: true }));
         try {
             const response = await api.put(`/users/${userId}/activate`);
