@@ -73,6 +73,8 @@ const AdminUsers = () => {
             user.role?.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const safeRoles = Array.isArray(availableRoles) ? availableRoles : [];
+
     const activateUser = async (userId: string) => {
 
         setIsUpdating((prev) => ({ ...prev, [userId]: true }));
@@ -323,18 +325,16 @@ const AdminUsers = () => {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 {/* Добавьте проверку длины массива */}
-                                                {availableRoles?.length > 0 ? (
-                                                    availableRoles.map((role) => (
-                                                        <DropdownMenuItem
-                                                            key={role.id}
-                                                            onClick={() => handleRoleChange(user.id, role.name)}
-                                                            disabled={user.role?.name === role.name || isUpdating[user.id]}
-                                                        >
-                                                            <Shield className="h-4 w-4 mr-2" />
-                                                            Сделать {getRoleLabel(role.name)}
-                                                        </DropdownMenuItem>
-                                                    ))
-                                                ) : null} {/* Явно возвращаем null если массив пуст */}
+                                                {safeRoles.length > 0 && safeRoles.map((role) => (
+                                                    <DropdownMenuItem
+                                                        key={role.id}
+                                                        onClick={() => handleRoleChange(user.id, role.name)}
+                                                        disabled={user.role?.name === role.name || isUpdating[user.id]}
+                                                    >
+                                                        <Shield className="h-4 w-4 mr-2" />
+                                                        Сделать {getRoleLabel(role.name)}
+                                                    </DropdownMenuItem>
+                                                ))}{/* Явно возвращаем null если массив пуст */}
                                                 {/* Активация / деактивация пользователя */}
                                                 {currentUser.id !== user.id && currentUser?.role?.permissions_codes.includes('activate_user') && !user.isActive && (
                                                     <DropdownMenuItem
