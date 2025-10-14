@@ -454,8 +454,6 @@ const TaskDetail = () => {
                                 <span>{formatFileSize(file.size)}</span>
                                 <span>•</span>
                                 <span>{formatDate(file.created_at)}</span>
-                                <span>•</span>
-                                <span>{getFileExtension()}</span>
                               </div>
                             </div>
                           </div>
