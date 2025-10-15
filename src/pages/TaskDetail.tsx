@@ -198,7 +198,7 @@ const TaskDetail = () => {
                   Редактировать
                 </Button>
               )}
-              {currentUser.id === task.creator.id && (currentUser.role.name == "Администратор" || currentUser.role.permissions_codes.includes('delete_tasks')) && (
+              {currentUser.id === task.creator.id && (currentUser.role.permissions_codes.includes('delete_tasks')) && (
                 <Button
                   variant="outline"
                   size="sm"

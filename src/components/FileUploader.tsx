@@ -67,7 +67,7 @@ const FileUploader = ({ onFilesChange, maxFiles = 10, disabled = false }: FileUp
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
       'application/vnd.ms-excel': ['.xls'],
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'],
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.PNG'],
       'text/plain': ['.txt'],
       'application/zip': ['.zip'],
       'application/vnd.rar': ['.rar']
