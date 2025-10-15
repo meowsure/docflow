@@ -202,24 +202,36 @@ const Header = () => {
               <span>Главная</span>
             </Link>
 
-            {groupedNav.map((group) => (
-              <div key={group.label} className="border-t pt-2">
-                <span className="text-sm font-semibold px-2">{group.label}</span>
-                <div className="flex flex-col mt-1 space-y-1">
-                  {group.items.map((item) => (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className="flex items-center space-x-2 px-4 py-2 rounded hover:bg-muted"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.label}</span>
-                    </Link>
-                  ))}
+            {groupedNav.map((group) => {
+              if (group.requiredPermission && !user.role.permissions_codes.includes(group.requiredPermission)) {
+                return null;
+              }
+
+              return (
+                <div key={group.label} className="border-t pt-2">
+                  <span className="text-sm font-semibold px-2">{group.label}</span>
+                  <div className="flex flex-col mt-1 space-y-1">
+                    {group.items.map((item) => {
+                      if (item.requiredPermission && !user.role.permissions_codes.includes(item.requiredPermission)) {
+                        return null;
+                      }
+
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          className="flex items-center space-x-2 px-4 py-2 rounded hover:bg-muted"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <item.icon className="w-4 h-4" />
+                          <span>{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </nav>
         )}
       </div>
@@ -238,6 +250,7 @@ const Sidebar = () => {
     {
       label: "Документооборот",
       icon: File,
+      requiredPermission: "create_task",
       items: [
         { path: "/tasks", label: "Мои задачи", icon: List },
         { path: "/create-task", label: "Отправить документы", icon: Send, requiredPermission: "create_task" },
@@ -324,8 +337,8 @@ const Sidebar = () => {
           to="/"
           className={cn(
             "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
-            isActive("/") 
-              ? "bg-primary text-primary-foreground" 
+            isActive("/")
+              ? "bg-primary text-primary-foreground"
               : "hover:bg-muted"
           )}
         >
